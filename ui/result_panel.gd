@@ -23,6 +23,9 @@ func _ready() -> void:
 	_retry = UiStyle.primary_button(&"BUTTON_RETRY")
 	_retry.name = "Retry"
 	_retry.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
+	# Nút lớn ra theo chữ thì lớn về phía trong màn hình.
+	_retry.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_retry.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_retry.pressed.connect(retry_requested.emit)
 	add_child(_retry)
 	visible = false
@@ -31,6 +34,10 @@ func _ready() -> void:
 func show_result(won: bool) -> void:
 	_title.text = tr(&"RESULT_WIN") if won else tr(&"RESULT_LOSE")
 	visible = true
+
+
+func retry_button() -> Button:
+	return _retry
 
 
 func title_text() -> String:

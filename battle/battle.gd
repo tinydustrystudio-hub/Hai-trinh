@@ -65,7 +65,7 @@ func step(delta: float) -> void:
 	if is_over():
 		return
 	enemy_pool.advance(delta)
-	island.rotation_degrees.x = -buoyancy.tilt_degrees()
+	island.set_tilt(buoyancy.tilt_degrees())
 
 
 func start_battle() -> void:
