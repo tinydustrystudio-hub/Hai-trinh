@@ -1,5 +1,61 @@
 extends Node
-## Autoload Settings: cài đặt người chơi dùng chung giữa các màn (chất lượng nước, tốc độ, âm lượng).
+## Autoload Settings: cài đặt người chơi dùng chung giữa các màn (chất lượng nước, tốc độ, âm lượng),
+## và cờ khởi chạy cho bản thử (bảng debug, cảnh thử 60 địch).
 ## Tháng 1 chưa lưu xuống đĩa; các bước sau thêm khi có màn Cài đặt.
 
-var water_quality: Ocean.Quality = Ocean.Quality.HIGH
+signal water_quality_changed(quality: Ocean.Quality)
+
+var water_quality: Ocean.Quality = Ocean.Quality.HIGH:
+	set(value):
+		if water_quality == value:
+			return
+		water_quality = value
+		water_quality_changed.emit(value)
+## Tự hạ chất lượng nước khi khung hình thấp kéo dài.
+var auto_lower_quality: bool = true
+
+var _watch: FrameRateWatch = FrameRateWatch.new()
+var _last_usec: int = 0
+var _web_query: String = ""
+
+
+func _ready() -> void:
+	if OS.has_feature("web"):
+		var query: Variant = JavaScriptBridge.eval("window.location.search", true)
+		_web_query = str(query) if query != null else ""
+	# Máy không có màn hình (CI, test) thì khung/giây vô nghĩa.
+	if DisplayServer.get_name() == "headless":
+		auto_lower_quality = false
+
+
+func _process(_delta: float) -> void:
+	var now: int = Time.get_ticks_usec()
+	var real_delta: float = 0.0 if _last_usec == 0 else float(now - _last_usec) / 1_000_000.0
+	_last_usec = now
+	if not auto_lower_quality or water_quality == Ocean.Quality.LOW:
+		return
+	if _watch.update(Engine.get_frames_per_second(), real_delta):
+		print("Settings: khung hình dưới 30 liên tục 5 giây, hạ chất lượng nước xuống thấp")
+		water_quality = Ocean.Quality.LOW
+
+
+## Cờ khởi chạy: "--<name>" trong tham số dòng lệnh (sau "--"), hoặc "<name>" trong query của trang web.
+func launch_flag(flag: String) -> bool:
+	if OS.get_cmdline_user_args().has("--" + flag):
+		return true
+	return has_query_flag(_web_query, flag)
+
+
+## Bảng debug có trong bản debug, hoặc bản web mở với ?debug.
+func debug_tools_enabled() -> bool:
+	return OS.is_debug_build() or launch_flag("debug") or launch_flag("stress")
+
+
+static func has_query_flag(query: String, flag: String) -> bool:
+	var trimmed: String = query.trim_prefix("?")
+	if trimmed.is_empty():
+		return false
+	for part: String in trimmed.split("&", false):
+		if part == flag or part.begins_with(flag + "="):
+			return true
+	return false

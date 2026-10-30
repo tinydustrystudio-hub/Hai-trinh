@@ -34,6 +34,7 @@ func _ready() -> void:
 	material_override = _material
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	set_quality(Settings.water_quality)
+	Settings.water_quality_changed.connect(set_quality)
 
 
 func set_quality(value: Quality) -> void:

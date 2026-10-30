@@ -3,6 +3,8 @@ extends Node
 ## Tháng 1 vào thẳng trận, chưa có menu.
 
 const BATTLE_SCENE: String = "res://battle/battle.tscn"
+## Mở thẳng cảnh thử 60 địch: tham số "-- --stress" hoặc trang web với ?stress.
+const STRESS_SCENE: String = "res://test_scenes/stress_test.tscn"
 
 @onready var _title: Label = $Title
 
@@ -15,4 +17,4 @@ func _ready() -> void:
 
 
 func _go_to_battle() -> void:
-	get_tree().change_scene_to_file(BATTLE_SCENE)
+	get_tree().change_scene_to_file(STRESS_SCENE if Settings.launch_flag("stress") else BATTLE_SCENE)

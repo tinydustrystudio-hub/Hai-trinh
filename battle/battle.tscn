@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://battle/battle.gd" id="1_battle"]
 [ext_resource type="PackedScene" path="res://battle/ocean/ocean.tscn" id="2_ocean"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://battle/buoyancy.gd" id="7_buoyancy"]
 [ext_resource type="Script" path="res://enemies/enemy_pool.gd" id="8_pool"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://ui/debug_overlay.tscn" id="10_debug"]
 
 [sub_resource type="Environment" id="Environment_sea"]
 background_mode = 1
@@ -54,3 +55,5 @@ script = ExtResource("7_buoyancy")
 script = ExtResource("8_pool")
 
 [node name="HUD" parent="." instance=ExtResource("9_hud")]
+
+[node name="DebugOverlay" parent="." instance=ExtResource("10_debug")]
