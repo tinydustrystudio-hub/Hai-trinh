@@ -20,6 +20,7 @@ run/max_fps=60
 [autoload]
 
 Settings="*res://core/settings.gd"
+Events="*res://core/events.gd"
 
 [display]
 
