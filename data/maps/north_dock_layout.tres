@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MapLayout" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/data/map_layout.gd" id="1_layout"]
+
+[resource]
+script = ExtResource("1_layout")
+id = &"north_dock"
+name_key = &"MAP_NORTH_DOCK"
+island_blocks = Array[AABB]([AABB(-22, -1, 6, 44, 2, 16), AABB(-3, -0.6, -2, 6, 1.2, 8), AABB(-22, 1, 6, 44, 0.5, 1), AABB(-26, -1, 10, 4, 1.6, 9), AABB(22, -1, 10, 4, 1.6, 9)])
+structure_blocks = Array[AABB]([AABB(-3, 1, 13, 6, 5, 5), AABB(-1, 6, 14.5, 2, 3, 2), AABB(-16, 1, 11, 5, 2.5, 4), AABB(10, 1, 10, 6, 2.5, 5), AABB(-10, 1, 16, 4, 2, 3)])
+pad_positions = PackedVector3Array(-6, 0, -8, 6, 0, -8, -10, 0, -20, 8, 0, -28, -8, 0, -38, 8, 0, -48, 20, 0, 2, 34, 0, -12, -20, 0, 2, -34, 0, -12)
+lane_name_keys = Array[StringName]([&"LANE_NORTH", &"LANE_EAST", &"LANE_WEST"])
+lane_points = Array[PackedVector3Array]([PackedVector3Array(0, 0, -68, -8, 0, -52, 6, 0, -38, -2, 0, -24, 0, 0, -12, 0, 0, -3), PackedVector3Array(72, 0, -26, 54, 0, -34, 38, 0, -24, 24, 0, -12, 9, 0, 5.5), PackedVector3Array(-72, 0, -26, -54, 0, -34, -38, 0, -24, -24, 0, -12, -9, 0, 5.5)])
+camera_bounds = Rect2(-48, -52, 96, 52)
+camera_start = Vector2(0, -12)
+camera_distance = 58.0
+camera_pitch_degrees = 55.0

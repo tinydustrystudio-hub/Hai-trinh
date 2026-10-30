@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://battle/battle.gd" id="1_battle"]
+[ext_resource type="PackedScene" path="res://battle/ocean/ocean.tscn" id="2_ocean"]
+[ext_resource type="PackedScene" path="res://battle/map/island.tscn" id="3_island"]
+[ext_resource type="Script" path="res://battle/battle_camera.gd" id="4_camera"]
+[ext_resource type="Script" path="res://battle/touch_input.gd" id="5_touch"]
+
+[sub_resource type="Environment" id="Environment_sea"]
+background_mode = 1
+background_color = Color(0.0, 0.36, 0.48, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.75, 0.85, 0.95, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 2
+
+[node name="Battle" type="Node3D"]
+script = ExtResource("1_battle")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_sea")
+
+[node name="Ocean" parent="." instance=ExtResource("2_ocean")]
+
+[node name="Island" parent="." instance=ExtResource("3_island")]
+
+[node name="Lanes" type="Node3D" parent="."]
+
+[node name="BattleCamera" type="Camera3D" parent="."]
+current = true
+script = ExtResource("4_camera")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.819152, 0, -0.573576, -0.469846, 0.573576, -0.67101, 0.32899, 0.819152, 0.469846, 0, 20, 0)
+light_energy = 1.1
+shadow_enabled = false
+
+[node name="Systems" type="Node" parent="."]
+
+[node name="TouchInput" type="Node" parent="Systems"]
+script = ExtResource("5_touch")

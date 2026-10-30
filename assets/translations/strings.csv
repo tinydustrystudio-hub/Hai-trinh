@@ -1,2 +1,6 @@
 keys,vi,en
 GAME_TITLE,Hải Trình,Hải Trình
+MAP_NORTH_DOCK,"Bến Bắc, Mũi Neo","North Dock, Anchorpoint"
+LANE_NORTH,Luồng Bắc,North lane
+LANE_EAST,Luồng Đông,East lane
+LANE_WEST,Luồng Tây,West lane
