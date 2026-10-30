@@ -36,14 +36,14 @@ func _ready() -> void:
 	_build_bars()
 
 
-## Lấy một địch từ pool và đặt ở đầu luồng. Hết chỗ thì trả null.
-func acquire(data: EnemyData, lane: Lane) -> Enemy:
+## Lấy một địch từ pool và đặt trên luồng (mặc định ở đầu luồng). Hết chỗ thì trả null.
+func acquire(data: EnemyData, lane: Lane, start_distance: float = 0.0) -> Enemy:
 	if _free.is_empty():
 		push_warning("EnemyPool: hết %d chỗ" % POOL_SIZE)
 		return null
 	var enemy: Enemy = _free.pop_back()
 	var offset: float = _rng.randf_range(-LATERAL_SPREAD, LATERAL_SPREAD)
-	enemy.spawn(data, lane, offset, _rng.randf_range(0.0, TAU))
+	enemy.spawn(data, lane, offset, _rng.randf_range(0.0, TAU), start_distance)
 	active.append(enemy)
 	return enemy
 
@@ -55,6 +55,11 @@ func release(enemy: Enemy) -> void:
 	active.remove_at(index)
 	enemy.despawn()
 	_free.append(enemy)
+
+
+## Số ngẫu nhiên dùng chung cho các việc sinh địch (giữ cố định hạt giống để chạy lại giống nhau).
+func rng() -> RandomNumberGenerator:
+	return _rng
 
 
 func active_count() -> int:

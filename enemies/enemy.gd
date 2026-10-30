@@ -16,6 +16,8 @@ var active: bool = false
 var lateral_offset: float = 0.0
 ## Hệ số tốc độ do hiệu ứng (làm chậm ở bước 8). 1 = tốc độ gốc.
 var speed_multiplier: float = 1.0
+## Địch do WaveSpawner sinh (tính vào việc dọn sạch đợt); địch sinh từ bảng debug thì không.
+var counts_for_wave: bool = false
 
 var _body: MeshInstance3D
 var _bob_phase: float = 0.0
@@ -32,13 +34,14 @@ func _init() -> void:
 
 
 ## Đưa địch vào trận ở đầu luồng.
-func spawn(enemy_data: EnemyData, on_lane: Lane, offset: float, bob_phase: float) -> void:
+func spawn(enemy_data: EnemyData, on_lane: Lane, offset: float, bob_phase: float, start_distance: float = 0.0) -> void:
 	data = enemy_data
 	lane = on_lane
-	distance = 0.0
+	distance = clampf(start_distance, 0.0, on_lane.length())
 	health = enemy_data.max_health
 	lateral_offset = offset
 	speed_multiplier = 1.0
+	counts_for_wave = false
 	_bob_phase = bob_phase
 	_body.mesh = EnemyMeshes.mesh_for(enemy_data)
 	active = true

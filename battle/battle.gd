@@ -10,6 +10,10 @@ const LANE_SCRIPT: GDScript = preload("res://battle/map/lane.gd")
 ## Chạm cách tâm bệ trong khoảng này (tính theo bán kính bệ) vẫn tính là chạm trúng bệ.
 const PAD_PICK_TOLERANCE: float = 1.4
 const FAST_SPEED: float = 2.0
+## Trần số địch cùng lúc (GDD mục 1.3, CLAUDE.md).
+const MAX_ACTIVE_ENEMIES: int = 60
+## Ở cảnh thử, địch mới xuất hiện rải trong đoạn đầu luồng này (tỉ lệ chiều dài luồng).
+const STRESS_SPREAD: float = 0.85
 
 @export var layout: MapLayout = preload("res://data/maps/north_dock_layout.tres")
 @export var wave_data: WaveData = preload("res://data/waves/north_dock_waves.tres")
@@ -19,6 +23,12 @@ var lanes: Array[Lane] = []
 var selected_pad: TowerPad = null
 var paused: bool = false
 var speed: float = 1.0
+## Cảnh thử hiệu năng: không có đợt, luôn giữ đủ MAX_ACTIVE_ENEMIES địch, đảo không chìm.
+var stress_mode: bool = false
+## Mili giây từ lúc chạy game tới lúc trận sẵn sàng (kế hoạch mục 7: không quá 3 giây).
+var ready_msec: int = 0
+
+var _enemy_types: Array[EnemyData] = []
 
 @onready var ocean: Ocean = $Ocean
 @onready var island: Island = $Island
@@ -49,7 +59,9 @@ func _ready() -> void:
 	Events.enemy_leaked.connect(_on_enemy_leaked)
 	Events.enemy_killed.connect(_on_enemy_killed)
 	hud.retry_requested.connect(retry)
+	_enemy_types = enemy_types_in(wave_data)
 	start_battle()
+	ready_msec = Time.get_ticks_msec()
 
 
 func _process(delta: float) -> void:
@@ -65,10 +77,13 @@ func step(delta: float) -> void:
 	if is_over():
 		return
 	enemy_pool.advance(delta)
+	if stress_mode:
+		spawn_burst(MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
 	island.set_tilt(buoyancy.tilt_degrees())
 
 
 func start_battle() -> void:
+	stress_mode = false
 	enemy_pool.clear()
 	select_pad(null)
 	buoyancy.reset(layout.starting_buoyancy)
@@ -77,6 +92,44 @@ func start_battle() -> void:
 	set_speed(1.0)
 	hud.hide_result()
 	spawner.start(wave_data)
+
+
+## Chuyển sang cảnh thử hiệu năng.
+func enter_stress_mode() -> void:
+	stress_mode = true
+	spawner.stop()
+	buoyancy.reset(1_000_000)
+	state = State.FIGHTING
+	spawn_burst(MAX_ACTIVE_ENEMIES)
+
+
+## Sinh thêm tối đa count địch (không vượt MAX_ACTIVE_ENEMIES), loại và luồng ngẫu nhiên,
+## rải dọc luồng. Trả số địch đã sinh. Dùng cho bảng debug và cảnh thử.
+func spawn_burst(count: int) -> int:
+	var room: int = mini(count, MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
+	if room <= 0 or _enemy_types.is_empty() or lanes.is_empty():
+		return 0
+	var rng: RandomNumberGenerator = enemy_pool.rng()
+	var spawned: int = 0
+	for i: int in room:
+		var lane: Lane = lanes[rng.randi_range(0, lanes.size() - 1)]
+		var data: EnemyData = _enemy_types[rng.randi_range(0, _enemy_types.size() - 1)]
+		if enemy_pool.acquire(data, lane, rng.randf_range(0.0, lane.length() * STRESS_SPREAD)) == null:
+			break
+		spawned += 1
+	return spawned
+
+
+## Các loại địch xuất hiện trong dữ liệu đợt, không trùng.
+static func enemy_types_in(data: WaveData) -> Array[EnemyData]:
+	var result: Array[EnemyData] = []
+	if data == null:
+		return result
+	for wave: Wave in data.waves:
+		for group: SpawnGroup in wave.groups:
+			if group.enemy != null and not result.has(group.enemy):
+				result.append(group.enemy)
+	return result
 
 
 func is_over() -> bool:
@@ -139,8 +192,11 @@ func _apply_time_scale() -> void:
 
 
 func _on_spawn_requested(enemy: EnemyData, lane_index: int) -> void:
-	if enemy_pool.acquire(enemy, lanes[lane_index]) == null:
+	var spawned: Enemy = enemy_pool.acquire(enemy, lanes[lane_index])
+	if spawned == null:
 		spawner.notify_enemy_removed()
+	else:
+		spawned.counts_for_wave = true
 
 
 func _on_wave_started(index: int, total: int) -> void:
@@ -169,14 +225,18 @@ func _on_buoyancy_depleted() -> void:
 	_end_battle(false)
 
 
-func _on_enemy_leaked(_enemy: Enemy, damage: int) -> void:
-	spawner.notify_enemy_removed()
+func _on_enemy_leaked(enemy: Enemy, damage: int) -> void:
+	if enemy.counts_for_wave:
+		spawner.notify_enemy_removed()
+	if stress_mode:
+		return
 	if not is_over():
 		buoyancy.take_leak(damage)
 
 
-func _on_enemy_killed(_enemy: Enemy, _reward: int) -> void:
-	spawner.notify_enemy_removed()
+func _on_enemy_killed(enemy: Enemy, _reward: int) -> void:
+	if enemy.counts_for_wave:
+		spawner.notify_enemy_removed()
 
 
 func _on_tapped(screen_position: Vector2) -> void:

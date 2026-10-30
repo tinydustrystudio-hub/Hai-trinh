@@ -13,3 +13,18 @@ HUD_NEXT_WAVE,Đợt %d tới sau %d giây: %s,Wave %d in %d s: %s
 RESULT_WIN,Chiến thắng,Victory
 RESULT_LOSE,Đảo đã chìm,The island has sunk
 BUTTON_RETRY,Chơi lại,Retry
+DEBUG_TOGGLE,Đo,Perf
+DEBUG_SPAWN_60,Sinh 60 địch,Spawn 60 enemies
+DEBUG_WATER_HIGH,Nước: cao,Water: high
+DEBUG_WATER_LOW,Nước: thấp,Water: low
+DEBUG_STATS,"Khung/giây: %d
+Mỗi khung: %.1f ms (xử lý %.1f ms)
+Địch: %d
+Lệnh vẽ: %d
+Tam giác: %d
+Vào trận: %d ms","FPS: %d
+Frame: %.1f ms (process %.1f ms)
+Enemies: %d
+Draw calls: %d
+Triangles: %d
+Load: %d ms"
