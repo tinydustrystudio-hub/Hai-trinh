@@ -9,3 +9,4 @@
 - Giao diện: nút tối thiểu 120 px ở độ phân giải gốc; hành động chính ở góc dưới bên phải.
 - Chữ hiển thị qua tr() và bảng dịch CSV.
 - Mỗi việc là một nhánh và một PR; logic số phải có test GUT; CI phải xanh rồi mới gộp.
+- Sửa assets/translations/strings.csv thì phải chạy `godot --headless --import` và commit lại các file .translation đi kèm.

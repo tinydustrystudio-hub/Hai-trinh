@@ -1,0 +1,62 @@
+name: Cài Godot
+description: Tải Godot headless và các export template cần dùng từ bản phát hành chính thức, có cache.
+
+inputs:
+  version:
+    description: Phiên bản Godot, theo tên bản phát hành trên GitHub.
+    default: 4.5-stable
+  templates:
+    description: Các file trong templates/ của bộ export template cần giải nén, cách nhau bằng dấu cách.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Tính đường dẫn
+      id: paths
+      shell: bash
+      run: |
+        echo "bin=$HOME/godot-bin" >> "$GITHUB_OUTPUT"
+        echo "templates=$HOME/.local/share/godot/export_templates/${VERSION/-/.}" >> "$GITHUB_OUTPUT"
+        echo "key=godot-$VERSION-$(echo "$TEMPLATES" | sha1sum | cut -c1-12)" >> "$GITHUB_OUTPUT"
+      env:
+        VERSION: ${{ inputs.version }}
+        TEMPLATES: ${{ inputs.templates }}
+
+    - name: Cache Godot
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ steps.paths.outputs.bin }}
+          ${{ steps.paths.outputs.templates }}
+        key: ${{ steps.paths.outputs.key }}
+
+    - name: Tải Godot và export template
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        base="https://github.com/godotengine/godot/releases/download/$VERSION"
+        tmp="$RUNNER_TEMP/godot-download"
+        mkdir -p "$tmp" "$BIN" "$TPL"
+        curl -fsSL --retry 3 -o "$tmp/godot.zip" "$base/Godot_v${VERSION}_linux.x86_64.zip"
+        unzip -q -o "$tmp/godot.zip" -d "$tmp"
+        mv "$tmp/Godot_v${VERSION}_linux.x86_64" "$BIN/godot"
+        chmod +x "$BIN/godot"
+        curl -fsSL --retry 3 -o "$tmp/templates.tpz" "$base/Godot_v${VERSION}_export_templates.tpz"
+        files="templates/version.txt"
+        for f in $TEMPLATES; do files="$files templates/$f"; done
+        unzip -q -o -j "$tmp/templates.tpz" $files -d "$TPL"
+        rm -rf "$tmp"
+      env:
+        VERSION: ${{ inputs.version }}
+        TEMPLATES: ${{ inputs.templates }}
+        BIN: ${{ steps.paths.outputs.bin }}
+        TPL: ${{ steps.paths.outputs.templates }}
+
+    - name: Thêm Godot vào PATH
+      shell: bash
+      run: |
+        echo "${{ steps.paths.outputs.bin }}" >> "$GITHUB_PATH"
+        "${{ steps.paths.outputs.bin }}/godot" --headless --version
