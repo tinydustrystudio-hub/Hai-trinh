@@ -1,0 +1,9 @@
+# Godot
+.godot/
+*.tmp
+
+# Bảng dịch .translation do Godot sinh ra từ strings.csv khi nhập tài nguyên
+*.translation
+
+# Bản xuất
+build/
