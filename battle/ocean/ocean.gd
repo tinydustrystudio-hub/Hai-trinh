@@ -14,9 +14,9 @@ const GRAVITY: float = 9.8
 
 ## Mỗi sóng: x, y = hướng; z = độ dốc; w = bước sóng (đơn vị Godot).
 @export var waves: Array[Vector4] = [
-	Vector4(1.0, 0.4, 0.10, 22.0),
-	Vector4(-0.3, 1.0, 0.08, 13.0),
-	Vector4(0.7, -0.6, 0.06, 7.0),
+	Vector4(1.0, 0.4, 0.07, 22.0),
+	Vector4(-0.3, 1.0, 0.05, 13.0),
+	Vector4(0.7, -0.6, 0.04, 7.0),
 ]
 
 var quality: Quality = Quality.HIGH

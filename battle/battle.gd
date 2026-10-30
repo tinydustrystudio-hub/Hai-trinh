@@ -54,7 +54,7 @@ func select_pad(pad: TowerPad) -> void:
 
 
 func _on_tapped(screen_position: Vector2) -> void:
-	var point: Vector3 = camera.ground_point(screen_position, TowerPad.PONTOON_HEIGHT - 0.4)
+	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
 	var pad: TowerPad = island.pad_near(point, TowerPad.RADIUS * PAD_PICK_TOLERANCE)
 	select_pad(pad if pad != selected_pad else null)
 

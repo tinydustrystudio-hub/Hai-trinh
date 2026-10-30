@@ -6,6 +6,8 @@ extends Node3D
 ## Bán kính phao, đơn vị Godot (bệ = 1 ô = 4 đơn vị, chừa khe giữa hai bệ).
 const RADIUS: float = 1.7
 const PONTOON_HEIGHT: float = 0.9
+## Mặt trên của phao, cao hơn đỉnh sóng.
+const TOP_HEIGHT: float = 0.7
 const RING_COLOR: Color = Color(1.0, 0.45, 0.1)
 const PONTOON_COLOR: Color = Color(0.93, 0.91, 0.84)
 const GLOW_MIN: float = 0.3
@@ -38,13 +40,13 @@ func _init() -> void:
 	pontoon.name = "Pontoon"
 	pontoon.mesh = _pontoon_mesh
 	pontoon.material_override = _pontoon_material
-	pontoon.position.y = PONTOON_HEIGHT * 0.5 - 0.4
+	pontoon.position.y = TOP_HEIGHT - PONTOON_HEIGHT * 0.5
 	pontoon.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(pontoon)
 	_ring = MeshInstance3D.new()
 	_ring.name = "Ring"
 	_ring.mesh = _ring_mesh
-	_ring.position.y = PONTOON_HEIGHT - 0.4 + 0.05
+	_ring.position.y = TOP_HEIGHT + 0.02
 	_ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_ring)
 	_refresh()

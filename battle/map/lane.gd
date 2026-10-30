@@ -7,7 +7,8 @@ const BAKE_INTERVAL: float = 0.5
 ## Độ cong ở mỗi điểm: tay nắm dài bằng tỉ lệ này của đoạn nối hai điểm kề bên.
 const SMOOTHNESS: float = 0.25
 const RIBBON_WIDTH: float = 2.4
-const RIBBON_HEIGHT: float = 0.45
+## Cao hơn đỉnh sóng lớn nhất (khoảng 0,4) để sóng không xuyên qua dải.
+const RIBBON_HEIGHT: float = 0.55
 const RIBBON_STEP: float = 1.0
 const RIBBON_SHADER: Shader = preload("res://battle/map/lane.gdshader")
 

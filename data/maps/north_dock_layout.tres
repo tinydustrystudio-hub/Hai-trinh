@@ -12,6 +12,6 @@ pad_positions = PackedVector3Array(-6, 0, -8, 6, 0, -8, -10, 0, -20, 8, 0, -28, 
 lane_name_keys = Array[StringName]([&"LANE_NORTH", &"LANE_EAST", &"LANE_WEST"])
 lane_points = Array[PackedVector3Array]([PackedVector3Array(0, 0, -68, -8, 0, -52, 6, 0, -38, -2, 0, -24, 0, 0, -12, 0, 0, -3), PackedVector3Array(72, 0, -26, 54, 0, -34, 38, 0, -24, 24, 0, -12, 9, 0, 5.5), PackedVector3Array(-72, 0, -26, -54, 0, -34, -38, 0, -24, -24, 0, -12, -9, 0, 5.5)])
 camera_bounds = Rect2(-48, -52, 96, 52)
-camera_start = Vector2(0, -12)
+camera_start = Vector2(0, -16)
 camera_distance = 58.0
 camera_pitch_degrees = 55.0

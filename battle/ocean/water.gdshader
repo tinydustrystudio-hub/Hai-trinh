@@ -8,12 +8,12 @@ uniform vec4 shallow_color : source_color = vec4(0.12, 0.72, 0.74, 1.0);
 uniform vec4 foam_color : source_color = vec4(0.92, 0.98, 1.0, 1.0);
 uniform vec4 sky_color : source_color = vec4(0.72, 0.9, 1.0, 1.0);
 // Mỗi sóng: x, y = hướng (trên mặt x–z); z = độ dốc; w = bước sóng.
-uniform vec4 wave_a = vec4(1.0, 0.4, 0.10, 22.0);
-uniform vec4 wave_b = vec4(-0.3, 1.0, 0.08, 13.0);
-uniform vec4 wave_c = vec4(0.7, -0.6, 0.06, 7.0);
+uniform vec4 wave_a = vec4(1.0, 0.4, 0.07, 22.0);
+uniform vec4 wave_b = vec4(-0.3, 1.0, 0.05, 13.0);
+uniform vec4 wave_c = vec4(0.7, -0.6, 0.04, 7.0);
 uniform int wave_count : hint_range(0, 3) = 3;
 uniform float gravity = 9.8;
-uniform float foam_threshold = 0.18;
+uniform float foam_threshold = 0.28;
 
 varying float v_height;
 varying vec2 v_world_xz;
@@ -47,12 +47,12 @@ void vertex() {
 }
 
 void fragment() {
-	float h = clamp(v_height * 2.0 + 0.5, 0.0, 1.0);
+	float h = clamp(v_height * 1.3 + 0.45, 0.0, 1.0);
 	vec3 color = mix(deep_color.rgb, shallow_color.rgb, h);
 	// Gợn nhỏ rẻ tiền để mặt nước không phẳng lì.
 	float ripple = sin(v_world_xz.x * 1.7 + TIME * 1.3) * sin(v_world_xz.y * 1.9 - TIME * 1.1);
 	float foam = smoothstep(foam_threshold, foam_threshold + 0.12, v_height + ripple * 0.04);
-	color = mix(color, foam_color.rgb, foam * 0.7);
+	color = mix(color, foam_color.rgb, foam * 0.45);
 	float fresnel = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 4.0);
 	color = mix(color, sky_color.rgb, fresnel * 0.5);
 	ALBEDO = color;
