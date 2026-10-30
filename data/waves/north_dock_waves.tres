@@ -1,0 +1,183 @@
+[gd_resource type="Resource" script_class="WaveData" load_steps=30 format=3]
+
+[ext_resource type="Script" path="res://core/data/wave_data.gd" id="1_wavedata"]
+[ext_resource type="Script" path="res://core/data/wave.gd" id="2_wave"]
+[ext_resource type="Script" path="res://core/data/spawn_group.gd" id="3_group"]
+[ext_resource type="Resource" path="res://data/enemies/raider_skiff.tres" id="4_raider_skiff"]
+[ext_resource type="Resource" path="res://data/enemies/ram_drone.tres" id="5_ram_drone"]
+[ext_resource type="Resource" path="res://data/enemies/spiked_crab.tres" id="6_spiked_crab"]
+
+[sub_resource type="Resource" id="SpawnGroup_w1g1"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 6
+interval = 1.5
+lane_index = 0
+delay = 0.0
+
+[sub_resource type="Resource" id="Wave_1"]
+script = ExtResource("2_wave")
+groups = Array[ExtResource("3_group")]([SubResource("SpawnGroup_w1g1")])
+rest_after = 8.0
+
+[sub_resource type="Resource" id="SpawnGroup_w2g1"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 8
+interval = 1.5
+lane_index = 0
+delay = 0.0
+
+[sub_resource type="Resource" id="SpawnGroup_w2g2"]
+script = ExtResource("3_group")
+enemy = ExtResource("5_ram_drone")
+count = 3
+interval = 2.0
+lane_index = 1
+delay = 6.0
+
+[sub_resource type="Resource" id="Wave_2"]
+script = ExtResource("2_wave")
+groups = Array[ExtResource("3_group")]([SubResource("SpawnGroup_w2g1"), SubResource("SpawnGroup_w2g2")])
+rest_after = 8.0
+
+[sub_resource type="Resource" id="SpawnGroup_w3g1"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 4
+interval = 1.5
+lane_index = 0
+delay = 0.0
+
+[sub_resource type="Resource" id="SpawnGroup_w3g2"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 3
+interval = 1.5
+lane_index = 1
+delay = 2.0
+
+[sub_resource type="Resource" id="SpawnGroup_w3g3"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 3
+interval = 1.5
+lane_index = 2
+delay = 4.0
+
+[sub_resource type="Resource" id="SpawnGroup_w3g4"]
+script = ExtResource("3_group")
+enemy = ExtResource("6_spiked_crab")
+count = 1
+interval = 0.0
+lane_index = 0
+delay = 8.0
+
+[sub_resource type="Resource" id="Wave_3"]
+script = ExtResource("2_wave")
+groups = Array[ExtResource("3_group")]([SubResource("SpawnGroup_w3g1"), SubResource("SpawnGroup_w3g2"), SubResource("SpawnGroup_w3g3"), SubResource("SpawnGroup_w3g4")])
+rest_after = 8.0
+
+[sub_resource type="Resource" id="SpawnGroup_w4g1"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 4
+interval = 1.2
+lane_index = 1
+delay = 0.0
+
+[sub_resource type="Resource" id="SpawnGroup_w4g2"]
+script = ExtResource("3_group")
+enemy = ExtResource("5_ram_drone")
+count = 3
+interval = 0.4
+lane_index = 1
+delay = 7.0
+
+[sub_resource type="Resource" id="SpawnGroup_w4g3"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 4
+interval = 1.2
+lane_index = 2
+delay = 3.0
+
+[sub_resource type="Resource" id="SpawnGroup_w4g4"]
+script = ExtResource("3_group")
+enemy = ExtResource("5_ram_drone")
+count = 3
+interval = 0.4
+lane_index = 2
+delay = 10.0
+
+[sub_resource type="Resource" id="Wave_4"]
+script = ExtResource("2_wave")
+groups = Array[ExtResource("3_group")]([SubResource("SpawnGroup_w4g1"), SubResource("SpawnGroup_w4g2"), SubResource("SpawnGroup_w4g3"), SubResource("SpawnGroup_w4g4")])
+rest_after = 8.0
+
+[sub_resource type="Resource" id="SpawnGroup_w5g1"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 4
+interval = 1.2
+lane_index = 0
+delay = 0.0
+
+[sub_resource type="Resource" id="SpawnGroup_w5g2"]
+script = ExtResource("3_group")
+enemy = ExtResource("6_spiked_crab")
+count = 1
+interval = 0.0
+lane_index = 0
+delay = 10.0
+
+[sub_resource type="Resource" id="SpawnGroup_w5g3"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 4
+interval = 1.2
+lane_index = 1
+delay = 2.0
+
+[sub_resource type="Resource" id="SpawnGroup_w5g4"]
+script = ExtResource("3_group")
+enemy = ExtResource("5_ram_drone")
+count = 3
+interval = 0.5
+lane_index = 1
+delay = 8.0
+
+[sub_resource type="Resource" id="SpawnGroup_w5g5"]
+script = ExtResource("3_group")
+enemy = ExtResource("4_raider_skiff")
+count = 4
+interval = 1.2
+lane_index = 2
+delay = 4.0
+
+[sub_resource type="Resource" id="SpawnGroup_w5g6"]
+script = ExtResource("3_group")
+enemy = ExtResource("5_ram_drone")
+count = 3
+interval = 0.5
+lane_index = 2
+delay = 14.0
+
+[sub_resource type="Resource" id="SpawnGroup_w5g7"]
+script = ExtResource("3_group")
+enemy = ExtResource("6_spiked_crab")
+count = 1
+interval = 0.0
+lane_index = 2
+delay = 6.0
+
+[sub_resource type="Resource" id="Wave_5"]
+script = ExtResource("2_wave")
+groups = Array[ExtResource("3_group")]([SubResource("SpawnGroup_w5g1"), SubResource("SpawnGroup_w5g2"), SubResource("SpawnGroup_w5g3"), SubResource("SpawnGroup_w5g4"), SubResource("SpawnGroup_w5g5"), SubResource("SpawnGroup_w5g6"), SubResource("SpawnGroup_w5g7")])
+rest_after = 0.0
+
+[resource]
+script = ExtResource("1_wavedata")
+id = &"north_dock"
+first_wave_delay = 10.0
+waves = Array[ExtResource("2_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3"), SubResource("Wave_4"), SubResource("Wave_5")])

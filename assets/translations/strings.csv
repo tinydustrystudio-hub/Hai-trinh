@@ -4,3 +4,6 @@ MAP_NORTH_DOCK,"Bến Bắc, Mũi Neo","North Dock, Anchorpoint"
 LANE_NORTH,Luồng Bắc,North lane
 LANE_EAST,Luồng Đông,East lane
 LANE_WEST,Luồng Tây,West lane
+ENEMY_RAIDER_SKIFF,Xuồng Cướp,Raider Skiff
+ENEMY_RAM_DRONE,Ca Nô Cảm Tử,Ram Drone Boat
+ENEMY_SPIKED_CRAB,Cua Giáp Gai,Spiked Crab
