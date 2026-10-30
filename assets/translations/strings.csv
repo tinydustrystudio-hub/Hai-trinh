@@ -7,3 +7,9 @@ LANE_WEST,Luồng Tây,West lane
 ENEMY_RAIDER_SKIFF,Xuồng Cướp,Raider Skiff
 ENEMY_RAM_DRONE,Ca Nô Cảm Tử,Ram Drone Boat
 ENEMY_SPIKED_CRAB,Cua Giáp Gai,Spiked Crab
+HUD_BUOYANCY,Độ Nổi: %d/%d,Buoyancy: %d/%d
+HUD_WAVE,Đợt %d/%d,Wave %d/%d
+HUD_NEXT_WAVE,Đợt %d tới sau %d giây: %s,Wave %d in %d s: %s
+RESULT_WIN,Chiến thắng,Victory
+RESULT_LOSE,Đảo đã chìm,The island has sunk
+BUTTON_RETRY,Chơi lại,Retry

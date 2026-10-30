@@ -4,6 +4,8 @@ extends Resource
 
 ## Tầng chiến đấu (GDD mục 4.1).
 enum Layer { SURFACE, UNDERWATER, AIR }
+## Hình khối thô, để nhận ra từng loại bằng hình bóng chứ không chỉ bằng màu (GDD mục 1.8).
+enum Hull { SKIFF, RAM, CRAB }
 
 @export var id: StringName = &""
 ## Khóa tên trong bảng dịch.
@@ -22,6 +24,7 @@ enum Layer { SURFACE, UNDERWATER, AIR }
 @export var steel_reward: int = 5
 ## Kích thước, ô (1 ô = một bệ).
 @export var size_cells: float = 0.8
+@export var hull: Hull = Hull.SKIFF
 @export var body_color: Color = Color(0.2, 0.2, 0.22)
 @export var accent_color: Color = Color(1.0, 0.8, 0.1)
 
