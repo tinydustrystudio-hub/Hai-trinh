@@ -177,7 +177,7 @@ Tháng 1 chỉ có một scene trận lớn. Mọi thứ khác là scene nhỏ d
 | `main/boot.tscn` | Node | Nạp cài đặt, rồi chuyển sang trận | Tháng 1 vào thẳng trận, chưa có menu |
 | `battle/battle.tscn` | Node3D | Nước, đảo, luồng địch, camera, các hệ thống trận, pool địch, lô cốt, vẽ đạn, HUD (cây ở dưới) | Scene trung tâm của tháng 1 |
 | `battle/ocean/ocean.tscn` | MeshInstance3D | Mặt phẳng chia ô dùng `water.gdshader` | Hai mức chất lượng: 128×128 ô với 3 lớp sóng, 64×64 ô với 2 lớp |
-| `battle/map/island.tscn` | Node3D | Khối thô của Bến Bắc Mũi Neo | Thay bằng model thật ở tháng 3–4 |
+| `battle/map/island.tscn` | Node3D | Pháo đài lục giác nhiều tầng của Mũi Neo và 4 đảo vệ tinh, dựng bằng code (GDD mục 8.6) | Thay bằng model thật ở tháng 3–4 |
 | `battle/map/tower_pad.tscn` | Node3D | Vòng bệ và hiệu ứng sáng khi chọn được | Vị trí lấy từ `MapLayout` |
 | `towers/tower.tscn` | Node3D | Thân, đầu nòng xoay, thanh Quá tải nổi trên đầu | Một scene cho cả hai lô cốt; script con đổi cách bắn |
 | `enemies/enemy.tscn` | Node3D | Thân, thanh máu nhỏ, `StatusEffects` | Một scene cho cả ba loại địch; khác nhau bằng `EnemyData` |
@@ -195,10 +195,10 @@ Tháng 1 chỉ có một scene trận lớn. Mọi thứ khác là scene nhỏ d
 ```
 Battle (Node3D) — battle.gd
 ├── Ocean (MeshInstance3D) — water.gdshader
-├── Island (Node3D)                 # khối thô, dựng từ MapLayout
-│   └── TowerPad × 8–12
+├── Island (Node3D)                 # pháo đài lục giác và đảo vệ tinh, dựng từ MapLayout (GDD 8.6)
+│   └── TowerPad × 10                # 6 trên mỏm bến, 4 trên đảo vệ tinh
 ├── Lanes (Node3D)
-│   └── Lane × 3 (Path3D) — lane.gd
+│   └── Lane × 4 (Path3D) — lane.gd
 ├── BattleCamera (Camera3D) — battle_camera.gd
 ├── Sun (DirectionalLight3D)        # tắt bóng đổ động
 ├── Systems (Node)
@@ -231,7 +231,7 @@ Tạm dừng và tua nhanh ×2 chỉ đổi `Engine.time_scale`, không đổi t
 | `TowerData` | id, khóa tên trong bảng dịch, tầng đánh được, danh sách 5 `TowerLevel`, thời gian nạp Quá tải, thời gian MEGA, hệ số MEGA (3), thời gian làm mát, sức bắn khi làm mát (0,2), màu | `machine_gun.tres`, `glue_sprayer.tres` |
 | `EnemyData` | id, khóa tên, máu, tốc độ (ô/giây), giáp (tỉ lệ giảm sát thương), tầng, Độ Nổi mất khi lọt, Thép khi bị hạ, kích thước, màu | `raider_skiff.tres`, `ram_drone.tres`, `spiked_crab.tres` |
 | `WaveData` | danh sách đợt; mỗi đợt có các nhóm (loại địch, số lượng, khoảng cách giữa hai con, luồng, độ trễ) và thời gian nghỉ | `north_dock_waves.tres` |
-| `MapLayout` | vị trí các bệ, điểm của từng luồng, giới hạn camera, Thép khởi đầu, Độ Nổi khởi đầu | `north_dock_layout.tres` |
+| `MapLayout` | tâm và bán kính đảo chính, tâm các đảo vệ tinh, vị trí các bệ, điểm của từng luồng, hướng nắng, giới hạn camera, Thép khởi đầu, Độ Nổi khởi đầu | `north_dock_layout.tres` |
 
 Quy ước khoảng cách: 1 ô (đơn vị tầm trong GDD) = 4 đơn vị Godot, bằng khoảng cách giữa hai bệ liền nhau.
 
@@ -253,7 +253,7 @@ Thang tốc độ đề xuất cho GDD: bậc 1 = 0,4; bậc 2 = 0,6; bậc 3 = 
 | 2 | 8 Xuồng Cướp và 3 Ca Nô Cảm Tử | Bắc, Đông |
 | 3 | 10 Xuồng Cướp và 1 Cua Giáp Gai | Cả 3 luồng |
 | 4 | 8 Xuồng Cướp và 6 Ca Nô Cảm Tử đi thành cụm | Đông, Tây |
-| 5 | 12 Xuồng Cướp, 6 Ca Nô Cảm Tử và 2 Cua Giáp Gai | Cả 3 luồng |
+| 5 | 12 Xuồng Cướp, 6 Ca Nô Cảm Tử và 2 Cua Giáp Gai | Cả 4 luồng |
 
 ### 5.2 Script
 
@@ -368,7 +368,7 @@ Mười ba bước trong 4 tuần. Mỗi bước chỉ bắt đầu khi bước 
 | --- | --- | --- | --- |
 | 1 | 1 | Tạo repo: `project.godot` theo mục 2, cây thư mục theo mục 3, `CLAUDE.md`, `.gitattributes`, addon GUT; `boot.tscn` hiện chữ "Hải Trình" | Repo đúng cấu trúc; một test GUT mẫu chạy được |
 | 2 | 1 | CI cho web và Android (mục 6) | Mở được link web trên máy tính và cài được APK trên điện thoại, cả hai hiện chữ "Hải Trình". Đây là việc quan trọng nhất của tuần 1 |
-| 3 | 1 | Bản đồ khối thô Bến Bắc: nước (shader bản 1), đảo, 10 bệ, 3 luồng dựng từ `MapLayout`; camera 55° kéo trượt | Kéo camera mượt trên điện thoại; nhìn rõ bệ và luồng |
+| 3 | 1 | Bản đồ Bến Bắc theo GDD mục 8.6, dựng từ `MapLayout`: đảo chính pháo đài lục giác nhiều tầng ở giữa màn hình; 10 bệ xếp hai vòng (6 trên mỏm bến, 4 trên đảo vệ tinh); 4 luồng Bắc, Đông, Tây, Nam; nước bản 2; nắng ấm, ánh trời lạnh, bóng giả; camera 55° nhìn tâm đảo, thấy toàn bộ chiến trường, kéo trượt nhẹ | Ảnh chụp bản web thấy đảo chính ở giữa, rõ tầng và vành, nước đậm có phản chiếu và bọt; bản đồ trống chạy 60 khung/giây trong Chromium của máy ảo; kéo camera mượt trên điện thoại |
 | 4 | 2 | Lớp dữ liệu và file `.tres` cho 3 địch, 5 đợt, bản đồ (mục 5.1) | Test đọc dữ liệu chạy xanh |
 | 5 | 2 | Enemy, EnemyPool, đi theo luồng, lọt thì trừ Độ Nổi; WaveSpawner; vòng đời trận; màn thắng và thua đơn giản | Chạy đủ 5 đợt khi chưa có lô cốt, và thua đúng như mong đợi |
 | 6 | 2 | Bảng debug và `stress_test.tscn`; đo trên điện thoại và web | Ghi được số liệu 60 địch vào nhật ký. Nếu dưới 30 khung/giây, hạ chất lượng nước và sửa trước khi làm tiếp |
