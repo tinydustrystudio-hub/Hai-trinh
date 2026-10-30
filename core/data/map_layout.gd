@@ -10,6 +10,12 @@ const UNITS_PER_CELL: float = 4.0
 ## Khóa tên bản đồ trong bảng dịch.
 @export var name_key: StringName = &""
 
+@export_group("Trận")
+## Thép khởi đầu (GDD mục 3.1, Hồi I mức Trung bình).
+@export var starting_steel: int = 200
+## Độ Nổi khởi đầu (kế hoạch tháng 1, mục 5.1).
+@export var starting_buoyancy: int = 20
+
 @export_group("Đảo")
 ## Khối nền đảo và cầu tàu (màu trắng ngà).
 @export var island_blocks: Array[AABB] = []
