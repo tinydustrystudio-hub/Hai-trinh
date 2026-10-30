@@ -10,6 +10,7 @@ const WAVES_PATH: String = "res://data/waves/north_dock_waves.tres"
 const NORTH: int = 0
 const EAST: int = 1
 const WEST: int = 2
+const SOUTH: int = 3
 
 # Nạp lúc chạy, không dùng const preload: preload một .tres có mảng kiểu lớp tự định nghĩa
 # làm trình phân tích của Godot 4.5 coi hai kiểu Wave là khác nhau.
@@ -78,7 +79,7 @@ func test_wave_composition_matches_plan() -> void:
 		[8, 3, 0, [NORTH, EAST]],
 		[10, 0, 1, [NORTH, EAST, WEST]],
 		[8, 6, 0, [EAST, WEST]],
-		[12, 6, 2, [NORTH, EAST, WEST]],
+		[12, 6, 2, [NORTH, EAST, WEST, SOUTH]],
 	]
 	for i: int in expected.size():
 		var wave: Wave = _waves.waves[i]

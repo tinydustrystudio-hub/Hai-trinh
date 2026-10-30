@@ -2,7 +2,7 @@ class_name EnemyPool
 extends Node3D
 ## Tạo sẵn POOL_SIZE địch; lấy ra khi sinh, trả lại khi bị hạ hoặc lọt. Mọi địch được cập nhật
 ## trong một vòng lặp ở đây (không có _process riêng). Giữ danh sách địch đang hoạt động cho lô cốt tra cứu.
-## Vẽ thanh máu của mọi địch bằng một MultiMesh.
+## Vẽ thanh máu, bóng tròn và vệt bọt đuôi tàu của mọi địch bằng ba MultiMesh (ba lệnh vẽ).
 
 const POOL_SIZE: int = 80
 const ENEMY_SCENE: PackedScene = preload("res://enemies/enemy.tscn")
@@ -14,6 +14,14 @@ const BAR_LIFT: float = 2.2
 const BAR_BACK_COLOR: Color = Color(0.1, 0.1, 0.1, 0.8)
 const BAR_FULL_COLOR: Color = Color(0.3, 0.95, 0.35)
 const BAR_LOW_COLOR: Color = Color(1.0, 0.3, 0.2)
+const WAKE_SHADER: Shader = preload("res://enemies/wake.gdshader")
+## Vệt bọt dài gấp chừng này lần thân tàu, rộng gấp chừng này lần.
+const WAKE_LENGTH: float = 2.6
+const WAKE_WIDTH: float = 1.6
+## Bóng tròn rộng gấp chừng này lần thân tàu, dời theo hướng ngược nắng.
+const SHADOW_SCALE: float = 1.25
+const SHADOW_OFFSET: float = 0.5
+const EFFECT_Y: float = 0.18
 
 ## Địch đang hoạt động. Không thêm bớt từ bên ngoài.
 var active: Array[Enemy] = []
@@ -22,6 +30,9 @@ var ocean: Ocean = null
 var _free: Array[Enemy] = []
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _bars: MultiMeshInstance3D
+var _wakes: MultiMeshInstance3D
+var _shadows: MultiMeshInstance3D
+var _shadow_offset: Vector3 = Vector3.ZERO
 var _bar_basis: Basis = Basis.IDENTITY
 var _time: float = 0.0
 
@@ -34,6 +45,13 @@ func _ready() -> void:
 		add_child(enemy)
 		_free.append(enemy)
 	_build_bars()
+	_build_effects()
+
+
+## Hướng nắng của bản đồ: bóng tròn dời về phía ngược nắng.
+func configure_effects(sun_direction: Vector3) -> void:
+	var away: Vector3 = -Vector3(sun_direction.x, 0.0, sun_direction.z)
+	_shadow_offset = away.normalized() * SHADOW_OFFSET if away.length() > 0.001 else Vector3.ZERO
 
 
 ## Lấy một địch từ pool và đặt trên luồng (mặc định ở đầu luồng). Hết chỗ thì trả null.
@@ -74,6 +92,9 @@ func free_count() -> int:
 func clear() -> void:
 	for i: int in range(active.size() - 1, -1, -1):
 		release(active[i])
+	if _wakes != null:
+		_update_bars()
+		_update_effects()
 
 
 ## Cho mọi địch đi tiếp delta giây; địch tới cuối luồng thì báo lọt và trả về pool.
@@ -89,6 +110,7 @@ func advance(delta: float) -> void:
 			Events.enemy_leaked.emit(enemy, damage)
 			release(enemy)
 	_update_bars()
+	_update_effects()
 
 
 ## Gây sát thương cho một địch; nếu hạ được thì báo và trả về pool. Trả sát thương thật.
@@ -148,3 +170,67 @@ func _update_bars() -> void:
 		multimesh.set_instance_color(used, BAR_LOW_COLOR.lerp(BAR_FULL_COLOR, ratio))
 		used += 1
 	multimesh.visible_instance_count = used
+
+
+func _build_effects() -> void:
+	var wake_mesh: PlaneMesh = PlaneMesh.new()
+	wake_mesh.size = Vector2(1.0, 1.0)
+	var wake_material: ShaderMaterial = ShaderMaterial.new()
+	wake_material.shader = WAKE_SHADER
+	wake_material.set_shader_parameter(&"noise_tex", Ocean.foam_noise())
+	wake_material.render_priority = -1
+	wake_mesh.material = wake_material
+	_wakes = _effect_instance("Wakes", wake_mesh)
+	var gradient: Gradient = Gradient.new()
+	gradient.set_color(0, Color(0.0, 0.02, 0.06, 0.55))
+	gradient.set_color(1, Color(0.0, 0.02, 0.06, 0.0))
+	var texture: GradientTexture2D = GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(1.0, 0.5)
+	texture.width = 64
+	texture.height = 64
+	var shadow_material: StandardMaterial3D = StandardMaterial3D.new()
+	shadow_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	shadow_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	shadow_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	shadow_material.albedo_texture = texture
+	shadow_material.render_priority = -2
+	var shadow_mesh: PlaneMesh = PlaneMesh.new()
+	shadow_mesh.size = Vector2(1.0, 1.0)
+	shadow_mesh.material = shadow_material
+	_shadows = _effect_instance("Shadows", shadow_mesh)
+
+
+func _effect_instance(node_name: String, mesh: Mesh) -> MultiMeshInstance3D:
+	var multimesh: MultiMesh = MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.mesh = mesh
+	multimesh.instance_count = POOL_SIZE
+	multimesh.visible_instance_count = 0
+	var instance: MultiMeshInstance3D = MultiMeshInstance3D.new()
+	instance.name = node_name
+	instance.multimesh = multimesh
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(instance)
+	return instance
+
+
+func _update_effects() -> void:
+	var wakes: MultiMesh = _wakes.multimesh
+	var shadows: MultiMesh = _shadows.multimesh
+	var count: int = active.size()
+	for i: int in count:
+		var enemy: Enemy = active[i]
+		var length: float = enemy.data.size_cells * MapLayout.UNITS_PER_CELL
+		var forward: Vector3 = enemy.lane.direction_at(enemy.distance)
+		var yaw: Basis = Basis.looking_at(forward, Vector3.UP)
+		var ground: Vector3 = Vector3(enemy.position.x, EFFECT_Y, enemy.position.z)
+		var wake_length: float = length * WAKE_LENGTH
+		var wake_origin: Vector3 = ground - forward * (length * 0.45 + wake_length * 0.5)
+		wakes.set_instance_transform(i, Transform3D(yaw.scaled_local(Vector3(length * 0.5 * WAKE_WIDTH, 1.0, wake_length)), wake_origin))
+		var size: float = length * SHADOW_SCALE
+		shadows.set_instance_transform(i, Transform3D(yaw.scaled_local(Vector3(size * 0.7, 1.0, size)), ground + _shadow_offset + Vector3(0.0, -0.02, 0.0)))
+	wakes.visible_instance_count = count
+	shadows.visible_instance_count = count

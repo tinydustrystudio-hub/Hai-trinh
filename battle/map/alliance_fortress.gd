@@ -3,7 +3,7 @@ extends RefCounted
 ## Dựng bằng code pháo đài nổi của Liên Minh Mũi Neo (GDD mục 8.6) cho tới khi có model thật:
 ## lục giác nhiều tầng; tháp chỉ huy kiêm hải đăng ở giữa; vành trong là xưởng, tua-bin dòng triều,
 ## chảo ra-đa; vành ngoài là đê chắn sóng có mỏm bến mang bệ, cần cẩu, cọc neo, phao cam.
-## Kèm đảo vệ tinh (một bệ, một cột neo, một phao cam). Mọi khối tĩnh gộp vào một mesh màu đỉnh.
+## Kèm đảo vệ tinh (một bệ, một cột neo, một phao cam). Khối gộp thành ít mesh tô bằng màu đỉnh.
 ## Kích thước tính theo bán kính pháo đài để đổi cỡ vẫn cân đối.
 
 const IVORY: Color = Color(0.93, 0.91, 0.84)
@@ -24,8 +24,8 @@ const PIER_WIDTH: float = 3.4
 const PIER_END_RADIUS: float = 2.4
 
 
-## Mọi khối đặc của đảo chính, mỏm bến và đảo vệ tinh.
-static func build_solid(layout: MapLayout) -> ArrayMesh:
+## Khối đặc của pháo đài và các mỏm bến (nghiêng theo Độ Nổi).
+static func build_fortress(layout: MapLayout) -> ArrayMesh:
 	var st: SurfaceTool = MeshKit.begin()
 	var c: Vector3 = layout.fortress_center
 	var r: float = layout.fortress_radius
@@ -36,10 +36,16 @@ static func build_solid(layout: MapLayout) -> ArrayMesh:
 		if not layout.is_satellite_pad(i):
 			_pier(st, c, r, layout.pad_positions[i])
 	_cranes(st, c, r)
+	return MeshKit.commit(st)
+
+
+## Đảo vệ tinh và phao cam quanh pháo đài (nổi riêng, không nghiêng theo pháo đài).
+static func build_satellites(layout: MapLayout) -> ArrayMesh:
+	var st: SurfaceTool = MeshKit.begin()
 	for buoy: Vector3 in buoy_positions(layout):
 		_buoy(st, buoy)
 	for center: Vector3 in layout.satellite_centers:
-		_satellite(st, center, layout.satellite_radius, c)
+		_satellite(st, center, layout.satellite_radius, layout.fortress_center)
 	return MeshKit.commit(st)
 
 
