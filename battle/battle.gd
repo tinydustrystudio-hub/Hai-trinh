@@ -39,6 +39,8 @@ var _enemy_types: Array[EnemyData] = []
 @onready var buoyancy: Buoyancy = $Systems/Buoyancy
 @onready var enemy_pool: EnemyPool = $EnemyPool
 @onready var hud: Hud = $HUD
+@onready var sun: DirectionalLight3D = $Sun
+@onready var world_environment: WorldEnvironment = $WorldEnvironment
 
 
 func _ready() -> void:
@@ -59,6 +61,8 @@ func _ready() -> void:
 	Events.enemy_leaked.connect(_on_enemy_leaked)
 	Events.enemy_killed.connect(_on_enemy_killed)
 	hud.retry_requested.connect(retry)
+	Settings.water_quality_changed.connect(_apply_quality)
+	_apply_quality(Settings.water_quality)
 	_enemy_types = enemy_types_in(wave_data)
 	start_battle()
 	ready_msec = Time.get_ticks_msec()
@@ -167,6 +171,21 @@ func build_map() -> void:
 		lanes_root.add_child(lane)
 		lanes.append(lane)
 	camera.configure(layout)
+	_place_sun()
+	enemy_pool.configure_effects(layout.sun_direction)
+
+
+## Nắng chiếu từ hướng sun_direction của bản đồ; nước dùng cùng hướng và màu để phản chiếu khớp.
+func _place_sun() -> void:
+	var to_sun: Vector3 = layout.sun_direction.normalized()
+	var up: Vector3 = Vector3.FORWARD if absf(to_sun.y) > 0.99 else Vector3.UP
+	sun.basis = Basis.looking_at(-to_sun, up)
+	ocean.configure(to_sun, sun.light_color, layout.fortress_center, layout.fortress_radius)
+
+
+## Mức chất lượng thấp tắt glow (tốn thêm lượt vẽ toàn màn hình); nước tự đổi theo Settings.
+func _apply_quality(quality: Ocean.Quality) -> void:
+	world_environment.environment.glow_enabled = quality == Ocean.Quality.HIGH
 
 
 func select_pad(pad: TowerPad) -> void:

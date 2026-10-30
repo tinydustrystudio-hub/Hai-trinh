@@ -12,7 +12,7 @@ func before_each() -> void:
 
 func test_builds_pads_and_lanes() -> void:
 	assert_eq(_battle.island.pads.size(), 10)
-	assert_eq(_battle.lanes.size(), 3)
+	assert_eq(_battle.lanes.size(), 4)
 	for lane: Lane in _battle.lanes:
 		assert_gt(lane.length(), 40.0)
 
@@ -26,7 +26,7 @@ func test_pad_near_point() -> void:
 	var pad: TowerPad = _battle.island.pad_near(pad_position + Vector3(1, 0, 0), TowerPad.RADIUS)
 	assert_not_null(pad)
 	assert_eq(pad.pad_index, 3)
-	assert_null(_battle.island.pad_near(Vector3(0, 0, -60), TowerPad.RADIUS))
+	assert_null(_battle.island.pad_near(Vector3(0, 0, -70), TowerPad.RADIUS))
 
 
 func test_select_pad_toggles_highlight() -> void:

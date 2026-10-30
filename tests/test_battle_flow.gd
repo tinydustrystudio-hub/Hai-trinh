@@ -47,8 +47,13 @@ func test_loses_without_towers() -> void:
 	# Đợt 1 lọt 6 Độ Nổi; đợt 2 có 8 Xuồng Cướp (8) và 3 Ca Nô Cảm Tử (9): chìm ở đợt 2.
 	assert_eq(_waves_started, [0, 1])
 	assert_almost_eq(_battle.island.tilt_degrees(), Buoyancy.MAX_TILT_DEGREES, 0.0001)
-	# Bệ là phao riêng, không nghiêng theo đảo.
-	assert_eq(_battle.island.pads[0].global_position, _battle.layout.pad_positions[0])
+	# Bệ trên đảo vệ tinh là phao riêng, không nghiêng; bệ trên mỏm bến nghiêng theo pháo đài.
+	for i: int in _battle.layout.pad_count():
+		var pad: TowerPad = _battle.island.pads[i]
+		if _battle.layout.is_satellite_pad(i):
+			assert_eq(pad.global_position, _battle.layout.pad_positions[i])
+		else:
+			assert_ne(pad.global_position, _battle.layout.pad_positions[i])
 	assert_true(_battle.hud.result_panel.visible)
 	assert_eq(_battle.hud.result_panel.title_text(), "Đảo đã chìm")
 

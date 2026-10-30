@@ -17,10 +17,16 @@ const UNITS_PER_CELL: float = 4.0
 @export var starting_buoyancy: int = 20
 
 @export_group("Đảo")
-## Khối nền đảo và cầu tàu (màu trắng ngà).
-@export var island_blocks: Array[AABB] = []
-## Khối công trình đứng trên đảo (màu xanh biển).
-@export var structure_blocks: Array[AABB] = []
+## Tâm pháo đài lục giác (đảo chính), trên mặt nước.
+@export var fortress_center: Vector3 = Vector3.ZERO
+## Bán kính ngoài của pháo đài (từ tâm tới đỉnh lục giác của đê chắn sóng), đơn vị Godot.
+@export var fortress_radius: float = 14.0
+## Tâm các đảo vệ tinh; mỗi đảo mang một bệ ở giữa. Bệ không nằm trên đảo vệ tinh thì nằm trên mỏm bến.
+@export var satellite_centers: PackedVector3Array = PackedVector3Array()
+## Bán kính đảo vệ tinh (GDD mục 8.6: đường kính khoảng 1,5 ô).
+@export var satellite_radius: float = 3.0
+## Hướng từ mặt nước tới mặt trời (nắng chiếu từ một hướng).
+@export var sun_direction: Vector3 = Vector3(0.45, 0.6, -0.65)
 
 @export_group("Bệ và luồng")
 ## Tâm của từng bệ lô cốt.
@@ -47,3 +53,12 @@ func lane_count() -> int:
 
 func pad_count() -> int:
 	return pad_positions.size()
+
+
+## Bệ nằm trên đảo vệ tinh (trùng tâm một đảo vệ tinh) hay trên mỏm bến của đảo chính.
+func is_satellite_pad(index: int) -> bool:
+	var pad: Vector3 = pad_positions[index]
+	for center: Vector3 in satellite_centers:
+		if Vector2(center.x - pad.x, center.z - pad.z).length() < satellite_radius * 0.5:
+			return true
+	return false

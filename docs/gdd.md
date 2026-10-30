@@ -2102,6 +2102,56 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 3. Thử trong Godot ở đúng góc camera trận, trên một máy tầm trung: liếc 1 giây phải nhận ra phe, loại và tầng của model.
 4. Xuất glTF, đặt tên theo quy ước `loại_tên_cấp`, ví dụ `tower_mg_l1.glb`.
 
+### 8.6 Chuẩn đồ họa, bố cục trận và phong cách đảo theo phe
+
+Đạo diễn chốt ngày 30/10, sau khi xem bản khối thô đầu tiên. Mục này đặt mốc chất lượng cho bản đồ trận và cho các cứ điểm địch về sau.
+
+**Mốc chất lượng.** Không sao chép hình dáng hay bố cục của bất kỳ game nào. Chỉ lấy ba mốc chất lượng: biển tối và sâu, công trình nhiều chi tiết, bóng hình rõ khi nhìn từ góc camera trận.
+
+**Bố cục trận**
+
+- Đảo chính nằm giữa màn hình, chiếm khoảng 1/3 chiều cao màn hình.
+- Camera nghiêng 55° nhìn vào tâm đảo, mặc định thấy toàn bộ chiến trường; chỉ kéo trượt nhẹ.
+- Địch đến theo 4 luồng tỏa từ các mép màn hình: Bắc, Đông, Tây, Nam.
+- Bệ xếp thành hai vòng: 6 bệ trên các mỏm bến của đảo chính, 4 bệ trên 4 đảo vệ tinh.
+
+**Đảo chính (phe Liên Minh Mũi Neo)**
+
+- Pháo đài nổi hình lục giác, nhiều tầng.
+- Ở giữa là tháp chỉ huy kiêm hải đăng.
+- Vành trong là các khối công trình: xưởng, tua-bin dòng triều, chảo ra-đa.
+- Vành ngoài là đê chắn sóng có 6 mỏm bến mang bệ; thêm cần cẩu, cọc neo, phao cam.
+- Màu xanh biển, trắng ngà, sọc cam.
+- Trong lúc chưa có model thật, dựng bằng code từ nhiều khối, đủ chi tiết để thấy rõ tầng, vành và tháp; không để là một khối vuông.
+
+**Đảo vệ tinh:** nhỏ, đường kính khoảng 1,5 ô; một bệ ở giữa, một cột neo, một phao cam.
+
+**Nước bản 2**
+
+- Xanh chàm đậm thay cho xanh ngọc.
+- Hai lớp normal map cuộn.
+- Phản chiếu bầu trời theo góc nhìn.
+- Điểm lấp lánh của nắng.
+- Bọt trắng quanh đảo chính, quanh đảo vệ tinh và sau đuôi tàu.
+- Sóng nhẹ.
+- Giữ hai mức chất lượng.
+
+**Ánh sáng**
+
+- Nắng ấm chiếu từ một hướng, ánh trời lạnh.
+- Chỉnh màu nhẹ (tonemap, glow nhẹ) nếu renderer Compatibility hỗ trợ.
+- Bóng của đảo chính làm giả hoặc nướng sẵn; tàu dùng bóng tròn.
+
+**Phong cách đảo theo phe** (dùng cho cứ điểm địch và màn trùm về sau)
+
+| Phe | Hình khối | Vật liệu và màu | Dấu hiệu riêng |
+| --- | --- | --- | --- |
+| Liên Minh Mũi Neo | Lục giác nhiều vành | Trắng ngà, xanh biển, cam | Hải đăng |
+| Hội Muối Đen | Bè ghép từ thân tàu cũ | Sắt gỉ, xích, sọc vàng đen | |
+| Thiết Hạm Đoàn | Thành trì thép góc cạnh | Xám thép, đỏ tín hiệu | Mái vòm khiên |
+| Giáo Đoàn Triều Sâu | Nền đá san hô cổ | Vân phát quang lục | Cột chuông |
+| Chợ Phao (Thương Hội Phao Trắng) | Cụm sà lan chợ | Trắng ngà, vàng đồng | |
+
 ## Phần 9 – Phạm vi bản ra mắt thử và lộ trình 6 tháng
 
 Bản ra mắt thử (MVP) cần trả lời ba câu hỏi trước khi làm tiếp Hồi II: lõi chơi có vui không, người chơi có quay lại không, và quảng cáo cùng Bản Full có đủ nuôi game không. Lộ trình tính từ tháng 11/2026 tới tháng 4/2027.
