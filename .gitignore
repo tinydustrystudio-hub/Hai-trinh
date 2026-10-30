@@ -1,0 +1,6 @@
+# Godot
+.godot/
+*.tmp
+
+# Bản xuất
+build/

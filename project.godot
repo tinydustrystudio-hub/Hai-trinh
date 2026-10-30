@@ -1,0 +1,44 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Hải Trình"
+config/description="Thủ thành trên biển – lõi chơi tháng 1."
+run/main_scene="res://main/boot.tscn"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+run/max_fps=60
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=0
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+pointing/emulate_mouse_from_touch=true
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://assets/translations/strings.vi.translation", "res://assets/translations/strings.en.translation")
+locale/fallback="vi"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_s3tc_bptc=true
+textures/vram_compression/import_etc2_astc=true
