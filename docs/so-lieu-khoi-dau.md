@@ -12,4 +12,6 @@ trong `data/*.tres` để chơi thử; khi cân bằng (bước 12) hoặc sau b
 | Thời gian nghỉ giữa hai đợt | 8 giây | `data/waves/north_dock_waves.tres` | Lấy theo chế độ vô tận (GDD mục 6.1) |
 | Khoảng cách giữa hai con, độ trễ từng nhóm ở đợt 2–5 | 0,4–2 giây; 0–14 giây | `data/waves/north_dock_waves.tres` | Kế hoạch chỉ ghi đợt 1 (1,5 giây); còn lại đặt tạm |
 | Chia địch cho từng luồng ở đợt 3–5 | xem file đợt | `data/waves/north_dock_waves.tres` | Kế hoạch chỉ ghi luồng nào có địch |
+| Chia đợt 5 cho 4 luồng (mỗi luồng 3 Xuồng Cướp; Ca Nô ở Đông, Tây; Cua ở Bắc, Nam) | xem file đợt | `data/waves/north_dock_waves.tres` | GDD mục 8.6 chỉ ghi đợt 5 dùng cả 4 luồng |
+| Chiều dài luồng: Bắc 63, Nam 62, Đông và Tây khoảng 93 đơn vị (16–24 ô) | xem file bản đồ | `data/maps/north_dock_layout.tres` | Bố cục mới ở GDD mục 8.6; luồng Đông, Tây dài hơn để bắt đầu ngoài mép màn hình điện thoại 19,5:9 |
 | 5 đợt ở Bến Bắc | cả bảng | `data/waves/north_dock_waves.tres` | Kế hoạch mục 5.1, "bản đầu" |

@@ -14,11 +14,13 @@ uniform vec4 sun_color : source_color = vec4(1.0, 0.9, 0.72, 1.0);
 uniform vec3 sun_direction = vec3(0.45, 0.6, -0.65);
 uniform sampler2D normal_a : hint_normal, repeat_enable, filter_linear_mipmap;
 uniform sampler2D normal_b : hint_normal, repeat_enable, filter_linear_mipmap;
-uniform float normal_scale_a = 0.045;
-uniform float normal_scale_b = 0.11;
+uniform float normal_scale_a = 0.07;
+uniform float normal_scale_b = 0.19;
 uniform vec2 scroll_a = vec2(0.012, 0.008);
 uniform vec2 scroll_b = vec2(-0.009, 0.014);
-uniform float normal_strength = 0.55;
+uniform float normal_strength = 0.45;
+// Phần trời phản chiếu tối thiểu (nhìn gần thẳng xuống, Fresnel thật gần như bằng 0).
+uniform float sky_reflection = 0.16;
 // Mỗi sóng: x, y = hướng; z = độ dốc; w = bước sóng.
 uniform vec4 wave_a = vec4(1.0, 0.4, 0.04, 24.0);
 uniform vec4 wave_b = vec4(-0.3, 1.0, 0.03, 14.0);
@@ -79,20 +81,20 @@ void fragment() {
 	float near_island = 1.0 - smoothstep(island_glow.z, island_glow.z + island_glow.w, distance(v_world.xz, island_glow.xy));
 	water = mix(water, shallow_color.rgb, near_island * 0.55);
 	// Nắng ấm khuếch tán nhẹ trên mặt nước.
-	water *= 0.8 + 0.35 * max(dot(n, sun), 0.0) * sun_color.rgb;
+	water *= 0.88 + 0.22 * max(dot(n, sun), 0.0) * sun_color.rgb;
 
 	// Phản chiếu trời theo góc nhìn (Fresnel Schlick, nước ~2%).
 	float facing = clamp(dot(n, view), 0.0, 1.0);
 	float fresnel = 0.02 + 0.98 * pow(1.0 - facing, 5.0);
 	vec3 reflected = reflect(-view, n);
 	vec3 sky = mix(sky_horizon.rgb, sky_zenith.rgb, clamp(reflected.y, 0.0, 1.0));
-	vec3 color = mix(water, sky, clamp(fresnel * 1.4, 0.0, 0.85));
+	vec3 color = mix(water, sky * 0.75, clamp(sky_reflection + fresnel * 1.4, 0.0, 0.85));
 
 	// Lấp lánh của nắng.
 	if (detail > 0) {
-		float glint = pow(max(dot(reflected, sun), 0.0), 350.0);
+		float glint = pow(max(dot(reflected, sun), 0.0), 900.0);
 		float sparkle = step(0.82, fract(sin(dot(floor(v_world.xz * 3.0), vec2(12.9898, 78.233))) * 43758.5453 + TIME * 0.7));
-		color += sun_color.rgb * (glint * 3.0 + glint * sparkle * 4.0);
+		color += sun_color.rgb * glint * (0.8 + sparkle * 1.6);
 	}
 	ALBEDO = color;
 }

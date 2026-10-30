@@ -17,6 +17,8 @@ const LAMP: Color = Color(1.0, 0.82, 0.45)
 
 ## Mặt sàn chính của pháo đài.
 const DECK_Y: float = 0.8
+## Sàn vành ngoài xám thép nhạt, để tách khỏi vành trong trắng ngà.
+const DECK: Color = Color(0.62, 0.68, 0.72)
 ## Mặt mỏm bến và đảo vệ tinh (bệ đặt lên trên).
 const PIER_Y: float = 0.55
 const BASE_BOTTOM: float = -1.2
@@ -53,7 +55,7 @@ static func build_satellites(layout: MapLayout) -> ArrayMesh:
 static func build_lamp(layout: MapLayout) -> ArrayMesh:
 	var st: SurfaceTool = MeshKit.begin()
 	var r: float = layout.fortress_radius
-	MeshKit.prism(st, layout.fortress_center, r * 0.085, tower_top(r) + 0.3, tower_top(r) + 1.6, 12, LAMP, LAMP)
+	MeshKit.prism(st, layout.fortress_center, r * 0.1, tower_top(r) + 0.3, tower_top(r) + 1.7, 12, LAMP, LAMP)
 	return MeshKit.commit(st)
 
 
@@ -79,7 +81,7 @@ static func edge_angle(k: int) -> float:
 
 static func _base_and_wall(st: SurfaceTool, c: Vector3, r: float) -> void:
 	# Phao nền lục giác (đỉnh ở 0°, 60°…), sàn trắng ngà.
-	MeshKit.prism(st, c, r, BASE_BOTTOM, DECK_Y, 6, SEA_BLUE, IVORY)
+	MeshKit.prism(st, c, r, BASE_BOTTOM, DECK_Y, 6, SEA_BLUE, DECK)
 	# Gờ tối sát mặt nước cho rõ đường mớn.
 	MeshKit.ring(st, c, r - 0.05, r + 0.15, -0.3, 0.25, 6, DEEP_BLUE, DEEP_BLUE)
 	var inradius: float = r * cos(PI / 6.0)
@@ -213,8 +215,8 @@ static func _tower(st: SurfaceTool, c: Vector3, r: float) -> void:
 	# Ban công, phòng đèn (mesh riêng phát sáng), mũ nón xanh, chóp cam.
 	MeshKit.prism(st, c, base_r * 1.1, top, top + 0.3, 16, DEEP_BLUE, DEEP_BLUE)
 	MeshKit.ring(st, c, base_r * 1.05, base_r * 1.1, top + 0.3, top + 0.7, 16, DARK, DARK)
-	MeshKit.cone(st, c, base_r * 0.85, top + 1.6, 1.3, 16, SEA_BLUE)
-	MeshKit.prism(st, c, 0.12, top + 2.8, top + 3.6, 6, ORANGE, ORANGE)
+	MeshKit.cone(st, c, r * 0.1, top + 1.7, 1.0, 16, SEA_BLUE)
+	MeshKit.prism(st, c, 0.12, top + 2.6, top + 3.4, 6, ORANGE, ORANGE)
 
 
 static func _pier(st: SurfaceTool, c: Vector3, r: float, pad: Vector3) -> void:

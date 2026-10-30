@@ -50,7 +50,10 @@ func test_foam_rings_every_island() -> void:
 
 
 func test_shadow_falls_away_from_sun() -> void:
-	var box: AABB = Island.build_shadow(LAYOUT).get_aabb()
+	# Chỉ xét bóng của pháo đài: bỏ đảo vệ tinh (đặt lệch nhau) ra khỏi bố cục thử.
+	var fortress_only: MapLayout = LAYOUT.duplicate()
+	fortress_only.satellite_centers = PackedVector3Array()
+	var box: AABB = Island.build_shadow(fortress_only).get_aabb()
 	var sun: Vector3 = LAYOUT.sun_direction
 	# Bóng của pháo đài lệch về phía ngược nắng so với tâm đảo.
 	var center: Vector3 = box.get_center()

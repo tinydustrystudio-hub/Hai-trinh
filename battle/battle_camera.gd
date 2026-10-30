@@ -12,7 +12,7 @@ const MIN_SPEED: float = 0.5
 const RELEASE_STILL_TIME: float = 0.08
 ## Hệ số làm mượt khi ước lượng vận tốc kéo.
 const VELOCITY_SMOOTHING: float = 0.35
-const FIELD_OF_VIEW: float = 40.0
+const FIELD_OF_VIEW: float = 44.0
 
 ## Điểm nhìn trên mặt nước (x, z).
 var focus: Vector2 = Vector2.ZERO

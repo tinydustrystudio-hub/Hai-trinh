@@ -23,8 +23,8 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		var query: Variant = JavaScriptBridge.eval("window.location.search", true)
 		_web_query = str(query) if query != null else ""
-	# Máy không có màn hình (CI, test) thì khung/giây vô nghĩa.
-	if DisplayServer.get_name() == "headless":
+	# Máy không có màn hình (CI, test) thì khung/giây vô nghĩa; ?hq giữ chất lượng cao (chụp ảnh, so sánh).
+	if DisplayServer.get_name() == "headless" or launch_flag("hq"):
 		auto_lower_quality = false
 
 
