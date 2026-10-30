@@ -1,0 +1,43 @@
+class_name MapLayout
+extends Resource
+## Bố cục một bản đồ trận: khối đảo, vị trí bệ, điểm của từng luồng và giới hạn camera.
+## Mọi vị trí tính bằng đơn vị Godot trên mặt nước (y = 0); 1 ô = UNITS_PER_CELL đơn vị.
+
+## 1 ô (đơn vị tầm trong GDD) = khoảng cách giữa hai bệ liền nhau.
+const UNITS_PER_CELL: float = 4.0
+
+@export var id: StringName = &""
+## Khóa tên bản đồ trong bảng dịch.
+@export var name_key: StringName = &""
+
+@export_group("Đảo")
+## Khối nền đảo và cầu tàu (màu trắng ngà).
+@export var island_blocks: Array[AABB] = []
+## Khối công trình đứng trên đảo (màu xanh biển).
+@export var structure_blocks: Array[AABB] = []
+
+@export_group("Bệ và luồng")
+## Tâm của từng bệ lô cốt.
+@export var pad_positions: PackedVector3Array = PackedVector3Array()
+## Khóa tên của từng luồng trong bảng dịch, cùng thứ tự với lane_points.
+@export var lane_name_keys: Array[StringName] = []
+## Điểm của từng luồng, từ chỗ địch xuất hiện tới chỗ địch lọt vào đảo.
+@export var lane_points: Array[PackedVector3Array] = []
+
+@export_group("Camera")
+## Vùng mà điểm nhìn của camera (trên mặt nước, theo x và z) được phép trượt tới.
+@export var camera_bounds: Rect2 = Rect2(-40.0, -40.0, 80.0, 60.0)
+## Điểm nhìn lúc vào trận.
+@export var camera_start: Vector2 = Vector2.ZERO
+## Khoảng cách từ camera tới điểm nhìn.
+@export var camera_distance: float = 60.0
+## Góc nghiêng của camera so với mặt nước, độ.
+@export var camera_pitch_degrees: float = 55.0
+
+
+func lane_count() -> int:
+	return lane_points.size()
+
+
+func pad_count() -> int:
+	return pad_positions.size()
