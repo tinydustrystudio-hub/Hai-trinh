@@ -99,6 +99,7 @@ func enter_stress_mode() -> void:
 	stress_mode = true
 	spawner.stop()
 	buoyancy.reset(1_000_000)
+	hud.hide_result()
 	state = State.FIGHTING
 	spawn_burst(MAX_ACTIVE_ENEMIES)
 
