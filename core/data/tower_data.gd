@@ -7,8 +7,10 @@ extends Resource
 @export var name_key: StringName = &""
 ## Các tầng đánh được.
 @export var target_layers: Array[EnemyData.Layer] = [EnemyData.Layer.SURFACE]
-## Cấp 1 tới cấp 5, theo thứ tự.
+## Cấp 1 tới cấp 4, theo thứ tự.
 @export var levels: Array[TowerLevel] = []
+## Hai nhánh cấp 5: 5A rồi 5B.
+@export var branches: Array[TowerBranch] = []
 @export_group("Quá tải và MEGA")
 ## Thời gian bắn liên tục để nạp đầy thanh Quá tải, giây.
 @export var overload_charge_seconds: float = 14.0

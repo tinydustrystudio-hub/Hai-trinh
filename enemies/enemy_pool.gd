@@ -118,8 +118,8 @@ func advance(delta: float) -> void:
 
 
 ## Gây sát thương cho một địch; nếu hạ được thì báo và trả về pool. Trả sát thương thật.
-func damage(enemy: Enemy, amount: float) -> float:
-	var dealt: float = enemy.take_damage(amount)
+func damage(enemy: Enemy, amount: float, armor_ignore: float = 0.0) -> float:
+	var dealt: float = enemy.take_damage(amount, armor_ignore)
 	if enemy.active and enemy.is_dead():
 		var reward: int = enemy.data.steel_reward
 		Events.enemy_killed.emit(enemy, reward)

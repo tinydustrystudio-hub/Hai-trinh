@@ -1,7 +1,7 @@
 class_name Hud
 extends CanvasLayer
-## HUD trận. Hiện có Độ Nổi, đợt hiện tại, báo đợt sắp tới, Thép (trên phải), vòng chọn lô cốt
-## và màn kết quả; Tạm dừng, ×2 và khay MEGA thêm ở các bước sau. Chỉ nghe Events.
+## HUD trận. Hiện có Độ Nổi, đợt hiện tại, báo đợt sắp tới, Thép (trên phải), vòng chọn lô cốt,
+## vòng nâng cấp, thẻ chọn nhánh và màn kết quả; Tạm dừng, ×2 và khay MEGA thêm ở các bước sau. Chỉ nghe Events.
 
 signal retry_requested
 
@@ -13,6 +13,8 @@ var _wave_total: int = 0
 
 @onready var result_panel: ResultPanel = $ResultPanel
 @onready var build_ring: BuildRing = $BuildRing
+@onready var upgrade_ring: UpgradeRing = $UpgradeRing
+@onready var branch_cards: BranchCards = $BranchCards
 
 
 func _ready() -> void:
@@ -74,6 +76,7 @@ func incoming_text() -> String:
 func _on_steel_changed(value: int) -> void:
 	_steel.text = tr(&"HUD_STEEL") % value
 	build_ring.set_steel(value)
+	upgrade_ring.set_steel(value)
 
 
 func _on_buoyancy_changed(value: int, max_value: int) -> void:

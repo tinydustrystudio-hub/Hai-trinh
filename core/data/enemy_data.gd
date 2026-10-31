@@ -18,6 +18,8 @@ enum Hull { SKIFF, RAM, CRAB }
 @export var layer: Layer = Layer.SURFACE
 ## Trùm: làm chậm tối đa 40% thay vì 70%.
 @export var is_boss: bool = false
+## Tàu tinh nhuệ: như trùm, không bị giữ đứng yên (Dính Chặt) mà chỉ chậm thêm.
+@export var is_elite: bool = false
 ## Độ Nổi mất khi lọt vào đảo.
 @export var buoyancy_damage: int = 1
 ## Thép nhận được khi hạ.

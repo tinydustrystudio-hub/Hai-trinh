@@ -6,6 +6,8 @@ extends RefCounted
 const PRIMARY: Color = Color(1.0, 0.45, 0.1)
 const PRIMARY_PRESSED: Color = Color(0.85, 0.35, 0.05)
 const PANEL: Color = Color(0.02, 0.12, 0.18, 0.82)
+## Nút bị khóa: xám (GDD mục 7.1).
+const DISABLED: Color = Color(0.42, 0.44, 0.47)
 const TEXT: Color = Color(1, 1, 1)
 const TEXT_SIZE: int = 40
 const TITLE_SIZE: int = 96
@@ -27,13 +29,17 @@ static func primary_button(text_key: StringName, min_size: Vector2 = Vector2(360
 	var button: Button = Button.new()
 	button.text = text_key
 	button.custom_minimum_size = Vector2(maxf(min_size.x, MIN_BUTTON.x), maxf(min_size.y, MIN_BUTTON.y))
+	# Chữ dài thì xuống dòng trong nút, không làm nút nở ra đè lên nút bên cạnh.
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.add_theme_font_size_override(&"font_size", BUTTON_TEXT_SIZE)
 	button.add_theme_color_override(&"font_color", TEXT)
 	button.add_theme_color_override(&"font_pressed_color", TEXT)
 	button.add_theme_color_override(&"font_hover_color", TEXT)
+	button.add_theme_color_override(&"font_disabled_color", Color(1, 1, 1, 0.85))
 	button.add_theme_stylebox_override(&"normal", _box(PRIMARY))
 	button.add_theme_stylebox_override(&"hover", _box(PRIMARY.lightened(0.1)))
 	button.add_theme_stylebox_override(&"pressed", _box(PRIMARY_PRESSED))
+	button.add_theme_stylebox_override(&"disabled", _box(DISABLED))
 	button.add_theme_stylebox_override(&"focus", StyleBoxEmpty.new())
 	return button
 
