@@ -79,7 +79,7 @@ static func build_shadow(layout: MapLayout) -> ArrayMesh:
 	var away: Vector3 = -Vector3(sun.x, 0.0, sun.z).normalized()
 	var length: float = 1.0 / maxf(sun.y, 0.2)
 	var r: float = layout.fortress_radius
-	_soft_disc(st, layout.fortress_center + away * r * 0.25 * length, r * 1.02, r * 0.18, 6, 0.0)
+	_soft_disc(st, layout.fortress_center + away * r * 0.1 * length, r * 0.96, r * 0.3, 6, 0.0)
 	for center: Vector3 in layout.satellite_centers:
 		_soft_disc(st, center + away * 0.6 * length, layout.satellite_radius, 1.2, 20, 0.0)
 	return MeshKit.commit(st)

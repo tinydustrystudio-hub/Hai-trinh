@@ -16,6 +16,7 @@ uniform vec4 sun_color : source_color = vec4(1.0, 0.9, 0.72, 1.0);
 uniform vec2 highlight_center = vec2(0.0, -34.0);
 uniform vec2 highlight_size = vec2(31.0, 18.0);
 uniform float highlight_strength = 1.0;
+uniform vec4 highlight_color : source_color = vec4(0.75, 0.82, 0.9, 1.0);
 uniform float sparkle_strength = 0.6;
 uniform sampler2D normal_a : hint_normal, repeat_enable, filter_linear_mipmap;
 uniform sampler2D normal_b : hint_normal, repeat_enable, filter_linear_mipmap;
@@ -98,8 +99,8 @@ void fragment() {
 	vec3 water_light = vec3(-to_camera.x, to_camera.y, -to_camera.z);
 	vec2 offset = (v_world.xz - highlight_center) / highlight_size;
 	float area = exp(-dot(offset, offset));
-	float sheen = pow(max(dot(reflected, water_light), 0.0), 12.0);
-	color += sun_color.rgb * area * (0.22 + sheen * 0.8) * highlight_strength;
+	float sheen = pow(max(dot(reflected, water_light), 0.0), 20.0);
+	color += mix(highlight_color.rgb, sun_color.rgb, 0.4) * area * (0.07 + sheen * 0.3) * highlight_strength;
 
 	// Lấp lánh nhẹ rải đều: mỗi ô nhỏ một nhịp nháy riêng, chỉ trên mặt sóng nghiêng.
 	if (detail > 0) {
