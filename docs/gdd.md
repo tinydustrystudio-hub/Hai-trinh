@@ -46,7 +46,7 @@ Hải Trình là game thủ thành trên biển, trong đó mỗi màn thắng b
 | Hạng mục | Quyết định | Lý do |
 | --- | --- | --- |
 | Kẻ địch đồng thời | Tối đa khoảng 60, tính cả quân do đảo di động phóng ra | Giữ chiến trường dễ đọc và chạy được trên Web |
-| Điều khiển | Bệ móng đặt sẵn (Đảo Chính 8–12 bệ, mỗi đảo nhỏ 1 bệ); chạm bệ thì hiện vòng chọn quanh ngón tay; nút chính ở hai góc dưới, tối thiểu 48dp | Đặt tự do trên địa hình 3D khó chạm trúng bằng ngón cái và tốn tính toán |
+| Điều khiển | Bệ móng đặt sẵn (Đảo Chính 6 bệ trên mỏm bến, mỗi đảo nhỏ 1 bệ); chạm bệ thì hiện vòng chọn quanh ngón tay; nút chính ở hai góc dưới, tối thiểu 48dp | Đặt tự do trên địa hình 3D khó chạm trúng bằng ngón cái và tốn tính toán |
 | Camera | Nghiêng cố định khoảng 55°, không xoay; kéo một ngón để trượt; thu phóng chỉ là tùy chọn | Xoay camera làm lạc hướng, che bệ và cần hai tay |
 | Thế giới | Không làm thế giới 3D mở. Đại dương rộng thể hiện bằng cảnh nền, đường chân trời và bản đồ thế giới dạng nút | Giữ cảm giác rộng mà tiết kiệm xử lý và công sản xuất |
 | Hoạt ảnh | Tàu không dùng xương, lắc theo sóng bằng vertex shader; quái có xương (skeletal animation) tối đa khoảng 8 con cùng lúc; đạn vẽ bằng MultiMesh | Quái có xương đắt hơn tàu nhiều lần trên điện thoại tầm trung |
@@ -1218,7 +1218,7 @@ Ngoài trận, người chơi chỉ có **Xu** và **Sao**. Trong trận có th�
 
 ### 5.3 Công trình trên Đảo Chính
 
-Đảo Chính (Mũi Neo) có bố cục cố định: Trung Tâm Chỉ Huy ở giữa, 8 ô công trình xếp vòng quanh, 12 ô trang trí nhỏ và 8–12 bệ lô cốt ở rìa đảo. Mỗi công trình có chỗ riêng, người chơi không phải sắp xếp, nên thao tác bằng một tay vẫn gọn.
+Đảo Chính (Mũi Neo) có bố cục cố định: Trung Tâm Chỉ Huy ở giữa, 8 ô công trình xếp vòng quanh, 12 ô trang trí nhỏ và 6 bệ lô cốt trên 6 mỏm bến ở rìa đảo (các bệ còn lại nằm trên đảo vệ tinh, mục 5.4). Mỗi công trình có chỗ riêng, người chơi không phải sắp xếp, nên thao tác bằng một tay vẫn gọn.
 
 **Luật chung:**
 
@@ -1247,10 +1247,13 @@ Mỗi đảo nhỏ có đúng 1 ô: đặt 1 lô cốt hoặc 1 tiện ích. Có
 
 | Loại | Lấy bằng cách nào | Số lượng | Có tác dụng ở đâu | Ô dùng cho |
 | --- | --- | --- | --- | --- |
-| Đảo vệ tinh | Mua ở Chợ Phao; tàu kéo về neo quanh Mũi Neo | Tối đa 6 | Mọi trận tại Mũi Neo và chế độ vô tận | 1 lô cốt đồn trú hoặc 1 tiện ích |
+| Đảo vệ tinh | Có sẵn 4 đảo; mở khóa thêm ở các màn sau; tàu kéo về neo quanh Mũi Neo | Tối thiểu 4; tối đa tùy màn | Mọi trận tại Mũi Neo và chế độ vô tận | 1 lô cốt đồn trú hoặc 1 tiện ích |
 | Đảo lãnh thổ | Chiếm khi thắng các nhiệm vụ có dấu ★ trên bản đồ (mục 5.5) | 15, mỗi vùng 3 | Mọi trận thuộc vùng biển đó | 1 tiện ích vùng |
 
-- **Giá đảo vệ tinh:** 300 / 400 / 550 / 700 / 900 / 1.200 Xu cho đảo thứ 1 tới thứ 6.
+- **Kích thước:** đường kính 2 ô.
+- **Số đảo:** tối thiểu 4, và mỗi hướng tấn công luôn có ít nhất 4 lô cốt trong tầm. Số đảo tối đa do từng màn quy định; người chơi mở khóa thêm ở các màn tiếp theo.
+- **Đặt và di chuyển (quy tắc mới, 31/10):** người chơi tự đặt đảo vệ tinh ở đầu mỗi màn, đặt lại bất cứ lúc nào. Đặt đảo không tốn phí; di chuyển đảo đã đặt thì tốn phí (số cụ thể chờ chốt, ghi ở `so-lieu-khoi-dau.md`).
+- **Giá mở khóa đảo vệ tinh:** bảng 300 / 400 / 550 / 700 / 900 / 1.200 Xu cho đảo thứ 1 tới thứ 6 của bản trước chưa còn khớp quy tắc "có sẵn 4 đảo" ở trên; cần chốt lại cách mở khóa (bằng Xu hay bằng tiến trình) và sửa mục 5.6 khi chốt.
 - **Lô cốt đồn trú:** chọn một loại lô cốt đã mở. Đầu trận nó có sẵn ở cấp 2, không tốn Thép; nâng tiếp bằng Thép như thường.
 - **Đổi tiện ích hoặc lô cốt đồn trú:** miễn phí, bất cứ lúc nào ở màn căn cứ hoặc bản đồ thế giới.
 
@@ -1262,7 +1265,7 @@ Mỗi đảo nhỏ có đúng 1 ô: đặt 1 lô cốt hoặc 1 tiện ích. Có
 | Kho Thép | Hồi I | +40 Thép khởi đầu ở trận tại Mũi Neo | +10% Thép khởi đầu ở trận thuộc vùng |
 | Trạm Phao Cứu Hộ | Hồi I | Hồi 1 Độ Nổi mỗi 20 giây | +10% Độ Nổi ở trận thuộc vùng |
 | Bến Thương Hội | Hồi II | Không dùng được | +10 Xu mỗi giờ offline |
-| Đài Pháo Sáng | Hồi III | Tự thả pháo sáng mỗi 30 giây | Lộ địch tàng hình ở đầu mỗi đợt trong vùng |
+| Đài Truyền Tin | Hồi III | Tự thả pháo sáng mỗi 30 giây | Lộ địch tàng hình ở đầu mỗi đợt trong vùng |
 
 **Đánh đổi:** trên đảo vệ tinh, đặt lô cốt đồn trú thì có thêm hỏa lực ngay đầu trận; đặt tiện ích thì có lợi lâu dài hơn. Trên đảo lãnh thổ, mỗi vùng có kiểu địch khác nhau nên tiện ích hợp nhất cũng khác (gợi ý ở mục 5.5).
 
@@ -1290,7 +1293,7 @@ Bản đồ thế giới là một hải đồ 2,5D trên bàn sa bàn trong ph�
 | Vịnh Ấm | Đảo Phía Tây (nv 5), Trạm Tàu Không Cờ (nv 7), Rạn Ngoài Vịnh (nv 8) | Kho Thép | Hồi đầu cần đặt lô cốt nhanh |
 | Quần Đảo Sương | Đảo Quan Trắc (nv 10), Cổng San Hô (nv 12), Trạm Phao Cũ (nv 13) | Trạm Ra-đa Tiền Tiêu | Sương và tàu tàng hình |
 | Biển Thép | Eo Sắt (nv 20), Bãi Xác Tàu (nv 21), Cảng Phao Trắng (nv 22) | Trạm Phao Cứu Hộ | Máy bay ném bom trừ nhiều Độ Nổi |
-| Vực Lam | Bãi Xác Phía Nam (nv 26), Phòng Thí Nghiệm Nổi (nv 28), Bến Tạm Vực Lam (nv 32) | Đài Pháo Sáng | Đêm dài, ảo ảnh và địch ẩn |
+| Vực Lam | Bãi Xác Phía Nam (nv 26), Phòng Thí Nghiệm Nổi (nv 28), Bến Tạm Vực Lam (nv 32) | Đài Truyền Tin | Đêm dài, ảo ảnh và địch ẩn |
 | Mắt Giếng | Điểm Neo Cổ (nv 33), Vành Đai Ngoài (nv 35), Bệ Trung Tâm (nv 39) | Tùy lối chơi | Mọi phe hội tụ |
 
 ### 5.6 Dòng chảy Xu và Sao
@@ -1316,7 +1319,7 @@ Mục tiêu cân bằng: chơi hết chiến dịch là đủ mua những thứ 
 | Mua 4 lô cốt mở từ Hồi II (Ra-đa, Xung Điện, Bẫy Lốc Xoáy, Pháo Tầm Xa) | khoảng 4.000 |
 | Trần cấp 4 và 5 cho 8 lô cốt (Súng Máy có sẵn) | khoảng 7.200 |
 | 16 nhánh cấp 5, 1.000 Xu mỗi nhánh (Súng Máy có sẵn 2 nhánh) | 16.000 |
-| 6 đảo vệ tinh | 4.050 |
+| 6 đảo vệ tinh (giá cũ, chờ chốt cách mở khóa ở mục 5.4) | 4.050 |
 | **Tổng để có tất cả** | **khoảng 31.000** |
 
 Đi hết Dễ và Trung bình kèm nhiệm vụ phụ thu khoảng 21.000 Xu: đủ mua 4 lô cốt mới, nâng trần cấp 5 cho các loại chủ lực, mở khoảng 6 nhánh và 1–2 đảo vệ tinh. Khoảng 10.000 Xu còn lại đến từ màn Khó, sản xuất offline, nhiệm vụ ngày và quảng cáo thưởng: khoảng 1 tuần chơi đều nếu xem quảng cáo, 2–3 tuần nếu không xem. Người chơi phải chọn mở nhánh nào trước, nên đó là một quyết định chứ không phải danh sách việc cần làm.
@@ -1917,10 +1920,10 @@ Quy ước cho mọi bảng model ở Phần 8:
 
 | Model | Prompt | Kích thước | Tam giác tối đa |
 | --- | --- | --- | --- |
-| Mũi Neo, nền Đảo Chính | Main floating island base made of hexagonal modular pontoon platforms, low breakwater rim, rope railings, small docks, 12 round tower pads around the edge and empty building slots, sea-blue, ivory-white and rescue-orange palette | 12 × 8 | 20.000, chia khúc để cắt phần khuất |
+| Mũi Neo, nền Đảo Chính | Main floating island base made of hexagonal modular pontoon platforms, low breakwater rim, rope railings, small docks, 6 round tower pads on six pier spurs around the edge and empty building slots, sea-blue, ivory-white and rescue-orange palette | 12 × 8 | 20.000, chia khúc để cắt phần khuất |
 | Bệ lô cốt | Round reinforced floating tower pad with orange edge markings and a rim that can glow when selectable | 1 | 300 |
 | Đảo Phía Tây | Small floating island with a cylindrical water tank, a wooden dock and a few houses, weathered teal and ivory | 6 × 4 | 8.000 |
-| Đảo Gỗ Trôi (đảo vệ tinh) | Small round floating island of bolted timber and pontoons, one tower pad in the center, a mooring chain and an orange buoy | 2,5 | 1.500 |
+| Đảo Gỗ Trôi (đảo vệ tinh) | Small round floating island of bolted timber and pontoons, one tower pad in the center, a mooring chain and an orange buoy | 2 | 1.500 |
 | Trạm Tàu Không Cờ | Abandoned research vessel run aground on a coral reef, flaking white paint, open hatches, dim lights inside, no flag | 5 × 2 | 4.000 |
 | Rạn Ngoài Vịnh | Low coral reef with the rusted stub of an old lighthouse and buoy markers | 4 × 3 | 2.500 |
 | Xuồng hàng của Bách Phao | White Buoy trading barge with a small market counter, ivory-white and pale bronze, round white buoys along the sides | 3 | 3.000 |
@@ -2127,7 +2130,7 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Màu xanh biển, trắng ngà, sọc cam.
 - Trong lúc chưa có model thật, dựng bằng code từ nhiều khối, đủ chi tiết để thấy rõ tầng, vành và tháp; không để là một khối vuông.
 
-**Đảo vệ tinh:** nhỏ, đường kính khoảng 1,5 ô; một bệ ở giữa, một cột neo, một phao cam.
+**Đảo vệ tinh:** nhỏ, đường kính 2 ô; một bệ ở giữa, một cột neo, một phao cam.
 
 **Nước bản 2**
 

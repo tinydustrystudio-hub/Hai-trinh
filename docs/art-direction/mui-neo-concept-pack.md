@@ -70,7 +70,7 @@ Cấp 1 / 3 / 5 theo GDD 5.3 và 8.2. Phần đổi khi nâng cấp ghi sau mũi
 | SAT_STEEL_DEPOT | Kho Thép | Hai khối container xếp chữ nhật | Sea Blue, ivory, sọc cam | Hồi I |
 | SAT_BUOY_STATION | Trạm Phao Cứu Hộ | Vòng phao tròn lớn trên đài | Cam là chính (duy nhất), ivory | Hồi I |
 | SAT_TRADE_DOCK | Bến Thương Hội | Cầu tàu chữ T, quầy hàng | Ivory, đồng nhạt, phao trắng | Hồi II |
-| SAT_COMMS_TOWER | Đài truyền tin | Tháp thon có chảo nhỏ và đèn báo | Ivory, Graphite, đèn vàng ấm | Hồi III |
+| SAT_COMMS_TOWER | Đài Truyền Tin | Tháp thon có chảo nhỏ và đèn báo | Ivory, Graphite, đèn vàng ấm | Hồi III |
 
 - **Bến Thương Hội không dùng được trên đảo vệ tinh** (chỉ đảo lãnh thổ). Vẫn có concept riêng trên nền đảo chung cho đảo lãnh thổ; đảo vệ tinh chỉ dùng 4 tiện ích còn lại.
 - **Đặt đảo:** đặt tự do, miễn phí; di chuyển đảo tốn phí.
@@ -173,7 +173,6 @@ text, letters, numbers, logo, watermark, signature, weapons, guns, cannons, miss
 6. **Hướng sáng:** concept dùng ánh sáng từ trên trái; hướng nắng trong dữ liệu bản đồ (nghiêng về đông bắc) chưa đổi.
 7. **Màu:** bảng màu mục A (Graphite #3A4048) là chuẩn cho concept; màu trong code gần nhưng không trùng (Graphite code #525C66).
 
-**Còn mở, cần sửa ở tài liệu hoặc code khác (pack này không sửa):**
-- GDD 5.3 và 8.2 vẫn ghi 8–12 hoặc 12 bệ; GDD 8.6 ghi đảo vệ tinh khoảng 1,5 ô (code bán kính 3 = 1,5 ô); GDD 8.2 ghi 2,5 cho Đảo Gỗ Trôi.
-- GDD 5.4 vẫn ghi "Đài Pháo Sáng", tối đa 6 đảo vệ tinh, mua ở Chợ Phao bằng Xu, đổi tiện ích miễn phí; quy tắc mới (đặt miễn phí, di chuyển tốn phí, số đảo tùy màn) chưa có trong GDD.
-- Hướng nắng và Graphite trong code chưa khớp concept; cần quyết khi dựng model thật.
+**Đã đồng bộ vào GDD (31/10):** bảng điều khiển ở mục 1, 5.3 (6 bệ mỏm bến), 5.4 (đảo vệ tinh 2 ô, tối thiểu 4, đặt miễn phí, di chuyển tốn phí, Đài Truyền Tin), 5.6, 8.2 (6 bệ, đảo 2 ô), 8.6 (đảo 2 ô).
+
+**Còn mở:** số phí di chuyển đảo và cách mở khóa đảo từ thứ 5 trở đi (bằng Xu hay bằng tiến trình) chưa chốt; hướng nắng và màu Graphite trong code chưa khớp concept, sẽ chỉnh khi dựng model thật.
