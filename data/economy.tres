@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="EconomyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/data/economy_data.gd" id="1_economy"]
+
+[resource]
+script = ExtResource("1_economy")
+wave_bonus = 20
+sell_refund = 0.7

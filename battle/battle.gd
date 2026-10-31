@@ -10,6 +10,10 @@ const LANE_SCRIPT: GDScript = preload("res://battle/map/lane.gd")
 ## Chạm cách tâm bệ trong khoảng này (tính theo bán kính bệ) vẫn tính là chạm trúng bệ.
 const PAD_PICK_TOLERANCE: float = 1.4
 const FAST_SPEED: float = 2.0
+## Lớp script của từng loại lô cốt theo id trong TowerData.
+const TOWER_SCRIPTS: Dictionary[StringName, GDScript] = {
+	&"machine_gun": preload("res://towers/machine_gun.gd"),
+}
 ## Trần số địch cùng lúc (GDD mục 1.3, CLAUDE.md).
 const MAX_ACTIVE_ENEMIES: int = 60
 ## Ở cảnh thử, địch mới xuất hiện rải trong đoạn đầu luồng này (tỉ lệ chiều dài luồng).
@@ -17,6 +21,8 @@ const STRESS_SPREAD: float = 0.85
 
 @export var layout: MapLayout = preload("res://data/maps/north_dock_layout.tres")
 @export var wave_data: WaveData = preload("res://data/waves/north_dock_waves.tres")
+## Các lô cốt chọn được trong vòng chọn, theo thứ tự hiện trên vòng.
+@export var tower_choices: Array[TowerData] = [preload("res://data/towers/machine_gun.tres")]
 
 var state: State = State.PREPARING
 var lanes: Array[Lane] = []
@@ -27,6 +33,8 @@ var speed: float = 1.0
 var stress_mode: bool = false
 ## Mili giây từ lúc chạy game tới lúc trận sẵn sàng (kế hoạch mục 7: không quá 3 giây).
 var ready_msec: int = 0
+
+var towers: Array[Tower] = []
 
 var _enemy_types: Array[EnemyData] = []
 ## Đợt gần nhất đã cho luồng hiện rõ, để chỉ hiện một lần mỗi đợt.
@@ -40,6 +48,8 @@ var _revealed_wave: int = -1
 @onready var spawner: WaveSpawner = $Systems/WaveSpawner
 @onready var buoyancy: Buoyancy = $Systems/Buoyancy
 @onready var enemy_pool: EnemyPool = $EnemyPool
+@onready var economy: Economy = $Systems/Economy
+@onready var bullets: BulletRenderer = $BulletRenderer
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
@@ -54,7 +64,12 @@ func _ready() -> void:
 	touch_input.drag_moved.connect(camera.drag_to)
 	touch_input.drag_ended.connect(_on_drag_ended)
 	touch_input.pinch_started.connect(camera.cancel_drag)
+	touch_input.pinch_started.connect(close_build_ring)
+	touch_input.drag_started.connect(close_build_ring.unbind(1))
 	touch_input.zoomed.connect(camera.zoom_by)
+	touch_input.zoomed.connect(close_build_ring.unbind(2))
+	economy.changed.connect(_on_steel_changed)
+	hud.build_ring.tower_chosen.connect(_on_tower_chosen)
 	spawner.spawn_requested.connect(_on_spawn_requested)
 	spawner.wave_started.connect(_on_wave_started)
 	spawner.wave_cleared.connect(_on_wave_cleared)
@@ -85,6 +100,9 @@ func step(delta: float) -> void:
 	if is_over():
 		return
 	enemy_pool.advance(delta)
+	for tower: Tower in towers:
+		tower.tick(delta)
+	bullets.advance(delta)
 	if stress_mode:
 		spawn_burst(MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
 	island.set_tilt(buoyancy.tilt_degrees())
@@ -93,8 +111,10 @@ func step(delta: float) -> void:
 func start_battle() -> void:
 	stress_mode = false
 	enemy_pool.clear()
-	select_pad(null)
+	_clear_towers()
+	close_build_ring()
 	buoyancy.reset(layout.starting_buoyancy)
+	economy.reset(layout.starting_steel)
 	state = State.PREPARING
 	_revealed_wave = -1
 	set_paused(false)
@@ -140,6 +160,36 @@ static func enemy_types_in(data: WaveData) -> Array[EnemyData]:
 			if group.enemy != null and not result.has(group.enemy):
 				result.append(group.enemy)
 	return result
+
+
+## Xây lô cốt lên bệ nếu bệ trống và đủ Thép; trả lô cốt mới hoặc null.
+func build_tower(pad: TowerPad, data: TowerData) -> Tower:
+	if pad == null or pad.occupied or is_over():
+		return null
+	if not economy.spend(data.level(1).steel_cost):
+		return null
+	var tower: Tower = TOWER_SCRIPTS.get(data.id, Tower).new()
+	tower.name = "Tower%d" % pad.pad_index
+	tower.setup(data, pad, enemy_pool, bullets)
+	# Lô cốt là con của bệ: lô cốt trên mỏm bến nghiêng theo pháo đài khi mất Độ Nổi.
+	pad.add_child(tower)
+	pad.occupied = true
+	towers.append(tower)
+	Events.tower_built.emit(tower)
+	return tower
+
+
+## Đóng vòng chọn và bỏ chọn bệ.
+func close_build_ring() -> void:
+	hud.build_ring.close()
+	select_pad(null)
+
+
+func _clear_towers() -> void:
+	for tower: Tower in towers:
+		tower.pad.occupied = false
+		tower.queue_free()
+	towers.clear()
 
 
 func is_over() -> bool:
@@ -207,6 +257,7 @@ func _end_battle(won: bool) -> void:
 		return
 	state = State.WON if won else State.LOST
 	spawner.stop()
+	close_build_ring()
 	set_paused(false)
 	set_speed(1.0)
 	Events.battle_ended.emit(won)
@@ -227,6 +278,7 @@ func _on_spawn_requested(enemy: EnemyData, lane_index: int) -> void:
 
 func _on_wave_started(index: int, total: int) -> void:
 	state = State.FIGHTING
+	economy.on_wave_started()
 	Events.wave_started.emit(index, total)
 
 
@@ -265,7 +317,8 @@ func _on_enemy_leaked(enemy: Enemy, damage: int) -> void:
 		buoyancy.take_leak(damage)
 
 
-func _on_enemy_killed(enemy: Enemy, _reward: int) -> void:
+func _on_enemy_killed(enemy: Enemy, reward: int) -> void:
+	economy.earn(reward)
 	if enemy.counts_for_wave:
 		spawner.notify_enemy_removed()
 
@@ -273,7 +326,23 @@ func _on_enemy_killed(enemy: Enemy, _reward: int) -> void:
 func _on_tapped(screen_position: Vector2) -> void:
 	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
 	var pad: TowerPad = island.pad_near(point, TowerPad.RADIUS * PAD_PICK_TOLERANCE)
-	select_pad(pad if pad != selected_pad else null)
+	var same: bool = pad == selected_pad
+	close_build_ring()
+	if pad == null or same or is_over():
+		return
+	select_pad(pad)
+	if not pad.occupied:
+		hud.build_ring.open(camera.unproject_position(pad.global_position), tower_choices, economy.steel)
+
+
+func _on_tower_chosen(data: TowerData) -> void:
+	var pad: TowerPad = selected_pad
+	close_build_ring()
+	build_tower(pad, data)
+
+
+func _on_steel_changed(value: int) -> void:
+	Events.steel_changed.emit(value)
 
 
 func _on_drag_ended(_screen_position: Vector2) -> void:

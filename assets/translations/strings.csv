@@ -29,3 +29,5 @@ Draw calls: %d
 Triangles: %d
 Load: %d ms"
 LANE_SOUTH,Luồng Nam,South lane
+TOWER_MACHINE_GUN,Súng Máy,Machine Gun
+HUD_STEEL,Thép: %d,Steel: %d
