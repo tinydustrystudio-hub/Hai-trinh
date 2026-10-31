@@ -33,6 +33,7 @@ func _ready() -> void:
 		return
 	var toggle: Button = UiStyle.primary_button(&"DEBUG_TOGGLE", UiStyle.MIN_BUTTON)
 	toggle.name = "Toggle"
+	toggle.add_theme_font_size_override(&"font_size", 32)
 	toggle.modulate = Color(1, 1, 1, 0.7)
 	toggle.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN)
 	toggle.pressed.connect(func() -> void: expanded = not expanded)

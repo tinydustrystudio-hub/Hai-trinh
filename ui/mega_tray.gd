@@ -6,7 +6,7 @@ extends Control
 signal mega_requested(tower: Tower)
 
 const MAX_SLOTS: int = 4
-const BUTTON_SIZE: float = 140.0
+const BUTTON_SIZE: float = 150.0
 const GAP: float = 16.0
 
 ## Lô cốt đang chờ kích, theo thứ tự đầy thanh.
@@ -21,7 +21,7 @@ func _ready() -> void:
 	for i: int in MAX_SLOTS:
 		var button: Button = UiStyle.primary_button(&"", Vector2(BUTTON_SIZE, BUTTON_SIZE))
 		button.name = "Mega%d" % i
-		button.add_theme_font_size_override(&"font_size", 30)
+		button.add_theme_font_size_override(&"font_size", 22)
 		button.pressed.connect(_on_pressed.bind(i))
 		button.visible = false
 		add_child(button)

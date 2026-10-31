@@ -48,7 +48,7 @@ func spawn(center: Vector3, radius: float) -> bool:
 	if slot == -1:
 		return false
 	var full: bool = full_count() < MAX_FULL
-	_centers[slot] = Vector3(center.x, 0.3, center.z)
+	_centers[slot] = Vector3(center.x, 1.0, center.z)
 	_radius[slot] = radius if full else LIGHT_RADIUS
 	_age[slot] = 0.0
 	_full[slot] = 1 if full else 0
