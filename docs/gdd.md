@@ -1675,7 +1675,7 @@ Mục đích: để bản đồ chiếm gần hết màn hình, và mọi thao t
 | Trên trái | Độ Nổi (thanh và số); đợt hiện tại / tổng số đợt |
 | Trên giữa | Báo đợt sắp tới: hướng và biểu tượng tầng địch. Khi có trùm: thanh máu trùm chia vạch theo giai đoạn |
 | Trên phải | Thép; Tạm dừng (→ Tạm dừng); nút tua nhanh ×1/×2 |
-| Giữa | Bản đồ trận. Chạm bệ trống → vòng chọn lô cốt. Chạm lô cốt → vòng nâng cấp. Chạm địch → mọi lô cốt trong tầm ưu tiên bắn nó |
+| Giữa | Bản đồ trận. Chạm bệ trống → vòng chọn lô cốt; chạm một lô cốt trong vòng chỉ để xem trước: hiện vòng tầm bắn trên bệ cùng nút Xây (kèm giá) và Hủy ở góc dưới phải, bấm Xây mới trừ Thép và đặt. Chạm lô cốt → vòng nâng cấp, cũng hiện vòng tầm bắn. Chạm địch → mọi lô cốt trong tầm ưu tiên bắn nó |
 | Dưới trái | 2 nút tính năng phụ 64dp có vòng hồi chiêu; nút Gọi đợt sớm khi đang nghỉ giữa đợt |
 | Dưới phải | Khay MEGA: tối đa 4 nút 64dp cho các lô cốt đã đầy thanh Quá tải, xếp theo thứ tự đầy |
 | Dưới giữa | Khung thoại một câu, không chặn chạm, tự ẩn sau 3 giây |
