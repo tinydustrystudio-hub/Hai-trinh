@@ -62,7 +62,7 @@ func test_mega_tray_bottom_right() -> void:
 
 func test_texts_are_translated() -> void:
 	assert_eq(_hud.buoyancy_text(), "Độ Nổi: 20/20")
-	assert_eq(_hud.steel_text(), "Thép: 200")
+	assert_eq(_hud.steel_text(), "200")
 	assert_string_contains(_hud.incoming_text(), "Đợt 1 tới sau")
 	# Góp ý 3: hướng địch do đèn báo trên đảo chỉ, không ghi bằng chữ.
 	assert_false(_hud.incoming_text().contains("Luồng"))
@@ -70,7 +70,7 @@ func test_texts_are_translated() -> void:
 	assert_eq(_hud.speed_button().text, "×1")
 	TranslationServer.set_locale("en")
 	_battle.economy.earn(5)
-	assert_eq(_hud.steel_text(), "Steel: 205")
+	assert_eq(_hud.steel_text(), "205")
 	TranslationServer.set_locale("vi")
 
 

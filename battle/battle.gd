@@ -78,12 +78,17 @@ var _enemies_met: Array[EnemyData] = []
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
 var weather: Weather
+var fade: ScreenFade
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 
 
 func _ready() -> void:
 	build_map()
 	_build_weather()
+	fade = ScreenFade.new()
+	fade.name = "ScreenFade"
+	add_child(fade)
+	fade.fade_in()
 	enemy_pool.ocean = ocean
 	enemy_pool.face_camera(camera.global_basis)
 	overload_bars.face_camera(camera.global_basis)
@@ -180,6 +185,8 @@ func start_battle() -> void:
 	set_speed(1.0)
 	hud.hide_result()
 	spawner.start(wave_data)
+	if fade != null:
+		fade.fade_in(ScreenFade.DURATION * 0.6)
 	_update_lane_warnings()
 
 

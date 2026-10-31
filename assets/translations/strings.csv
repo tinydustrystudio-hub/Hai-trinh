@@ -30,7 +30,7 @@ Triangles: %d
 Load: %d ms"
 LANE_SOUTH,Luồng Nam,South lane
 TOWER_MACHINE_GUN,Súng Máy,Machine Gun
-HUD_STEEL,Thép: %d,Steel: %d
+HUD_STEEL,%d,%d
 TOWER_GLUE_SPRAYER,Lô Cốt Keo,Glue Sprayer
 TOWER_LIGHT_BEAM,Lô Cốt Tia Sáng,Light Beam
 BRANCH_BULLET_RAIN,Mưa Đạn,Bullet Rain
@@ -56,7 +56,7 @@ SELL,Bán,Sell
 TOWER_LEVEL,Cấp %d,Level %d
 BRANCH_TITLE,Chọn nhánh cấp 5,Choose a level 5 branch
 BUTTON_BACK,Quay lại,Back
-DEBUG_ADD_STEEL,+500 Thép,+500 Steel
+DEBUG_ADD_STEEL,+500 Tiền Vàng,+500 Gold
 HUD_PAUSE,II,II
 HUD_SPEED_NORMAL,×1,×1
 HUD_SPEED_FAST,×2,×2

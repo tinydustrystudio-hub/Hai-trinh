@@ -22,4 +22,6 @@ signal mega_ended(tower: Node3D)
 signal battle_ended(won: bool)
 ## Sét đánh; thunder_delay là số giây tới khi tiếng sấm tới.
 signal lightning_struck(thunder_delay: float)
+## Một nút giao diện vừa được bấm (để phát tiếng bấm).
+signal ui_clicked
 @warning_ignore_restore("unused_signal")

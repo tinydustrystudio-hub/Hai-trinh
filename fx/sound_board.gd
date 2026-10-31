@@ -5,21 +5,21 @@ extends Node
 ## Giới hạn số lần phát mỗi loại để 10 khẩu Súng Máy bắn cùng lúc không thành một tràng ồn.
 ## Tắt khi Settings.sound_enabled là false.
 
-enum Sound { SHOT, EXPLOSION, MEGA, THUNDER }
+enum Sound { SHOT, EXPLOSION, MEGA, THUNDER, CLICK }
 
 const MIX_RATE: int = 22050
 const PLAYERS: int = 8
 ## Khoảng cách tối thiểu giữa hai lần phát cùng loại, giây.
-const MIN_GAP: Dictionary[Sound, float] = { Sound.SHOT: 0.07, Sound.EXPLOSION: 0.09, Sound.MEGA: 0.2, Sound.THUNDER: 0.5 }
-const VOLUME_DB: Dictionary[Sound, float] = { Sound.SHOT: -16.0, Sound.EXPLOSION: -9.0, Sound.MEGA: -6.0, Sound.THUNDER: -4.0 }
+const MIN_GAP: Dictionary[Sound, float] = { Sound.SHOT: 0.07, Sound.EXPLOSION: 0.09, Sound.MEGA: 0.2, Sound.THUNDER: 0.5, Sound.CLICK: 0.05 }
+const VOLUME_DB: Dictionary[Sound, float] = { Sound.SHOT: -16.0, Sound.EXPLOSION: -9.0, Sound.MEGA: -6.0, Sound.THUNDER: -4.0, Sound.CLICK: -12.0 }
 
 ## Số lần đã phát mỗi loại (để thử).
-var played: Dictionary[Sound, int] = { Sound.SHOT: 0, Sound.EXPLOSION: 0, Sound.MEGA: 0, Sound.THUNDER: 0 }
+var played: Dictionary[Sound, int] = { Sound.SHOT: 0, Sound.EXPLOSION: 0, Sound.MEGA: 0, Sound.THUNDER: 0, Sound.CLICK: 0 }
 
 var _streams: Dictionary[Sound, AudioStreamWAV] = {}
 var _players: Array[AudioStreamPlayer] = []
 var _next_player: int = 0
-var _last_played: Dictionary[Sound, float] = { Sound.SHOT: -1.0, Sound.EXPLOSION: -1.0, Sound.MEGA: -1.0, Sound.THUNDER: -1.0 }
+var _last_played: Dictionary[Sound, float] = { Sound.SHOT: -1.0, Sound.EXPLOSION: -1.0, Sound.MEGA: -1.0, Sound.THUNDER: -1.0, Sound.CLICK: -1.0 }
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
@@ -29,6 +29,7 @@ func _ready() -> void:
 	_streams[Sound.EXPLOSION] = make_explosion()
 	_streams[Sound.MEGA] = make_mega()
 	_streams[Sound.THUNDER] = make_thunder()
+	_streams[Sound.CLICK] = make_click()
 	for i: int in PLAYERS:
 		var player: AudioStreamPlayer = AudioStreamPlayer.new()
 		player.name = "Player%d" % i
@@ -38,6 +39,7 @@ func _ready() -> void:
 	Events.mega_started.connect(func(_tower: Node3D) -> void: play(Sound.MEGA))
 	Events.tower_fired.connect(func(_tower: Node3D) -> void: play(Sound.SHOT))
 	Events.lightning_struck.connect(_on_lightning)
+	Events.ui_clicked.connect(func() -> void: play(Sound.CLICK))
 
 
 ## Phát một tiếng nếu đã đủ khoảng cách với lần trước cùng loại; trả true nếu đã phát.
@@ -118,6 +120,19 @@ static func make_mega() -> AudioStreamWAV:
 		var tone: float = sin(phase) * 0.6 + sin(phase * 2.0) * 0.25 + sin(phase * 3.01) * 0.12
 		var envelope: float = smoothstep(0.0, 0.05, t) * (1.0 - smoothstep(0.75, 1.0, t))
 		samples[i] = tone * envelope * 0.8
+	return _to_wav(samples)
+
+
+## Tiếng bấm nút: hai nốt ngắn đi lên (660 và 990 Hz), 90 ms, dịu tai.
+static func make_click() -> AudioStreamWAV:
+	var count: int = int(MIX_RATE * 0.09)
+	var samples: PackedFloat32Array = PackedFloat32Array()
+	samples.resize(count)
+	for i: int in count:
+		var t: float = float(i) / float(count)
+		var frequency: float = 660.0 if t < 0.4 else 990.0
+		var tone: float = sin(TAU * frequency * float(i) / float(MIX_RATE))
+		samples[i] = tone * smoothstep(0.0, 0.05, t) * pow(1.0 - t, 2.0) * 0.6
 	return _to_wav(samples)
 
 
