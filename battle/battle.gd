@@ -13,6 +13,7 @@ const FAST_SPEED: float = 2.0
 ## Lớp script của từng loại lô cốt theo id trong TowerData.
 const TOWER_SCRIPTS: Dictionary[StringName, GDScript] = {
 	&"machine_gun": preload("res://towers/machine_gun.gd"),
+	&"glue_sprayer": preload("res://towers/glue_sprayer.gd"),
 }
 ## Trần số địch cùng lúc (GDD mục 1.3, CLAUDE.md).
 const MAX_ACTIVE_ENEMIES: int = 60
@@ -22,7 +23,10 @@ const STRESS_SPREAD: float = 0.85
 @export var layout: MapLayout = preload("res://data/maps/north_dock_layout.tres")
 @export var wave_data: WaveData = preload("res://data/waves/north_dock_waves.tres")
 ## Các lô cốt chọn được trong vòng chọn, theo thứ tự hiện trên vòng.
-@export var tower_choices: Array[TowerData] = [preload("res://data/towers/machine_gun.tres")]
+@export var tower_choices: Array[TowerData] = [
+	preload("res://data/towers/machine_gun.tres"),
+	preload("res://data/towers/glue_sprayer.tres"),
+]
 
 var state: State = State.PREPARING
 var lanes: Array[Lane] = []
@@ -49,7 +53,9 @@ var _revealed_wave: int = -1
 @onready var buoyancy: Buoyancy = $Systems/Buoyancy
 @onready var enemy_pool: EnemyPool = $EnemyPool
 @onready var economy: Economy = $Systems/Economy
-@onready var bullets: BulletRenderer = $BulletRenderer
+@onready var effects: Node3D = $Effects
+@onready var bullets: BulletRenderer = $Effects/BulletRenderer
+@onready var glue_puddles: GluePuddles = $Effects/GluePuddles
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
@@ -100,8 +106,12 @@ func step(delta: float) -> void:
 	if is_over():
 		return
 	enemy_pool.advance(delta)
+	glue_puddles.begin()
 	for tower: Tower in towers:
 		tower.tick(delta)
+		if tower is GlueSprayer:
+			(tower as GlueSprayer).draw_puddles(glue_puddles)
+	glue_puddles.finish()
 	bullets.advance(delta)
 	if stress_mode:
 		spawn_burst(MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
@@ -170,7 +180,7 @@ func build_tower(pad: TowerPad, data: TowerData) -> Tower:
 		return null
 	var tower: Tower = TOWER_SCRIPTS.get(data.id, Tower).new()
 	tower.name = "Tower%d" % pad.pad_index
-	tower.setup(data, pad, enemy_pool, bullets)
+	tower.setup(data, pad, enemy_pool, effects)
 	# Lô cốt là con của bệ: lô cốt trên mỏm bến nghiêng theo pháo đài khi mất Độ Nổi.
 	pad.add_child(tower)
 	pad.occupied = true

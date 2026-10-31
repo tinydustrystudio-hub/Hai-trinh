@@ -7,7 +7,7 @@ signal tower_chosen(data: TowerData)
 
 const BUTTON_SIZE: float = 168.0
 ## Khoảng cách từ bệ tới tâm các nút.
-const RADIUS: float = 150.0
+const RADIUS: float = 165.0
 ## Các nút xếp trên cung phía trên bệ, từ trái sang phải.
 const ARC_DEGREES: float = 70.0
 const GREY: Color = Color(0.45, 0.47, 0.5)

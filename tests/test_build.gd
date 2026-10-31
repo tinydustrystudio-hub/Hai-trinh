@@ -42,11 +42,16 @@ func test_build_ring_greys_out_when_short() -> void:
 	var ring: BuildRing = _battle.hud.build_ring
 	ring.open(Vector2(900, 500), _battle.tower_choices, 200)
 	assert_true(ring.is_open())
-	assert_eq(ring.buttons().size(), 1)
+	# Súng Máy (70) và Lô Cốt Keo (60).
+	assert_eq(ring.buttons().size(), 2)
 	assert_false(ring.buttons()[0].disabled)
 	assert_string_contains(ring.buttons()[0].text, "70")
-	ring.set_steel(50)
+	assert_string_contains(ring.buttons()[1].text, "60")
+	ring.set_steel(65)
 	assert_true(ring.buttons()[0].disabled)
+	assert_false(ring.buttons()[1].disabled)
+	ring.set_steel(50)
+	assert_true(ring.buttons()[1].disabled)
 	ring.set_steel(70)
 	assert_false(ring.buttons()[0].disabled)
 
@@ -64,11 +69,17 @@ func test_ring_choice_builds_on_selected_pad() -> void:
 
 func test_ring_buttons_are_big_and_on_screen() -> void:
 	var screen: Vector2 = Vector2(1920, 1080)
+	assert_gte(BuildRing.BUTTON_SIZE, 120.0)
 	for at: Vector2 in [Vector2(960, 540), Vector2(10, 10), Vector2(1910, 1070)]:
-		var center: Vector2 = BuildRing.button_center(0, 1, at, screen)
-		assert_gte(BuildRing.BUTTON_SIZE, 120.0)
-		assert_true(Rect2(Vector2.ZERO, screen).has_point(center - Vector2.ONE * BuildRing.BUTTON_SIZE * 0.5))
-		assert_true(Rect2(Vector2.ZERO, screen).has_point(center + Vector2.ONE * BuildRing.BUTTON_SIZE * 0.5))
+		var centers: Array[Vector2] = []
+		for i: int in 2:
+			var center: Vector2 = BuildRing.button_center(i, 2, at, screen)
+			assert_true(Rect2(Vector2.ZERO, screen).has_point(center - Vector2.ONE * BuildRing.BUTTON_SIZE * 0.5))
+			assert_true(Rect2(Vector2.ZERO, screen).has_point(center + Vector2.ONE * BuildRing.BUTTON_SIZE * 0.5))
+			centers.append(center)
+		if at == Vector2(960, 540):
+			# Hai nút không chồng nhau và cách nhau ít nhất 8 px (GDD mục 7.1).
+			assert_gte(centers[0].distance_to(centers[1]), BuildRing.BUTTON_SIZE + 8.0)
 
 
 func test_wave_bonus_and_kill_rewards() -> void:

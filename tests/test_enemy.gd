@@ -46,8 +46,8 @@ func test_moves_at_data_speed() -> void:
 	assert_almost_eq(_enemy.position.z, -16.8, 0.05)
 
 
-func test_speed_multiplier_slows() -> void:
-	_enemy.speed_multiplier = 0.5
+func test_slow_reduces_speed() -> void:
+	_enemy.status.apply_slow(1, 0.5, 5.0)
 	_enemy.advance(1.0, 0.0)
 	assert_almost_eq(_enemy.distance, 1.6, 0.0001)
 

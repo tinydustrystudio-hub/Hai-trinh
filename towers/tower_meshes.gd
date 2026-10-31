@@ -43,6 +43,12 @@ static func turret_mesh(data: TowerData) -> ArrayMesh:
 				MeshKit.box(st, Vector3(0, y + 0.31, 0.1), Vector3(0.3, 0.04, 1.0), AllianceFortress.ORANGE)
 				for x: float in [-0.22, 0.22]:
 					MeshKit.box(st, Vector3(x, y + 0.05, -BARREL_LENGTH * 0.5), Vector3(0.14, 0.14, BARREL_LENGTH), AllianceFortress.DARK)
+			&"glue_sprayer":
+				# Bồn keo tròn màu rong biển, đai cam, vòi phun ngắn loe miệng.
+				MeshKit.prism(st, Vector3(0, 0, 0.15), 0.62, y - 0.3, y + 0.45, 12, data.color, data.color.lightened(0.25))
+				MeshKit.ring(st, Vector3(0, 0, 0.15), 0.62, 0.66, y - 0.05, y + 0.12, 12, AllianceFortress.ORANGE, AllianceFortress.ORANGE)
+				MeshKit.box(st, Vector3(0, y + 0.1, -0.75), Vector3(0.22, 0.22, 1.0), AllianceFortress.STEEL)
+				MeshKit.box(st, Vector3(0, y + 0.1, -1.3), Vector3(0.4, 0.4, 0.2), data.color.darkened(0.2))
 			_:
 				MeshKit.box(st, Vector3(0, y, 0), Vector3(1.0, 0.6, 1.0), data.color)
 		_turrets[data.id] = MeshKit.commit(st)

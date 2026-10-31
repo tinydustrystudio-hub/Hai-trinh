@@ -15,7 +15,8 @@ var _retarget_left: float = 0.0
 var _turret: Node3D
 
 
-## Đặt lô cốt lên bệ. Gọi trước khi vào cây.
+## Đặt lô cốt lên bệ. Gọi trước khi vào cây. effects là nút chứa các bộ vẽ hiệu ứng dùng chung
+## (BulletRenderer, GluePuddles); để null khi thử logic.
 func setup(tower_data: TowerData, on_pad: TowerPad, pool: EnemyPool, effects: Node) -> void:
 	data = tower_data
 	pad = on_pad

@@ -14,4 +14,7 @@ trong `data/*.tres` để chơi thử; khi cân bằng (bước 12) hoặc sau b
 | Chia địch cho từng luồng ở đợt 3–5 | xem file đợt | `data/waves/north_dock_waves.tres` | Kế hoạch chỉ ghi luồng nào có địch |
 | Chia đợt 5 cho 4 luồng (mỗi luồng 3 Xuồng Cướp; Ca Nô ở Đông, Tây; Cua ở Bắc, Nam) | xem file đợt | `data/waves/north_dock_waves.tres` | GDD mục 8.6 chỉ ghi đợt 5 dùng cả 4 luồng |
 | Chiều dài luồng: Bắc 63, Nam 62, Đông và Tây khoảng 93 đơn vị (16–24 ô) | xem file bản đồ | `data/maps/north_dock_layout.tres` | Bố cục mới ở GDD mục 8.6; luồng Đông, Tây dài hơn để bắt đầu ngoài mép màn hình điện thoại 19,5:9 |
+| Lô Cốt Keo: phun mỗi 0,5 giây (tốc bắn 2) | 2 lần/giây | `data/towers/glue_sprayer.tres` | Kế hoạch mục 5.2 |
+| Lô Cốt Keo cấp 2–4: thời gian chậm 2 giây; sát thương cấp 2 = 2, cấp 4 = 4 mỗi giây | xem file | `data/towers/glue_sprayer.tres` | GDD mục 3.4 chỉ ghi ở cấp 1 và 3; lấy theo cấp liền trước |
+| Vũng keo tồn tại bằng thời gian chậm (2 giây) | 2 giây | `towers/glue_sprayer.gd` (theo `slow_duration`) | Đặt tạm |
 | 5 đợt ở Bến Bắc | cả bảng | `data/waves/north_dock_waves.tres` | Kế hoạch mục 5.1, "bản đầu" |
