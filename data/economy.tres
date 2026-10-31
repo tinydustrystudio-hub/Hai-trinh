@@ -9,3 +9,5 @@ sell_refund = 0.7
 island_use_base = 200
 island_use_step = 50
 island_move_ratio = 0.5
+island_buy_base = 250
+island_buy_step = 50

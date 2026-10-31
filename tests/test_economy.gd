@@ -69,3 +69,12 @@ func test_island_move_cost_is_half_cheapest_tower() -> void:
 	assert_eq(cheapest, 60)
 	assert_eq(rules.island_move_cost(cheapest), 30)
 	assert_eq(rules.island_move_cost(1), 1, "tối thiểu 1")
+
+
+func test_island_buy_cost_starts_at_250_and_rises_by_fifty() -> void:
+	# Đảo mua thêm thứ nhất (đảo thứ 5 của màn 1) là 250, mỗi đảo sau +50 (người duyệt chốt 31/10).
+	var rules: EconomyData = load("res://data/economy.tres")
+	assert_eq(rules.island_buy_cost(1), 250)
+	assert_eq(rules.island_buy_cost(2), 300)
+	assert_eq(rules.island_buy_cost(4), 400)
+	assert_eq(rules.island_buy_cost(0), 250, "không âm")

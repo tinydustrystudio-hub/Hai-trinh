@@ -12,8 +12,17 @@ extends Resource
 ## island_use_base, mỗi đảo tiếp theo cộng thêm island_use_step (200, 250, 300…). Đảo cấp sẵn của màn không tốn phí.
 @export var island_use_base: int = 200
 @export var island_use_step: int = 50
+## Giá mua đảo (vật phẩm, mua một lần): đảo mua thêm thứ nhất (đảo thứ 5 của màn 1) island_buy_base, mỗi đảo tiếp theo
+## cộng thêm island_buy_step (250, 300, 350, 400…).
+@export var island_buy_base: int = 250
+@export var island_buy_step: int = 50
 ## Phí dời một đảo đã đặt = giá xây lô cốt rẻ nhất nhân hệ số này (làm tròn xuống, tối thiểu 1).
 @export_range(0.0, 1.0) var island_move_ratio: float = 0.5
+
+
+## Giá mua đảo mua thêm thứ n (đếm từ 1; đảo cấp sẵn không tính).
+func island_buy_cost(n: int) -> int:
+	return island_buy_base + island_buy_step * maxi(n - 1, 0)
 
 
 ## Phí dùng đảo tự đặt thứ n (đếm từ 1) trong một màn.
