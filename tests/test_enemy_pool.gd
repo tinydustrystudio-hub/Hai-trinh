@@ -65,13 +65,14 @@ func test_wake_bends_along_the_path_behind_a_turning_boat() -> void:
 	add_child_autofree(bend)
 	var enemy: Enemy = _pool.acquire(SKIFF, bend, 30.0)
 	enemy.lateral_offset = 0.0
+	enemy.clear_wander()
 	_pool.advance(0.01)
 	assert_eq(_pool.get_node("Wakes").multimesh.visible_instance_count, 1)
 	var length: float = SKIFF.size_cells * MapLayout.UNITS_PER_CELL
 	var stern: float = length * 0.45
 	var wake_length: float = length * EnemyPool.WAKE_LENGTH
 	var yaw: Basis = Basis.looking_at(enemy.forward, Vector3.UP)
-	var back: Vector3 = bend.direction_at(enemy.distance - stern - wake_length)
+	var back: Vector3 = enemy.heading_at(enemy.distance - stern - wake_length)
 	var curvature: float = EnemyPool.wake_curvature(yaw, back, wake_length)
 	assert_ne(curvature, 0.0, "tàu đang ở khúc quanh: vệt phải cong")
 	var origin: Vector3 = Vector3(enemy.position.x, 0.0, enemy.position.z) - enemy.forward * stern
@@ -101,3 +102,17 @@ func test_wake_is_short_right_after_spawn() -> void:
 	_pool.advance(0.01)
 	assert_eq(_pool.get_node("Wakes").multimesh.visible_instance_count, 0)
 	assert_not_null(enemy)
+
+
+func test_wake_follows_the_wandering_path() -> void:
+	# Địch lượn sang hai bên: hướng ở cuối vệt khác hướng luồng, vệt cong theo đường thật.
+	var straight: Lane = Lane.new()
+	straight.setup(2, PackedVector3Array([Vector3(0, 0, -100), Vector3(0, 0, 100)]), &"LANE_NORTH")
+	add_child_autofree(straight)
+	var enemy: Enemy = _pool.acquire(SKIFF, straight, 60.0)
+	var differs: bool = false
+	for k: int in 40:
+		var heading: Vector3 = enemy.heading_at(20.0 + float(k) * 3.0)
+		if heading.distance_to(straight.direction_at(20.0)) > 0.02:
+			differs = true
+	assert_true(differs, "hướng mũi tàu lượn theo đường lượn")

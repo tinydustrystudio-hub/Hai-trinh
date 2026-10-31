@@ -29,6 +29,10 @@ var serial: int = 0
 
 var _body: MeshInstance3D
 var _bob_phase: float = 0.0
+## Đường lượn riêng (góp ý 5): biên độ, hai tần số và hai pha; biên độ 0 là đi đúng giữa luồng.
+var _wander_amplitude: float = 0.0
+var _wander_freq: Vector2 = Vector2.ONE
+var _wander_phase: Vector2 = Vector2.ZERO
 
 
 func _init() -> void:
@@ -39,6 +43,40 @@ func _init() -> void:
 	add_child(_body)
 	visible = false
 	set_process(false)
+
+
+## Đặt đường lượn riêng cho địch này từ bộ số ngẫu nhiên rng và luật chung RULES.
+func set_wander(rng: RandomNumberGenerator) -> void:
+	_wander_amplitude = RULES.wander_amplitude * rng.randf_range(0.55, 1.0)
+	var first: float = TAU / rng.randf_range(RULES.wander_wavelength_min, RULES.wander_wavelength_max)
+	var second: float = TAU / rng.randf_range(RULES.wander_wavelength_min * 0.5, RULES.wander_wavelength_max * 0.7)
+	_wander_freq = Vector2(first, second)
+	_wander_phase = Vector2(rng.randf() * TAU, rng.randf() * TAU)
+
+
+## Độ lệch ngang do đường lượn tại quãng đường dist, và độ dốc của nó (đạo hàm theo dist).
+func wander_at(dist: float) -> Vector2:
+	var a: float = _wander_freq.x * dist + _wander_phase.x
+	var b: float = _wander_freq.y * dist + _wander_phase.y
+	var offset: float = _wander_amplitude * (0.65 * sin(a) + 0.35 * sin(b))
+	var slope: float = _wander_amplitude * (0.65 * _wander_freq.x * cos(a) + 0.35 * _wander_freq.y * cos(b))
+	return Vector2(offset, slope)
+
+
+## Hướng mũi tàu khi ở quãng đường dist (đã tính đường lượn).
+func heading_at(dist: float) -> Vector3:
+	var along: Vector3 = lane.direction_at(dist)
+	var side: Vector3 = Vector3(-along.z, 0.0, along.x)
+	return (along + side * wander_at(dist).y).normalized()
+
+
+## Bỏ đường lượn: đi đúng giữa luồng (cho test và cảnh thử cần vị trí chính xác).
+func clear_wander() -> void:
+	_wander_amplitude = 0.0
+
+
+func wander_amplitude() -> float:
+	return _wander_amplitude
 
 
 ## Đưa địch vào trận ở đầu luồng.
@@ -52,6 +90,7 @@ func spawn(enemy_data: EnemyData, on_lane: Lane, offset: float, bob_phase: float
 	status.clear()
 	counts_for_wave = false
 	_bob_phase = bob_phase
+	_wander_amplitude = 0.0
 	_body.mesh = EnemyMeshes.mesh_for(enemy_data)
 	active = true
 	visible = true
@@ -113,9 +152,12 @@ static func damage_after_armor(amount: float, armor: float) -> float:
 
 
 func _place(wave_height: float) -> void:
-	forward = lane.direction_at(distance)
-	var side: Vector3 = Vector3(-forward.z, 0.0, forward.x)
-	var point: Vector3 = lane.position_at(distance) + side * lateral_offset
+	var along: Vector3 = lane.direction_at(distance)
+	var side: Vector3 = Vector3(-along.z, 0.0, along.x)
+	var wander: Vector2 = wander_at(distance)
+	# Mũi tàu xoay theo đường lượn: đi lệch sang bên thì quay nhẹ về phía đó.
+	forward = (along + side * wander.y).normalized()
+	var point: Vector3 = lane.position_at(distance) + side * (lateral_offset + wander.x)
 	point.y = wave_height
 	position = point
 	var roll: float = sin(_bob_phase + distance * 0.7) * ROLL_AMOUNT
