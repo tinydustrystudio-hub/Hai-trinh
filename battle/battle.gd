@@ -68,6 +68,7 @@ var _enemies_met: Array[EnemyData] = []
 @onready var glue_puddles: GluePuddles = $Effects/GluePuddles
 @onready var overload_bars: OverloadBars = $Effects/OverloadBars
 @onready var mega_bursts: MegaBursts = $Effects/MegaBursts
+@onready var mega_beacons: MegaBeacons = $Effects/MegaBeacons
 @onready var sound_board: SoundBoard = $Effects/SoundBoard
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
@@ -142,6 +143,7 @@ func step(delta: float) -> void:
 	bullets.advance(delta)
 	overload_bars.update_bars(towers, delta)
 	mega_bursts.advance(delta)
+	mega_beacons.update_beacons(towers)
 	if stress_mode:
 		spawn_burst(MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
 	island.set_tilt(buoyancy.tilt_degrees())
