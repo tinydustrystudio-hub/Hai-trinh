@@ -44,9 +44,9 @@ func strike(x_ratio: float) -> void:
 	_flash.modulate.a = 0.0
 	_tween = create_tween()
 	_tween.set_parallel(false)
-	_tween.tween_property(_flash, "modulate:a", 0.55, 0.04)
-	_tween.tween_property(_flash, "modulate:a", 0.1, 0.07)
-	_tween.tween_property(_flash, "modulate:a", 0.4, 0.04)
+	_tween.tween_property(_flash, "modulate:a", 0.38, 0.05)
+	_tween.tween_property(_flash, "modulate:a", 0.06, 0.08)
+	_tween.tween_property(_flash, "modulate:a", 0.26, 0.05)
 	_tween.tween_property(_flash, "modulate:a", 0.0, FLASH_SECONDS - 0.15)
 	_tween.parallel().tween_property(_bolt, "modulate:a", 0.0, FLASH_SECONDS - 0.15)
 	_tween.parallel().tween_property(_glow, "modulate:a", 0.0, FLASH_SECONDS - 0.15)

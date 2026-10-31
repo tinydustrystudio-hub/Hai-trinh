@@ -1267,7 +1267,8 @@ Mỗi đảo nhỏ có đúng 1 ô: đặt 1 lô cốt hoặc 1 tiện ích. Có
 
 - **Kích thước:** đường kính 2 ô.
 - **Số đảo (chốt 31/10):** mỗi màn cấp sẵn một số đảo và quy định số đảo tối đa; người chơi đặt thêm đảo đã mua tới mức tối đa đó. Màn 1: cấp sẵn 4, tối đa 8. Mỗi hướng tấn công luôn có ít nhất 4 lô cốt trong tầm. Màn khó hơn có thêm hướng và địch nên cấp sẵn nhiều đảo hơn và trần cao hơn (bảng đề xuất ở `docs/so-lieu-khoi-dau.md`, chờ người duyệt xem).
-- **Đặt và di chuyển (quy tắc mới, 31/10):** người chơi tự đặt đảo vệ tinh ở đầu mỗi màn, đặt lại bất cứ lúc nào. Đặt đảo không tốn phí; di chuyển đảo đã đặt thì tốn phí (số cụ thể chờ chốt, ghi ở `so-lieu-khoi-dau.md`).
+- **Đảo là vật phẩm (chốt 31/10):** mua một lần là có mãi, không mất khi hết màn. Đảo cấp sẵn của màn dùng miễn phí. Đảo người chơi tự đặt (đảo đã mua) thì mỗi lần dùng trong một màn tốn Tiền Vàng: đảo tự đặt thứ nhất 200, mỗi đảo tiếp theo cộng thêm 50 (200, 250, 300, 350…). Dời một đảo đã đặt tốn bằng 1/2 giá xây lô cốt rẻ nhất (hiện 30). Giá mua đảo: đảo mua thêm thứ nhất (đảo thứ 5 của màn 1) 250 Tiền Vàng, mỗi đảo tiếp theo +50 (250, 300, 350, 400).
+- **Đặt và di chuyển (quy tắc mới, 31/10):** người chơi tự đặt đảo vệ tinh ở đầu mỗi màn, đặt lại bất cứ lúc nào. Đảo cấp sẵn đặt miễn phí; đảo mua thêm tốn phí dùng, dời đảo cũng tốn phí (xem bên dưới).
 - **Giá mở khóa đảo vệ tinh:** bảng 300 / 400 / 550 / 700 / 900 / 1.200 Xu cho đảo thứ 1 tới thứ 6 của bản trước chưa còn khớp quy tắc "có sẵn 4 đảo" ở trên; cần chốt lại cách mở khóa (bằng Xu hay bằng tiến trình) và sửa mục 5.6 khi chốt.
 - **Lô cốt đồn trú:** chọn một loại lô cốt đã mở. Đầu trận nó có sẵn ở cấp 2, không tốn Thép; nâng tiếp bằng Thép như thường.
 - **Đổi tiện ích hoặc lô cốt đồn trú:** miễn phí, bất cứ lúc nào ở màn căn cứ hoặc bản đồ thế giới.
@@ -2167,8 +2168,8 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 | Kiểu | Sóng | Trời | Gió | Âm thanh |
 | --- | --- | --- | --- | --- |
 | Bình thường | Như hiện tại | Nắng | Không đổi | Nhạc nền |
-| Mưa | Cao hơn (×1,6), gợn nhiều hơn | Mưa xiên, trời tối nhẹ | Đổi chiều nhẹ | – |
-| Bão | Rất cao (×2,2), gợn mạnh | Mưa dày, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục (các lớp sóng quay ±0,6 rad theo hai nhịp chồng nhau) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
+| Mưa | Cao hơn (×1,6), gợn nhiều hơn | Mưa nhẹ, vệt mảnh, rơi chậm, xiên theo gió; trời tối nhẹ | Đổi chiều nhẹ | – |
+| Bão | Rất cao (×2,2), gợn mạnh | Mưa vừa, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục (các lớp sóng quay ±0,6 rad theo hai nhịp chồng nhau) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
 
 Chuyển kiểu mượt trong 4 giây. Tàu và đảo dập dìu theo đúng độ cao sóng đang có. Chọn kiểu thời tiết ở màn hình sau này theo từng bản đồ; bản thử tháng 1 dùng nút "Thời tiết" ở bảng debug hoặc `?weather=rain` / `?weather=storm`.
 
