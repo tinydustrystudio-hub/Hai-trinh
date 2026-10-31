@@ -10,6 +10,7 @@ signal speed_toggled
 
 const BIG_BUTTON: Vector2 = Vector2(520, 160)
 const BUTTON: Vector2 = Vector2(360, 130)
+const QUICK_BUTTON: Vector2 = Vector2(280, 130)
 
 var _resume_big: Button
 var _restart: Button
@@ -26,7 +27,7 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var shade: ColorRect = ColorRect.new()
-	shade.color = Color(0.0, 0.03, 0.08, 0.7)
+	shade.color = Color(0.0, 0.03, 0.08, 0.86)
 	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
 	var title: Label = UiStyle.label(UiStyle.TITLE_SIZE - 16)
@@ -53,13 +54,16 @@ func _ready() -> void:
 	quick.add_theme_constant_override(&"separation", 16)
 	quick.alignment = BoxContainer.ALIGNMENT_CENTER
 	center.add_child(quick)
-	_sound = UiStyle.primary_button(&"", Vector2(200, 130))
+	_sound = UiStyle.primary_button(&"", QUICK_BUTTON)
+	_sound.add_theme_font_size_override(&"font_size", 34)
 	_sound.pressed.connect(_on_sound_pressed)
 	quick.add_child(_sound)
-	_speed = UiStyle.primary_button(&"", Vector2(200, 130))
+	_speed = UiStyle.primary_button(&"", QUICK_BUTTON)
+	_speed.add_theme_font_size_override(&"font_size", 34)
 	_speed.pressed.connect(speed_toggled.emit)
 	quick.add_child(_speed)
-	_vibration = UiStyle.primary_button(&"", Vector2(200, 130))
+	_vibration = UiStyle.primary_button(&"", QUICK_BUTTON)
+	_vibration.add_theme_font_size_override(&"font_size", 34)
 	_vibration.pressed.connect(_on_vibration_pressed)
 	quick.add_child(_vibration)
 	_objective = UiStyle.label(34)
