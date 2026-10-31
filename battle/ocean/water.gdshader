@@ -38,6 +38,8 @@ uniform float cloud_strength = 0.11;
 // Mỗi sóng: x, y = hướng; z = độ dốc; w = bước sóng. wave_shapes: pha, tỉ lệ tần số dọc ngọn, tốc độ, độ sâu.
 uniform vec4 waves[6];
 uniform vec4 wave_shapes[6];
+// Chuyển động riêng: hệ số tốc độ, tần số, tốc độ trôi và độ sâu của đợt sóng lớn (lúc to lúc nhỏ theo vùng).
+uniform vec4 wave_motions[6];
 uniform int wave_count : hint_range(0, 6) = 6;
 uniform float gravity = 9.8;
 // 1 = đủ chi tiết (hai lớp normal map, mây hai lớp, lấp lánh); 0 = rẻ.
@@ -49,13 +51,14 @@ varying vec3 v_world;
 varying vec3 v_normal;
 varying float v_height;
 
-vec3 gerstner(vec4 wave, vec4 shape, vec3 p, float t, inout vec3 tangent, inout vec3 binormal) {
+vec3 gerstner(vec4 wave, vec4 shape, vec4 motion, vec3 p, float t, inout vec3 tangent, inout vec3 binormal) {
 	float k = 6.2831853 / wave.w;
-	float c = sqrt(gravity / k);
+	float c = sqrt(gravity / k) * motion.x;
 	vec2 d = normalize(wave.xy);
 	// Biên độ nhấp nhô dọc theo ngọn sóng (cùng công thức với Ocean.crest_modulation).
 	float along = -d.y * p.x + d.x * p.z;
-	float steepness = wave.z * (1.0 + shape.w * sin(along * k * shape.y + t * shape.z + shape.x));
+	float swell = 1.0 + motion.w * sin((p.x * 0.78 + p.z * 0.62) * motion.y + t * motion.z + shape.x * 1.7);
+	float steepness = wave.z * swell * (1.0 + shape.w * sin(along * k * shape.y + t * shape.z + shape.x));
 	float f = k * (dot(d, p.xz) - c * t);
 	float a = steepness / k;
 	float s = sin(f);
@@ -78,7 +81,7 @@ void vertex() {
 		if (i >= wave_count) {
 			break;
 		}
-		offset += gerstner(waves[i], wave_shapes[i], world, TIME, tangent, binormal);
+		offset += gerstner(waves[i], wave_shapes[i], wave_motions[i], world, TIME, tangent, binormal);
 	}
 	VERTEX += offset;
 	v_world = world + offset;

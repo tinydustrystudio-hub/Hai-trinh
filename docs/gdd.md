@@ -2140,6 +2140,9 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Sóng nhẹ nhưng tự nhiên: nhiều lớp sóng lệch hướng nhau, bước sóng lẻ nhau, biên độ đổi dần dọc theo ngọn sóng; không chạy chéo đều một hướng, một tốc độ, một chu kỳ (góp ý 3).
 - Phản chiếu ngẫu nhiên khắp biển: mây trôi phản chiếu thành những mảng sáng rải khắp mặt nước; lấp lánh lóe lên ở chỗ ngẫu nhiên. Vệt sáng mềm sau đảo chính chỉ còn rất nhẹ. Ánh sáng của nước tách khỏi hướng nắng chiếu công trình; nắng chiếu công trình giữ nguyên hướng.
 - Bọt trắng quanh đảo chính, quanh đảo vệ tinh và sau đuôi tàu; vệt bọt đuôi tàu uốn mềm theo đường tàu đi, kể cả lúc đổi hướng.
+- **Sóng ngẫu nhiên hơn (góp ý 4, mục 11):** mỗi lớp sóng chạy một tốc độ riêng; sóng lúc to lúc nhỏ theo từng vùng biển và theo thời gian, đỉnh sóng không cao bằng nhau.
+- **Nền đảo bớt chói (mục 13):** sàn đảo chính, đảo vệ tinh và bệ dùng ngà ấm có hạ độ sáng chung, không để trắng chói dưới nắng và glow.
+- **Đảo dập dìu (mục 15):** đảo chính, đảo vệ tinh nhấp nhô và lắc nhẹ theo sóng dưới chân; đảo càng to càng ít dập dìu (tỉ lệ nghịch với bán kính). Lực nghiêng theo Độ Nổi của đảo chính vẫn giữ.
 - Giữ hai mức chất lượng.
 
 **Ánh sáng**
