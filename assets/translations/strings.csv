@@ -32,6 +32,7 @@ LANE_SOUTH,Luồng Nam,South lane
 TOWER_MACHINE_GUN,Súng Máy,Machine Gun
 HUD_STEEL,Thép: %d,Steel: %d
 TOWER_GLUE_SPRAYER,Lô Cốt Keo,Glue Sprayer
+TOWER_LIGHT_BEAM,Lô Cốt Tia Sáng,Light Beam
 BRANCH_BULLET_RAIN,Mưa Đạn,Bullet Rain
 BRANCH_BULLET_RAIN_DESC,"Cụm nòng quay, bắn 3 mục tiêu cùng lúc.","Rotary barrels that fire at 3 targets at once."
 SKILL_SWEEP,Quét Ngang,Sweep

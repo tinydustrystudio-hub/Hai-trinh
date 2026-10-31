@@ -21,6 +21,7 @@ const LAYER_KEYS: Dictionary[EnemyData.Layer, StringName] = {
 const TOWER_SCRIPTS: Dictionary[StringName, GDScript] = {
 	&"machine_gun": preload("res://towers/machine_gun.gd"),
 	&"glue_sprayer": preload("res://towers/glue_sprayer.gd"),
+	&"light_beam": preload("res://towers/light_beam.gd"),
 }
 ## Trần số địch cùng lúc (GDD mục 1.3, CLAUDE.md).
 const MAX_ACTIVE_ENEMIES: int = 60
@@ -33,6 +34,7 @@ const STRESS_SPREAD: float = 0.85
 @export var tower_choices: Array[TowerData] = [
 	preload("res://data/towers/machine_gun.tres"),
 	preload("res://data/towers/glue_sprayer.tres"),
+	preload("res://data/towers/light_beam.tres"),
 ]
 
 var state: State = State.PREPARING
@@ -66,6 +68,7 @@ var _enemies_met: Array[EnemyData] = []
 @onready var effects: Node3D = $Effects
 @onready var bullets: BulletRenderer = $Effects/BulletRenderer
 @onready var glue_puddles: GluePuddles = $Effects/GluePuddles
+@onready var beams: BeamRenderer = $Effects/Beams
 @onready var overload_bars: OverloadBars = $Effects/OverloadBars
 @onready var mega_bursts: MegaBursts = $Effects/MegaBursts
 @onready var mega_beacons: MegaBeacons = $Effects/MegaBeacons
@@ -142,11 +145,15 @@ func step(delta: float) -> void:
 		return
 	enemy_pool.advance(delta)
 	glue_puddles.begin()
+	beams.begin()
 	for tower: Tower in towers:
 		tower.tick(delta)
 		if tower is GlueSprayer:
 			(tower as GlueSprayer).draw_puddles(glue_puddles)
+		elif tower is LightBeam:
+			(tower as LightBeam).draw_beam(beams)
 	glue_puddles.finish()
+	beams.finish()
 	bullets.advance(delta)
 	overload_bars.update_bars(towers, delta)
 	mega_bursts.advance(delta)

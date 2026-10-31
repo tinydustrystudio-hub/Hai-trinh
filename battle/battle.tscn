@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://battle/battle.gd" id="1_battle"]
 [ext_resource type="PackedScene" path="res://battle/ocean/ocean.tscn" id="2_ocean"]
@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://fx/mega_beacons.gd" id="17_beacons"]
 [ext_resource type="Script" path="res://fx/haptics.gd" id="18_haptics"]
 [ext_resource type="Script" path="res://fx/music_player.gd" id="19_music"]
+[ext_resource type="Script" path="res://fx/beam_renderer.gd" id="20_beams"]
 
 [sub_resource type="Environment" id="Environment_sea"]
 background_mode = 1
@@ -82,6 +83,9 @@ script = ExtResource("12_bullets")
 
 [node name="GluePuddles" type="MultiMeshInstance3D" parent="Effects"]
 script = ExtResource("13_puddles")
+
+[node name="Beams" type="MultiMeshInstance3D" parent="Effects"]
+script = ExtResource("20_beams")
 
 [node name="OverloadBars" type="MultiMeshInstance3D" parent="Effects"]
 script = ExtResource("14_bars")

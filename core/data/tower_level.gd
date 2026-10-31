@@ -20,6 +20,13 @@ extends Resource
 ## Sát thương mỗi giây trong vùng keo.
 @export var damage_per_second: float = 0.0
 
+@export_group("Lô Cốt Tia Sáng")
+## Sát thương mỗi giây tăng thêm tối đa (0,8 = +80%) sau khi giữ tia trên cùng một mục tiêu beam_ramp_seconds giây.
+@export var beam_ramp_bonus: float = 0.0
+@export var beam_ramp_seconds: float = 3.0
+## Tỉ lệ giáp tia sáng bỏ qua (ánh sáng hội tụ làm nóng lớp giáp).
+@export var beam_armor_ignore: float = 0.0
+
 
 func range_units() -> float:
 	return range_cells * MapLayout.UNITS_PER_CELL
