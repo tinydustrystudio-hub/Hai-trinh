@@ -78,3 +78,5 @@ OBJECTIVE_HOLD,"Mục tiêu: giữ đảo nổi qua %d đợt.","Goal: keep the 
 ENEMY_RAIDER_SKIFF_TIP,"Xuồng Cướp: đi thành đàn. Dùng Súng Máy.","Raider Skiff: comes in swarms. Use the Machine Gun."
 ENEMY_RAM_DRONE_TIP,"Ca Nô Cảm Tử: rất nhanh. Làm chậm rồi bắn, đừng để lọt.","Ram Drone Boat: very fast. Slow it, then shoot; never let it through."
 ENEMY_SPIKED_CRAB_TIP,"Cua Giáp Gai: trâu và chậm. Dùng nhánh Xuyên Giáp.","Spiked Crab: tough and slow. Use the Armor Piercer branch."
+BUILD_CONFIRM,Xây,Build
+BUILD_CANCEL,Hủy,Cancel

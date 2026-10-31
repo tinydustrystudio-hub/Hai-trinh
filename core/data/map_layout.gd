@@ -23,8 +23,8 @@ const UNITS_PER_CELL: float = 4.0
 @export var fortress_radius: float = 14.0
 ## Tâm các đảo vệ tinh; mỗi đảo mang một bệ ở giữa. Bệ không nằm trên đảo vệ tinh thì nằm trên mỏm bến.
 @export var satellite_centers: PackedVector3Array = PackedVector3Array()
-## Bán kính đảo vệ tinh (GDD mục 8.6: đường kính khoảng 1,5 ô).
-@export var satellite_radius: float = 3.0
+## Bán kính đảo vệ tinh (GDD mục 5.4 và 8.6: đường kính 2 ô).
+@export var satellite_radius: float = 4.0
 ## Hướng từ mặt nước tới mặt trời (nắng chiếu từ một hướng).
 @export var sun_direction: Vector3 = Vector3(0.45, 0.6, -0.65)
 
@@ -59,6 +59,16 @@ func start_distance() -> float:
 	if camera_start_distance <= 0.0:
 		return farthest
 	return clampf(camera_start_distance, minf(camera_min_distance, farthest), farthest)
+
+
+## Đảo vệ tinh mà bệ index nằm trên, hoặc −1 nếu bệ nằm trên mỏm bến.
+func satellite_index_of_pad(index: int) -> int:
+	var pad: Vector3 = pad_positions[index]
+	for k: int in satellite_centers.size():
+		var center: Vector3 = satellite_centers[k]
+		if Vector2(center.x - pad.x, center.z - pad.z).length() < satellite_radius * 0.5:
+			return k
+	return -1
 
 
 func lane_count() -> int:
