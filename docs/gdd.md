@@ -2116,6 +2116,7 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Địch đến theo 4 luồng tỏa từ các mép màn hình: Bắc, Đông, Tây, Nam. Bốn phía cân bằng như nhau: bốn luồng dài gần bằng nhau (khoảng 31 ô), mỗi luồng có một đảo vệ tinh canh (góp ý 3, ngày 31/10). Bản đồ rộng hơn màn hình lúc vào trận nên đường đi dài; thu nhỏ để thấy toàn cảnh.
 - Luồng địch bình thường ẩn hẳn. Chỉ trong 10 giây trước khi con địch đầu tiên của luồng xuất hiện thì luồng hiện ra; địch xuất hiện thì luồng tắt.
 - Hướng địch tới không ghi bằng chữ. Trên đảo chính có 4 cột đèn báo, đứng ở chỗ từng luồng cập đảo; trong 10 giây đó, đèn của luồng nháy đỏ cam và chiếu một vệt sáng quét ra mặt nước về phía địch sẽ tới. HUD chỉ ghi đợt mấy, còn bao nhiêu giây và tầng địch.
+- **Giãn cách địch (góp ý 4):** hai địch trên cùng luồng luôn cách nhau ít nhất nửa kích thước thân; địch càng mạnh (máu càng cao) càng cách xa, thêm 0,25 thân cho mỗi lần máu gấp đôi máu của địch yếu nhất (60). Địch đi sau dồn lại phía sau địch đi trước chứ không chồng lên; đàn sinh dày thì xếp hàng dài ra ở đầu luồng.
 - Bệ xếp thành hai vòng: 6 bệ trên các mỏm bến của đảo chính, 4 bệ trên 4 đảo vệ tinh.
 
 **Đảo chính (phe Liên Minh Mũi Neo)**

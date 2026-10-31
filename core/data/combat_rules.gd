@@ -4,6 +4,14 @@ extends Resource
 
 @export var armor_tiers: PackedFloat32Array = PackedFloat32Array([0.0, 0.1, 0.2, 0.35, 0.5, 0.65])
 
+@export_group("Giãn cách địch")
+## Khoảng trống tối thiểu giữa hai thân tàu, tính theo kích thước thân, cho địch yếu nhất (góp ý 4: ít nhất 1/2).
+@export var spacing_base_ratio: float = 0.5
+## Mỗi lần máu gấp đôi máu tham chiếu thì tỉ lệ khoảng trống tăng thêm chừng này: càng mạnh càng cách xa.
+@export var spacing_per_doubling: float = 0.25
+## Máu tham chiếu của địch yếu nhất.
+@export var spacing_reference_health: float = 60.0
+
 
 ## Bậc giáp gần nhất với một tỉ lệ giáp.
 func tier_of(armor: float) -> int:
@@ -17,3 +25,17 @@ func tier_of(armor: float) -> int:
 ## Tỉ lệ giáp của một bậc (kẹp trong bảng).
 func armor_of(tier: int) -> float:
 	return armor_tiers[clampi(tier, 0, armor_tiers.size() - 1)]
+
+
+## Tỉ lệ khoảng trống (so với kích thước thân) mà một địch cần quanh mình: 0,5 cho địch yếu nhất, tăng dần theo máu.
+func spacing_ratio(max_health: float) -> float:
+	var doublings: float = maxf(log(maxf(max_health, 1.0) / maxf(spacing_reference_health, 1.0)) / log(2.0), 0.0)
+	return spacing_base_ratio + spacing_per_doubling * doublings
+
+
+## Khoảng cách tâm-tới-tâm tối thiểu (đơn vị Godot) giữa hai địch trên cùng luồng: nửa hai thân cộng khoảng trống
+## theo địch cần nhiều chỗ hơn.
+func min_center_gap(a: EnemyData, b: EnemyData, units_per_cell: float) -> float:
+	var hull: float = (a.size_cells + b.size_cells) * 0.5
+	var gap: float = maxf(spacing_ratio(a.max_health) * a.size_cells, spacing_ratio(b.max_health) * b.size_cells)
+	return (hull + gap) * units_per_cell
