@@ -33,6 +33,9 @@ const HIGHLIGHT_DEPTH: float = 1.3
 var waves: Array[Vector4] = []
 ## Nhấp nhô biên độ của từng sóng dọc theo ngọn: x = pha, y = tỉ lệ tần số so với sóng, z = tốc độ, w = độ sâu.
 var shapes: Array[Vector4] = []
+## Chuyển động riêng của từng sóng (góp ý 4): x = hệ số tốc độ, y = tần số không gian của "đợt sóng" lớn,
+## z = tốc độ trôi của đợt sóng, w = độ sâu của đợt (sóng lúc to lúc nhỏ theo từng vùng biển).
+var motions: Array[Vector4] = []
 
 static var _normal_a: NoiseTexture2D
 static var _normal_b: NoiseTexture2D
@@ -47,6 +50,7 @@ func _init() -> void:
 	var generated: Array = make_waves(WAVE_SEED)
 	waves = generated[0]
 	shapes = generated[1]
+	motions = generated[2]
 
 
 func _ready() -> void:
@@ -54,6 +58,7 @@ func _ready() -> void:
 	_material.shader = WATER_SHADER
 	_material.set_shader_parameter(&"waves", PackedVector4Array(waves))
 	_material.set_shader_parameter(&"wave_shapes", PackedVector4Array(shapes))
+	_material.set_shader_parameter(&"wave_motions", PackedVector4Array(motions))
 	_material.set_shader_parameter(&"gravity", GRAVITY)
 	_material.set_shader_parameter(&"normal_a", _normal_map(0))
 	_material.set_shader_parameter(&"normal_b", _normal_map(1))
@@ -102,11 +107,11 @@ func wave_count() -> int:
 ## Độ cao mặt nước tại (x, z) ở thời điểm time (giây, cùng đồng hồ TIME của shader).
 ## Bỏ qua phần dịch ngang của sóng Gerstner: đủ chính xác cho việc nhấp nhô tàu.
 func height_at(x: float, z: float, time: float) -> float:
-	return wave_height(waves, wave_count(), x, z, time, shapes)
+	return wave_height(waves, wave_count(), x, z, time, shapes, motions)
 
 
 ## Tổng độ cao các sóng. shape_list (tùy chọn) làm biên độ từng sóng nhấp nhô dọc theo ngọn sóng.
-static func wave_height(wave_list: Array[Vector4], count: int, x: float, z: float, time: float, shape_list: Array[Vector4] = []) -> float:
+static func wave_height(wave_list: Array[Vector4], count: int, x: float, z: float, time: float, shape_list: Array[Vector4] = [], motion_list: Array[Vector4] = []) -> float:
 	var h: float = 0.0
 	for i: int in mini(count, wave_list.size()):
 		var w: Vector4 = wave_list[i]
@@ -114,6 +119,10 @@ static func wave_height(wave_list: Array[Vector4], count: int, x: float, z: floa
 		var c: float = sqrt(GRAVITY / k)
 		var d: Vector2 = Vector2(w.x, w.y).normalized()
 		var amplitude: float = w.z / k
+		if i < motion_list.size():
+			c *= motion_list[i].x
+			if i < shape_list.size():
+				amplitude *= swell_modulation(motion_list[i], shape_list[i].x, x, z, time)
 		if i < shape_list.size():
 			amplitude *= crest_modulation(shape_list[i], d, k, x, z, time)
 		h += amplitude * sin(k * (d.x * x + d.y * z - c * time))
@@ -126,6 +135,12 @@ static func crest_modulation(shape: Vector4, direction: Vector2, k: float, x: fl
 	return 1.0 + shape.w * sin(along * k * shape.y + time * shape.z + shape.x)
 
 
+## Hệ số biên độ theo "đợt sóng" lớn: sóng lúc to lúc nhỏ theo từng vùng biển, trôi chậm theo thời gian.
+static func swell_modulation(motion: Vector4, phase: float, x: float, z: float, time: float) -> float:
+	var along: float = x * 0.78 + z * 0.62
+	return 1.0 + motion.w * sin(along * motion.y + time * motion.z + phase * 1.7)
+
+
 ## Sinh các lớp sóng từ hạt giống: một hướng gió chung, mỗi lớp lệch hướng và bước sóng ngẫu nhiên.
 ## Độ dốc chia sao cho mọi lớp cùng lên đỉnh cũng chỉ cao MAX_WAVE_HEIGHT. Trả về [waves, shapes].
 static func make_waves(wave_seed: int) -> Array:
@@ -134,20 +149,23 @@ static func make_waves(wave_seed: int) -> Array:
 	var wind: float = rng.randf() * TAU
 	var result_waves: Array[Vector4] = []
 	var result_shapes: Array[Vector4] = []
+	var result_motions: Array[Vector4] = []
 	var peak: float = 0.0
 	for i: int in MAX_WAVES:
 		var angle: float = wind + rng.randf_range(-DIRECTION_SPREAD, DIRECTION_SPREAD)
 		var wavelength: float = BASE_WAVELENGTHS[i] * rng.randf_range(0.85, 1.15)
 		# Lớp dài dốc hơn một chút; lớp ngắn thoải hơn.
 		var steepness: float = lerpf(1.0, 0.6, float(i) / float(MAX_WAVES - 1))
-		var shape: Vector4 = Vector4(rng.randf() * TAU, rng.randf_range(0.18, 0.4), rng.randf_range(0.15, 0.35), rng.randf_range(0.3, 0.55))
+		var shape: Vector4 = Vector4(rng.randf() * TAU, rng.randf_range(0.3, 0.9), rng.randf_range(0.2, 0.55), rng.randf_range(0.45, 0.8))
+		var motion: Vector4 = Vector4(rng.randf_range(0.65, 1.35), rng.randf_range(0.02, 0.07), rng.randf_range(0.12, 0.4), rng.randf_range(0.3, 0.6))
 		result_waves.append(Vector4(cos(angle), sin(angle), steepness, wavelength))
 		result_shapes.append(shape)
-		peak += steepness * wavelength / TAU * (1.0 + shape.w)
+		result_motions.append(motion)
+		peak += steepness * wavelength / TAU * (1.0 + shape.w) * (1.0 + motion.w)
 	var scale: float = MAX_WAVE_HEIGHT / peak
 	for i: int in MAX_WAVES:
 		result_waves[i].z *= scale
-	return [result_waves, result_shapes]
+	return [result_waves, result_shapes, result_motions]
 
 
 ## Nhiễu liền mạch dùng chung cho bọt (quanh đảo, sau đuôi tàu).

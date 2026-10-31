@@ -15,6 +15,8 @@ trong `data/*.tres` để chơi thử; khi cân bằng (bước 12) hoặc sau b
 | Chia đợt 5 cho 4 luồng (mỗi luồng 6 Xuồng Cướp; Ca Nô ở Đông, Tây; Cua ở Bắc, Nam) | xem file đợt | `data/waves/north_dock_waves.tres` | GDD mục 8.6 chỉ ghi đợt 5 dùng cả 4 luồng |
 | Chiều dài luồng: cả 4 luồng khoảng 126–128 đơn vị (31–32 ô) | xem file bản đồ | `data/maps/north_dock_layout.tres` | Góp ý 3 của đạo diễn (31/10): bốn phía cân bằng như nhau, bản đồ rộng hơn để đường đi dài hơn |
 | Giãn cách địch: khoảng trống tối thiểu 0,5 thân; +0,25 thân mỗi lần máu gấp đôi 60 | `data/combat_rules.tres` | Góp ý 4 (mục 14); số 0,25 đặt tạm. Làm đàn dày sẽ xếp hàng ở đầu luồng nên nhịp địch tới chậm hơn bản gấp đôi số địch trước đó, cần cân bằng lại |
+| Dập dìu của đảo: độ cao ×0,6, độ nghiêng ×0,5 theo sóng, tối đa 1,5°, hệ số theo cỡ đảo = 4 ÷ bán kính | xem `battle/map/island.gd` | Góp ý 4 (mục 15); số đặt tạm |
+| Sóng: độ cao tối đa 0,34; tốc độ mỗi lớp ×0,65–1,35; đợt sóng lớn đổi biên độ ±30–60% | xem `battle/ocean/ocean.gd` | Góp ý 4 (mục 11); số đặt tạm |
 | Đảo vệ tinh: mỗi luồng một đảo, cách tâm đảo chính khoảng 43–46 đơn vị | xem file bản đồ | `data/maps/north_dock_layout.tres` | Góp ý 3; GDD mục 8.6 chỉ ghi 4 đảo vệ tinh |
 | Lô Cốt Keo: phun mỗi 0,5 giây (tốc bắn 2) | 2 lần/giây | `data/towers/glue_sprayer.tres` | Kế hoạch mục 5.2 |
 | Lô Cốt Keo cấp 2–4: thời gian chậm 2 giây; sát thương cấp 2 = 2, cấp 4 = 4 mỗi giây | xem file | `data/towers/glue_sprayer.tres` | GDD mục 3.4 chỉ ghi ở cấp 1 và 3; lấy theo cấp liền trước |

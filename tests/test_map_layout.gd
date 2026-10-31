@@ -49,8 +49,8 @@ func test_two_rings_of_pads() -> void:
 
 
 func test_satellite_size() -> void:
-	# Đường kính khoảng 1,5 ô.
-	assert_almost_eq(LAYOUT.satellite_radius * 2.0 / MapLayout.UNITS_PER_CELL, 1.5, 0.01)
+	# Đường kính 2 ô (GDD mục 5.4).
+	assert_almost_eq(LAYOUT.satellite_radius * 2.0 / MapLayout.UNITS_PER_CELL, 2.0, 0.01)
 
 
 func test_pads_are_one_cell_apart() -> void:

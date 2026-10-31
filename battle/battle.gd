@@ -149,6 +149,7 @@ func step(delta: float) -> void:
 	if stress_mode:
 		spawn_burst(MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
 	island.set_tilt(buoyancy.tilt_degrees())
+	island.bob(ocean, enemy_pool.wave_time())
 
 
 func start_battle() -> void:
