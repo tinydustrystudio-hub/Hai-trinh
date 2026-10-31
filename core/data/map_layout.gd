@@ -28,6 +28,12 @@ const UNITS_PER_CELL: float = 4.0
 ## Hướng từ mặt nước tới mặt trời (nắng chiếu từ một hướng).
 @export var sun_direction: Vector3 = Vector3(0.45, 0.6, -0.65)
 
+@export_group("Đảo vệ tinh của màn")
+## Số đảo vệ tinh cấp sẵn đầu màn (đặt miễn phí). 0 = dùng đúng số đảo đã đặt sẵn trong satellite_centers.
+@export var satellite_free_count: int = 0
+## Số đảo vệ tinh tối đa người chơi được đặt ở màn này, gồm cả đảo cấp sẵn và đảo mua thêm (GDD mục 5.4).
+@export var satellite_max_count: int = 8
+
 @export_group("Bệ và luồng")
 ## Tâm của từng bệ lô cốt.
 @export var pad_positions: PackedVector3Array = PackedVector3Array()
@@ -69,6 +75,16 @@ func satellite_index_of_pad(index: int) -> int:
 		if Vector2(center.x - pad.x, center.z - pad.z).length() < satellite_radius * 0.5:
 			return k
 	return -1
+
+
+## Số đảo cấp sẵn thật sự.
+func free_satellites() -> int:
+	return satellite_free_count if satellite_free_count > 0 else satellite_centers.size()
+
+
+## Số đảo mua thêm được ở màn này.
+func extra_satellites() -> int:
+	return maxi(satellite_max_count - free_satellites(), 0)
 
 
 func lane_count() -> int:

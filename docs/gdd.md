@@ -1266,7 +1266,7 @@ Mỗi đảo nhỏ có đúng 1 ô: đặt 1 lô cốt hoặc 1 tiện ích. Có
 | Đảo lãnh thổ | Chiếm khi thắng các nhiệm vụ có dấu ★ trên bản đồ (mục 5.5) | 15, mỗi vùng 3 | Mọi trận thuộc vùng biển đó | 1 tiện ích vùng |
 
 - **Kích thước:** đường kính 2 ô.
-- **Số đảo:** tối thiểu 4, và mỗi hướng tấn công luôn có ít nhất 4 lô cốt trong tầm. Số đảo tối đa do từng màn quy định; người chơi mở khóa thêm ở các màn tiếp theo.
+- **Số đảo (chốt 31/10):** mỗi màn cấp sẵn một số đảo và quy định số đảo tối đa; người chơi đặt thêm đảo đã mua tới mức tối đa đó. Màn 1: cấp sẵn 4, tối đa 8. Mỗi hướng tấn công luôn có ít nhất 4 lô cốt trong tầm. Màn khó hơn có thêm hướng và địch nên cấp sẵn nhiều đảo hơn và trần cao hơn (bảng đề xuất ở `docs/so-lieu-khoi-dau.md`, chờ người duyệt xem).
 - **Đặt và di chuyển (quy tắc mới, 31/10):** người chơi tự đặt đảo vệ tinh ở đầu mỗi màn, đặt lại bất cứ lúc nào. Đặt đảo không tốn phí; di chuyển đảo đã đặt thì tốn phí (số cụ thể chờ chốt, ghi ở `so-lieu-khoi-dau.md`).
 - **Giá mở khóa đảo vệ tinh:** bảng 300 / 400 / 550 / 700 / 900 / 1.200 Xu cho đảo thứ 1 tới thứ 6 của bản trước chưa còn khớp quy tắc "có sẵn 4 đảo" ở trên; cần chốt lại cách mở khóa (bằng Xu hay bằng tiến trình) và sửa mục 5.6 khi chốt.
 - **Lô cốt đồn trú:** chọn một loại lô cốt đã mở. Đầu trận nó có sẵn ở cấp 2, không tốn Thép; nâng tiếp bằng Thép như thường.
@@ -2136,6 +2136,7 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Hướng địch tới không ghi bằng chữ. Trên đảo chính có 4 cột đèn báo, đứng ở chỗ từng luồng cập đảo; trong 10 giây đó, đèn của luồng nháy đỏ cam và chiếu một vệt sáng quét ra mặt nước về phía địch sẽ tới. HUD chỉ ghi đợt mấy, còn bao nhiêu giây và tầng địch.
 - **Giãn cách địch (góp ý 4):** hai địch trên cùng luồng luôn cách nhau ít nhất nửa kích thước thân; địch càng mạnh (máu càng cao) càng cách xa, thêm 0,25 thân cho mỗi lần máu gấp đôi máu của địch yếu nhất (60). Địch đi sau dồn lại phía sau địch đi trước chứ không chồng lên; đàn sinh dày thì xếp hàng dài ra ở đầu luồng.
 - Bệ xếp thành hai vòng: 6 bệ trên các mỏm bến của đảo chính, 4 bệ trên 4 đảo vệ tinh.
+- **Đường đi của địch (góp ý 5, 31/10):** mọi địch cùng loại trên một luồng đi cùng tốc độ dọc luồng và đi đúng hướng của luồng, nhưng mỗi địch lượn nhẹ sang hai bên bằng một đường lượn riêng (khoảng ±1,2 đơn vị, bước sóng 24–44 đơn vị) và mũi tàu xoay theo đường lượn, để đàn trông tự nhiên; vệt bọt đuôi tàu bám theo đường thật.
 
 **Đảo chính (phe Liên Minh Mũi Neo)**
 
