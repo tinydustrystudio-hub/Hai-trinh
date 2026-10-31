@@ -1,7 +1,8 @@
 class_name Lane
 extends Path3D
 ## Một luồng địch. Dựng Curve3D mượt từ các điểm trong MapLayout và trả vị trí theo quãng đường đã đi.
-## Vẽ một dải mờ trên mặt nước, có vạch chạy về phía đảo để người chơi thấy hướng địch đi.
+## Vẽ một dải trên mặt nước, có vạch chạy về phía đảo để người chơi thấy hướng địch đi. Bình thường dải rất mờ;
+## khi báo đợt sắp tới thì luồng của đợt đó hiện rõ trong REVEAL_SECONDS giây rồi mờ dần (reveal()).
 
 const BAKE_INTERVAL: float = 0.5
 ## Độ cong ở mỗi điểm: tay nắm dài bằng tỉ lệ này của đoạn nối hai điểm kề bên.
@@ -11,13 +12,18 @@ const RIBBON_WIDTH: float = 2.4
 const RIBBON_HEIGHT: float = 0.55
 const RIBBON_STEP: float = 1.0
 const RIBBON_SHADER: Shader = preload("res://battle/map/lane.gdshader")
-
-static var _ribbon_material: ShaderMaterial
+## Độ rõ của dải khi không báo đợt (0–1).
+const IDLE_STRENGTH: float = 0.18
+## Hiện rõ trong chừng này giây sau khi báo đợt, rồi mờ dần trong FADE_SECONDS giây.
+const REVEAL_SECONDS: float = 4.0
+const FADE_SECONDS: float = 1.2
 
 var lane_index: int = -1
 var name_key: StringName = &""
 
 var _ribbon: MeshInstance3D
+var _material: ShaderMaterial
+var _reveal_left: float = 0.0
 
 
 ## Dựng đường cong từ các điểm. Gọi được trước khi nút vào cây.
@@ -105,13 +111,44 @@ func _build_ribbon() -> void:
 	_ribbon = MeshInstance3D.new()
 	_ribbon.name = "Ribbon"
 	_ribbon.mesh = st.commit()
-	_ribbon.material_override = _get_ribbon_material()
+	_ribbon.material_override = _ribbon_material()
 	_ribbon.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_ribbon)
 
 
-static func _get_ribbon_material() -> ShaderMaterial:
-	if _ribbon_material == null:
-		_ribbon_material = ShaderMaterial.new()
-		_ribbon_material.shader = RIBBON_SHADER
-	return _ribbon_material
+## Hiện rõ dải trong REVEAL_SECONDS giây (báo đợt sắp tới đi qua luồng này).
+func reveal() -> void:
+	_reveal_left = REVEAL_SECONDS + FADE_SECONDS
+	_apply_strength()
+
+
+## Độ rõ hiện tại của dải (0–1).
+func strength() -> float:
+	return reveal_strength(_reveal_left)
+
+
+func _process(delta: float) -> void:
+	if _reveal_left <= 0.0:
+		return
+	_reveal_left = maxf(_reveal_left - delta, 0.0)
+	_apply_strength()
+
+
+func _apply_strength() -> void:
+	if _material != null:
+		_material.set_shader_parameter(&"strength", strength())
+
+
+## Độ rõ theo số giây hiện rõ còn lại: rõ hẳn, rồi mờ dần về IDLE_STRENGTH trong FADE_SECONDS cuối.
+static func reveal_strength(left: float) -> float:
+	var t: float = clampf(left / FADE_SECONDS, 0.0, 1.0)
+	return lerpf(IDLE_STRENGTH, 1.0, t)
+
+
+## Mỗi luồng một vật liệu để hiện rõ riêng từng luồng (4 luồng, vẫn chỉ 4 lệnh vẽ như trước).
+func _ribbon_material() -> ShaderMaterial:
+	if _material == null:
+		_material = ShaderMaterial.new()
+		_material.shader = RIBBON_SHADER
+		_apply_strength()
+	return _material

@@ -106,3 +106,17 @@ func test_max_enemies_on_screen_within_budget() -> void:
 		elapsed += STEP
 		peak = maxi(peak, _battle.enemy_pool.active_count())
 	assert_lte(peak, 60)
+
+
+func test_incoming_wave_reveals_only_its_lanes() -> void:
+	# Đợt 1 chỉ đi luồng Bắc: lúc báo đợt, chỉ luồng Bắc hiện rõ.
+	assert_almost_eq(_battle.lanes[0].strength(), 1.0, 0.0001)
+	for i: int in range(1, _battle.lanes.size()):
+		assert_almost_eq(_battle.lanes[i].strength(), Lane.IDLE_STRENGTH, 0.0001)
+	# Báo lại mỗi giây trong lúc chờ không kéo dài thời gian hiện rõ.
+	for i: int in 3:
+		_battle.step(1.0)
+		_battle.lanes[0]._process(1.0)
+	assert_almost_eq(_battle.lanes[0].strength(), 1.0, 0.0001)
+	_battle.lanes[0]._process(Lane.REVEAL_SECONDS)
+	assert_almost_eq(_battle.lanes[0].strength(), Lane.IDLE_STRENGTH, 0.0001)

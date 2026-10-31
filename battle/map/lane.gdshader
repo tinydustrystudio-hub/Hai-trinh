@@ -1,5 +1,5 @@
 shader_type spatial;
-// Dải luồng địch: nền mờ, viền sáng hơn, vạch hình mũi tên chạy về phía đảo.
+// Dải luồng địch: nền mờ, viền sáng hơn, vạch hình mũi tên chạy về phía đảo; strength làm mờ cả dải.
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabled;
 
 uniform vec4 base_color : source_color = vec4(1.0, 0.78, 0.5, 0.1);
@@ -7,6 +7,8 @@ uniform vec4 edge_color : source_color = vec4(1.0, 0.75, 0.4, 0.7);
 uniform vec4 chevron_color : source_color = vec4(1.0, 0.92, 0.75, 0.55);
 uniform float chevron_spacing = 3.0;
 uniform float scroll_speed = 2.0;
+// Độ rõ của cả dải: rất mờ bình thường, 1 khi đang báo đợt sắp tới.
+uniform float strength : hint_range(0.0, 1.0) = 0.18;
 
 void fragment() {
 	float across = abs(UV.x - 0.5) * 2.0;
@@ -17,5 +19,5 @@ void fragment() {
 	vec4 color = mix(base_color, chevron_color, chevron);
 	color = mix(color, edge_color, edge);
 	ALBEDO = color.rgb;
-	ALPHA = color.a;
+	ALPHA = color.a * strength;
 }

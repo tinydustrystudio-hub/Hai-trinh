@@ -29,6 +29,8 @@ var stress_mode: bool = false
 var ready_msec: int = 0
 
 var _enemy_types: Array[EnemyData] = []
+## Đợt gần nhất đã cho luồng hiện rõ, để chỉ hiện một lần mỗi đợt.
+var _revealed_wave: int = -1
 
 @onready var ocean: Ocean = $Ocean
 @onready var island: Island = $Island
@@ -94,6 +96,7 @@ func start_battle() -> void:
 	select_pad(null)
 	buoyancy.reset(layout.starting_buoyancy)
 	state = State.PREPARING
+	_revealed_wave = -1
 	set_paused(false)
 	set_speed(1.0)
 	hud.hide_result()
@@ -177,12 +180,13 @@ func build_map() -> void:
 	enemy_pool.configure_effects(layout.sun_direction)
 
 
-## Nắng chiếu từ hướng sun_direction của bản đồ; nước dùng cùng hướng và màu để phản chiếu khớp.
+## Nắng chiếu công trình từ hướng sun_direction của bản đồ. Nước dùng cùng màu nắng nhưng vệt sáng
+## của nước đặt sau đảo theo hướng nhìn của camera (GDD mục 8.6), không theo hướng nắng.
 func _place_sun() -> void:
 	var to_sun: Vector3 = layout.sun_direction.normalized()
 	var up: Vector3 = Vector3.FORWARD if absf(to_sun.y) > 0.99 else Vector3.UP
 	sun.basis = Basis.looking_at(-to_sun, up)
-	ocean.configure(to_sun, sun.light_color, layout.fortress_center, layout.fortress_radius)
+	ocean.configure(sun.light_color, layout.fortress_center, layout.fortress_radius, -camera.basis.z)
 
 
 ## Mức chất lượng thấp tắt glow (tốn thêm lượt vẽ toàn màn hình); nước tự đổi theo Settings.
@@ -232,6 +236,11 @@ func _on_wave_cleared(index: int) -> void:
 
 
 func _on_wave_incoming(index: int, lane_indices: PackedInt32Array, seconds: float) -> void:
+	if index != _revealed_wave:
+		_revealed_wave = index
+		for lane_index: int in lane_indices:
+			if lane_index < lanes.size():
+				lanes[lane_index].reveal()
 	Events.wave_incoming.emit(index, lane_indices, seconds)
 
 
