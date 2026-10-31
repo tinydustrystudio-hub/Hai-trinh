@@ -37,12 +37,16 @@ const UNITS_PER_CELL: float = 4.0
 @export var lane_points: Array[PackedVector3Array] = []
 
 @export_group("Camera")
-## Vùng mà điểm nhìn của camera (trên mặt nước, theo x và z) được phép trượt tới.
+## Vùng điểm nhìn của camera (trên mặt nước, theo x và z) được trượt tới khi thu nhỏ hết cỡ.
 @export var camera_bounds: Rect2 = Rect2(-40.0, -40.0, 80.0, 60.0)
+## Vùng điểm nhìn được trượt tới khi phóng to hết cỡ (giới hạn bản đồ); ở giữa thì nội suy.
+@export var camera_zoom_bounds: Rect2 = Rect2(-60.0, -50.0, 120.0, 100.0)
 ## Điểm nhìn lúc vào trận.
 @export var camera_start: Vector2 = Vector2.ZERO
-## Khoảng cách từ camera tới điểm nhìn.
+## Khoảng cách từ camera tới điểm nhìn khi thu nhỏ hết cỡ (thấy toàn bộ chiến trường).
 @export var camera_distance: float = 60.0
+## Khoảng cách khi phóng to hết cỡ (đảo chính gần đầy màn hình).
+@export var camera_min_distance: float = 30.0
 ## Góc nghiêng của camera so với mặt nước, độ.
 @export var camera_pitch_degrees: float = 55.0
 

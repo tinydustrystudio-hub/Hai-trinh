@@ -51,6 +51,8 @@ func _ready() -> void:
 	touch_input.drag_started.connect(camera.begin_drag)
 	touch_input.drag_moved.connect(camera.drag_to)
 	touch_input.drag_ended.connect(_on_drag_ended)
+	touch_input.pinch_started.connect(camera.cancel_drag)
+	touch_input.zoomed.connect(camera.zoom_by)
 	spawner.spawn_requested.connect(_on_spawn_requested)
 	spawner.wave_started.connect(_on_wave_started)
 	spawner.wave_cleared.connect(_on_wave_cleared)

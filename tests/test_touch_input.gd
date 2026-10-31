@@ -1,5 +1,5 @@
 extends GutTest
-## Phân biệt chạm và kéo theo ngưỡng 12 px; bỏ qua ngón thứ hai.
+## Phân biệt chạm, kéo (ngưỡng 12 px) và chụm hai ngón; lăn chuột để thu phóng.
 
 var _input: TouchInput
 
@@ -55,14 +55,61 @@ func test_threshold_is_twelve_pixels() -> void:
 	assert_true(_input.is_dragging())
 
 
-func test_second_finger_is_ignored() -> void:
-	_input.handle_event(_touch(0, Vector2(0, 0), true))
-	assert_false(_input.handle_event(_touch(1, Vector2(500, 500), true)))
-	assert_false(_input.handle_event(_drag(1, Vector2(900, 500))))
-	assert_false(_input.handle_event(_touch(1, Vector2(900, 500), false)))
-	_input.handle_event(_touch(0, Vector2(0, 0), false))
-	assert_signal_emit_count(_input, "tapped", 1)
+func test_pinch_zooms_and_is_not_a_tap() -> void:
+	_input.handle_event(_touch(0, Vector2(100, 100), true))
+	assert_true(_input.handle_event(_touch(1, Vector2(300, 100), true)))
+	assert_true(_input.is_pinching())
+	assert_signal_emitted(_input, "pinch_started")
+	# Hai ngón giãn từ 200 px ra 400 px: phóng to gấp đôi.
+	_input.handle_event(_drag(1, Vector2(500, 100)))
+	var params: Array = get_signal_parameters(_input, "zoomed")
+	assert_almost_eq(params[0], 2.0, 0.0001)
+	_input.handle_event(_touch(1, Vector2(500, 100), false))
+	assert_signal_emitted(_input, "pinch_ended")
+	# Ngón còn lại đi xa rồi nhấc: không thành kéo, không thành chạm.
+	_input.handle_event(_drag(0, Vector2(400, 400)))
+	_input.handle_event(_touch(0, Vector2(400, 400), false))
+	assert_signal_not_emitted(_input, "tapped")
 	assert_signal_not_emitted(_input, "drag_started")
+
+
+func test_pinch_ends_a_running_drag() -> void:
+	_input.handle_event(_touch(0, Vector2(0, 0), true))
+	_input.handle_event(_drag(0, Vector2(50, 0)))
+	assert_true(_input.is_dragging())
+	_input.handle_event(_touch(1, Vector2(200, 0), true))
+	assert_false(_input.is_dragging())
+	assert_signal_emitted(_input, "drag_ended")
+	assert_true(_input.is_pinching())
+
+
+func test_pinch_closer_zooms_out() -> void:
+	_input.handle_event(_touch(0, Vector2(0, 0), true))
+	_input.handle_event(_touch(1, Vector2(400, 0), true))
+	_input.handle_event(_drag(1, Vector2(100, 0)))
+	assert_almost_eq(get_signal_parameters(_input, "zoomed")[0], 0.25, 0.0001)
+
+
+func test_gesture_after_pinch_works_again() -> void:
+	_input.handle_event(_touch(0, Vector2(0, 0), true))
+	_input.handle_event(_touch(1, Vector2(100, 0), true))
+	_input.handle_event(_touch(0, Vector2(0, 0), false))
+	_input.handle_event(_touch(1, Vector2(100, 0), false))
+	_input.handle_event(_touch(0, Vector2(10, 10), true))
+	_input.handle_event(_touch(0, Vector2(10, 10), false))
+	assert_signal_emitted_with_parameters(_input, "tapped", [Vector2(10, 10)])
+
+
+func test_mouse_wheel_zooms() -> void:
+	var wheel: InputEventMouseButton = InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+	wheel.pressed = true
+	wheel.position = Vector2(640, 360)
+	assert_true(_input.handle_event(wheel))
+	assert_signal_emitted_with_parameters(_input, "zoomed", [TouchInput.WHEEL_STEP, Vector2(640, 360)])
+	wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+	_input.handle_event(wheel)
+	assert_almost_eq(get_signal_parameters(_input, "zoomed")[0], 1.0 / TouchInput.WHEEL_STEP, 0.0001)
 
 
 func test_canceled_touch_is_not_a_tap() -> void:
