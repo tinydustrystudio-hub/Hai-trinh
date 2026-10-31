@@ -30,7 +30,7 @@ static func primary_button(text_key: StringName, min_size: Vector2 = Vector2(360
 	button.text = text_key
 	button.custom_minimum_size = Vector2(maxf(min_size.x, MIN_BUTTON.x), maxf(min_size.y, MIN_BUTTON.y))
 	# Chữ dài thì xuống dòng trong nút, không làm nút nở ra đè lên nút bên cạnh.
-	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD
 	button.add_theme_font_size_override(&"font_size", BUTTON_TEXT_SIZE)
 	button.add_theme_color_override(&"font_color", TEXT)
 	button.add_theme_color_override(&"font_pressed_color", TEXT)

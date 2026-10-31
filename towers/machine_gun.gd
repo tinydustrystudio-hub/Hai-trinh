@@ -4,7 +4,7 @@ extends Tower
 ## Nhánh 5A Mưa Đạn: mỗi loạt bắn tới 3 mục tiêu; kỹ năng Quét Ngang cứ 6 giây quét một hình quạt phía trước.
 ## Nhánh 5B Xuyên Giáp: bỏ qua 70% giáp; kỹ năng Đạn Lõi Thép cứ phát thứ 4 gây ×3 lên địch giáp từ bậc 3.
 
-## Hệ số sát thương hiện tại (MEGA, làm mát ở bước 10). 1 lúc bình thường.
+## Hệ số sát thương thêm (thử nghiệm, kỹ năng khác về sau). Quá tải nhân riêng.
 var damage_multiplier: float = 1.0
 ## Số phát đã bắn (để thử và để nạp Quá tải về sau).
 var shots_fired: int = 0
@@ -50,12 +50,14 @@ func volley() -> void:
 			shoot(extra)
 	if target != null and target.active:
 		shoot(target)
+		# Nạp Quá tải theo loạt bắn vào mục tiêu chính: đầy sau đúng 14 giây bắn liên tục (kế hoạch mục 5.4).
+		overload.add_charge(Overload.charge_per_hit(data.overload_charge_seconds, stats().fire_rate))
 
 
 ## Một phát trúng enemy: sát thương × hệ số, sau giáp (Enemy tự trừ giáp, Xuyên Giáp bỏ qua một phần).
 func shoot(enemy: Enemy) -> void:
 	shots_fired += 1
-	var amount: float = stats().damage * damage_multiplier
+	var amount: float = stats().damage * damage_multiplier * overload_multiplier()
 	var armor_ignore: float = 0.0
 	if branch != null:
 		armor_ignore = branch.armor_ignore
@@ -86,7 +88,7 @@ func sweep() -> int:
 	facing = facing.normalized()
 	var half_angle: float = deg_to_rad(branch.sweep_angle_degrees) * 0.5
 	var reach: float = range_units()
-	var amount: float = stats().damage * branch.sweep_damage_multiplier * damage_multiplier
+	var amount: float = stats().damage * branch.sweep_damage_multiplier * damage_multiplier * overload_multiplier()
 	var hits: int = 0
 	for i: int in range(_pool.active.size() - 1, -1, -1):
 		var enemy: Enemy = _pool.active[i]

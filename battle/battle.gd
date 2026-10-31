@@ -60,6 +60,8 @@ var _revealed_wave: int = -1
 @onready var effects: Node3D = $Effects
 @onready var bullets: BulletRenderer = $Effects/BulletRenderer
 @onready var glue_puddles: GluePuddles = $Effects/GluePuddles
+@onready var overload_bars: OverloadBars = $Effects/OverloadBars
+@onready var mega_bursts: MegaBursts = $Effects/MegaBursts
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
@@ -69,6 +71,7 @@ func _ready() -> void:
 	build_map()
 	enemy_pool.ocean = ocean
 	enemy_pool.face_camera(camera.global_basis)
+	overload_bars.face_camera(camera.global_basis)
 	touch_input.tapped.connect(_on_tapped)
 	touch_input.drag_started.connect(camera.begin_drag)
 	touch_input.drag_moved.connect(camera.drag_to)
@@ -85,6 +88,9 @@ func _ready() -> void:
 	hud.upgrade_ring.sell_requested.connect(_on_sell_requested)
 	hud.branch_cards.branch_chosen.connect(_on_branch_chosen)
 	hud.branch_cards.cancelled.connect(close_branch_cards)
+	hud.mega_tray.mega_requested.connect(activate_mega)
+	Events.overload_ready.connect(_on_overload_ready)
+	Events.mega_started.connect(_on_mega_started)
 	spawner.spawn_requested.connect(_on_spawn_requested)
 	spawner.wave_started.connect(_on_wave_started)
 	spawner.wave_cleared.connect(_on_wave_cleared)
@@ -122,6 +128,8 @@ func step(delta: float) -> void:
 			(tower as GlueSprayer).draw_puddles(glue_puddles)
 	glue_puddles.finish()
 	bullets.advance(delta)
+	overload_bars.update_bars(towers, delta)
+	mega_bursts.advance(delta)
 	if stress_mode:
 		spawn_burst(MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
 	island.set_tilt(buoyancy.tilt_degrees())
@@ -133,6 +141,7 @@ func start_battle() -> void:
 	_clear_towers()
 	close_build_ring()
 	close_branch_cards()
+	hud.mega_tray.clear()
 	buoyancy.reset(layout.starting_buoyancy)
 	economy.reset(layout.starting_steel)
 	state = State.PREPARING
@@ -244,9 +253,17 @@ func sell_tower(tower: Tower) -> int:
 	economy.earn(refund)
 	towers.erase(tower)
 	tower.pad.occupied = false
+	hud.mega_tray.remove(tower)
 	Events.tower_sold.emit(tower)
 	tower.queue_free()
 	return refund
+
+
+## Kích MEGA cho lô cốt đã đầy thanh Quá tải; trả true nếu đã kích.
+func activate_mega(tower: Tower) -> bool:
+	if tower == null or not towers.has(tower) or is_over():
+		return false
+	return tower.activate_mega()
 
 
 func open_branch_cards(tower: Tower) -> void:
@@ -415,7 +432,13 @@ func _on_tapped(screen_position: Vector2) -> void:
 	select_pad(pad)
 	var at: Vector2 = camera.unproject_position(pad.global_position)
 	if pad.occupied:
-		_open_upgrade_ring(tower_on(pad), at)
+		var tower: Tower = tower_on(pad)
+		# Chạm thẳng vào lô cốt đã đầy thanh thì kích MEGA (GDD mục 3.1), không mở vòng nâng cấp.
+		if tower != null and tower.overload.is_ready():
+			select_pad(null)
+			activate_mega(tower)
+			return
+		_open_upgrade_ring(tower, at)
 	else:
 		hud.build_ring.open(at, tower_choices, economy.steel)
 
@@ -452,6 +475,19 @@ func _on_tower_chosen(data: TowerData) -> void:
 	var pad: TowerPad = selected_pad
 	close_build_ring()
 	build_tower(pad, data)
+
+
+func _on_overload_ready(tower: Node3D) -> void:
+	if towers.has(tower):
+		hud.mega_tray.add(tower as Tower)
+
+
+func _on_mega_started(tower: Node3D) -> void:
+	var fired: Tower = tower as Tower
+	if fired == null or not towers.has(fired):
+		return
+	hud.mega_tray.remove(fired)
+	mega_bursts.spawn(fired.global_position, fired.range_units())
 
 
 func _on_steel_changed(value: int) -> void:

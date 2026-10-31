@@ -9,9 +9,9 @@ const ENEMY_SCENE: PackedScene = preload("res://enemies/enemy.tscn")
 ## Đàn địch lệch ngang ngẫu nhiên trong khoảng ±LATERAL_SPREAD đơn vị.
 const LATERAL_SPREAD: float = 0.7
 const BAR_WIDTH: float = 2.0
-const BAR_HEIGHT: float = 0.28
+const BAR_HEIGHT: float = 0.4
 const BAR_LIFT: float = 2.2
-const BAR_BACK_COLOR: Color = Color(0.1, 0.1, 0.1, 0.8)
+const BAR_SHADER: Shader = preload("res://fx/bar.gdshader")
 const BAR_FULL_COLOR: Color = Color(0.3, 0.95, 0.35)
 const BAR_LOW_COLOR: Color = Color(1.0, 0.3, 0.2)
 const WAKE_SHADER: Shader = preload("res://enemies/wake.gdshader")
@@ -135,18 +135,17 @@ func face_camera(camera_basis: Basis) -> void:
 func _build_bars() -> void:
 	var quad: QuadMesh = QuadMesh.new()
 	quad.size = Vector2(1.0, 1.0)
-	var material: StandardMaterial3D = StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.vertex_color_use_as_albedo = true
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.no_depth_test = true
+	var material: ShaderMaterial = ShaderMaterial.new()
+	material.shader = BAR_SHADER
 	material.render_priority = 10
 	quad.material = material
 	var multimesh: MultiMesh = MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.use_colors = true
+	multimesh.use_custom_data = true
 	multimesh.mesh = quad
-	multimesh.instance_count = POOL_SIZE * 2
+	multimesh.instance_count = POOL_SIZE
+	multimesh.custom_aabb = AABB(Vector3(-500, -10, -500), Vector3(1000, 40, 1000))
 	multimesh.visible_instance_count = 0
 	_bars = MultiMeshInstance3D.new()
 	_bars.name = "HealthBars"
@@ -163,18 +162,11 @@ func _update_bars() -> void:
 		if ratio >= 1.0:
 			continue
 		var top: Vector3 = enemy.position + Vector3(0.0, BAR_LIFT, 0.0)
-		var back: Transform3D = Transform3D(_bar_basis.scaled_local(Vector3(BAR_WIDTH, BAR_HEIGHT, 1.0)), top)
-		multimesh.set_instance_transform(used, back)
-		multimesh.set_instance_color(used, BAR_BACK_COLOR)
-		used += 1
-		var fill_width: float = BAR_WIDTH * ratio
-		var fill_center: Vector3 = top + _bar_basis.x * (fill_width - BAR_WIDTH) * 0.5
-		var fill: Transform3D = Transform3D(_bar_basis.scaled_local(Vector3(fill_width, BAR_HEIGHT * 0.7, 1.0)), fill_center)
-		multimesh.set_instance_transform(used, fill)
+		multimesh.set_instance_transform(used, Transform3D(_bar_basis.scaled_local(Vector3(BAR_WIDTH, BAR_HEIGHT, 1.0)), top))
 		multimesh.set_instance_color(used, BAR_LOW_COLOR.lerp(BAR_FULL_COLOR, ratio))
+		multimesh.set_instance_custom_data(used, Color(ratio, 0.0, 0.0, 0.0))
 		used += 1
 	multimesh.visible_instance_count = used
-
 
 func _build_effects() -> void:
 	var wake_mesh: PlaneMesh = PlaneMesh.new()
