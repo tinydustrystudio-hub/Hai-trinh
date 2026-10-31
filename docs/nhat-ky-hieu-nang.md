@@ -26,7 +26,7 @@ không quá 150 lệnh vẽ; không quá 150.000 tam giác; vào trận không q
 | 30/10/2026 | bước 3 làm lại | như trên, 1280×720, `?stress&hq` | 60 | 2 | 109 | 51.600 tam giác; vệt bọt và bóng tròn của 60 tàu thêm đúng 2 lệnh vẽ |
 | 30/10/2026 | đối chứng | Máy ảo, dự án Godot 4.5 trống (chỉ có camera) | 0 | 40–50 ở 1280×720; 60 ở 960×540 | – | Trần của máy ảo khi không vẽ gì |
 | 30/10/2026 | đối chứng | Máy ảo, dự án Godot trống + một mặt phẳng phủ màn hình, shader tối giản (một màu, unshaded) | 0 | 16 ở 1280×720; 24 ở 960×540 | – | Chỉ một lớp phủ kín màn hình đã dưới 30: máy ảo không thể đạt 60 khung/giây với bất kỳ mặt biển nào |
-|  |  | Android thử |  |  |  | Chờ đạo diễn đo |
+| 31/10/2026 | sau bước 3 (sửa thêm), APK | Điện thoại Android của đạo diễn | 59 | 39 | 112 | Nước cao; 52.500 tam giác; mỗi khung 25,6 ms (xử lý 19,3 ms). **Vào trận 3,5 giây, vượt ngân sách 3 giây** — nhiều khả năng do sinh 3 texture nhiễu cho nước lúc khởi động; cần sửa riêng |
 |  |  | Laptop văn phòng, Chrome |  |  |  | Chờ đạo diễn đo |
 
 Dung lượng bản web: 37 MB (`build/web`), trong đó `index.wasm` của Godot đã chiếm 36 MB.

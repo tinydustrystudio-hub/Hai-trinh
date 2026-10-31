@@ -1,16 +1,18 @@
 class_name Hud
 extends CanvasLayer
-## HUD trận. Bước 5 mới có Độ Nổi, đợt hiện tại, báo đợt sắp tới và màn kết quả;
-## Thép, Tạm dừng, ×2 và khay MEGA thêm ở các bước sau. Chỉ nghe Events.
+## HUD trận. Hiện có Độ Nổi, đợt hiện tại, báo đợt sắp tới, Thép (trên phải), vòng chọn lô cốt
+## và màn kết quả; Tạm dừng, ×2 và khay MEGA thêm ở các bước sau. Chỉ nghe Events.
 
 signal retry_requested
 
 var _buoyancy: Label
 var _wave: Label
 var _incoming: Label
+var _steel: Label
 var _wave_total: int = 0
 
 @onready var result_panel: ResultPanel = $ResultPanel
+@onready var build_ring: BuildRing = $BuildRing
 
 
 func _ready() -> void:
@@ -28,7 +30,14 @@ func _ready() -> void:
 	_incoming.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	add_child(_incoming)
 	move_child(_incoming, 1)
+	_steel = UiStyle.label(UiStyle.TEXT_SIZE + 4)
+	_steel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_KEEP_SIZE, UiStyle.MARGIN)
+	_steel.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_steel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	add_child(_steel)
+	move_child(_steel, 2)
 	result_panel.retry_requested.connect(retry_requested.emit)
+	Events.steel_changed.connect(_on_steel_changed)
 	Events.buoyancy_changed.connect(_on_buoyancy_changed)
 	Events.wave_started.connect(_on_wave_started)
 	Events.wave_incoming.connect(_on_wave_incoming)
@@ -54,8 +63,17 @@ func wave_text() -> String:
 	return _wave.text
 
 
+func steel_text() -> String:
+	return _steel.text
+
+
 func incoming_text() -> String:
 	return _incoming.text
+
+
+func _on_steel_changed(value: int) -> void:
+	_steel.text = tr(&"HUD_STEEL") % value
+	build_ring.set_steel(value)
 
 
 func _on_buoyancy_changed(value: int, max_value: int) -> void:

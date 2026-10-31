@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="TowerData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://core/data/tower_data.gd" id="1_tower"]
+[ext_resource type="Script" path="res://core/data/tower_level.gd" id="2_level"]
+
+[sub_resource type="Resource" id="TowerLevel_1"]
+script = ExtResource("2_level")
+steel_cost = 70
+damage = 6.0
+fire_rate = 5.0
+range_cells = 3.0
+
+[sub_resource type="Resource" id="TowerLevel_2"]
+script = ExtResource("2_level")
+steel_cost = 60
+damage = 9.0
+fire_rate = 5.0
+range_cells = 3.2
+
+[sub_resource type="Resource" id="TowerLevel_3"]
+script = ExtResource("2_level")
+steel_cost = 90
+damage = 12.0
+fire_rate = 6.0
+range_cells = 3.4
+
+[sub_resource type="Resource" id="TowerLevel_4"]
+script = ExtResource("2_level")
+steel_cost = 130
+damage = 16.0
+fire_rate = 6.0
+range_cells = 3.6
+
+[resource]
+script = ExtResource("1_tower")
+id = &"machine_gun"
+name_key = &"TOWER_MACHINE_GUN"
+target_layers = Array[int]([0])
+levels = Array[ExtResource("2_level")]([SubResource("TowerLevel_1"), SubResource("TowerLevel_2"), SubResource("TowerLevel_3"), SubResource("TowerLevel_4")])
+overload_charge_seconds = 14.0
+mega_duration = 5.0
+mega_multiplier = 3.0
+cooldown_duration = 7.0
+cooldown_fire_power = 0.2
+color = Color(0.16, 0.42, 0.66, 1)
