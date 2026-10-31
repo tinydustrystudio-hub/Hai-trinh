@@ -23,6 +23,6 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 
 **Để dành, làm sau khi chơi thử:** số máu, sát thương, tốc độ, số địch và giá; cân bằng 5 đợt; nhánh cấp 5 của Lô Cốt Tia Sáng.
 
-**Đã chốt (người duyệt, 31/10): phí dời đảo vệ tinh = 1/2 giá xây lô cốt rẻ nhất.** Tính theo công thức từ dữ liệu lô cốt (giá cấp 1 thấp nhất trong các lô cốt đã mở), không viết cứng: hiện Lô Cốt Keo 60 nên phí dời là 30 Tiền Vàng, đổi giá lô cốt thì phí đổi theo. Làm tròn xuống, tối thiểu 1. Đặt đảo vẫn miễn phí.
+**Đã chốt (người duyệt, 31/10): phí dời đảo vệ tinh = 1/2 giá xây lô cốt rẻ nhất.** Tính theo công thức từ dữ liệu lô cốt (giá cấp 1 thấp nhất trong các lô cốt đã mở), không viết cứng: hiện Lô Cốt Keo 60 nên phí dời là 30 Tiền Vàng, đổi giá lô cốt thì phí đổi theo. Làm tròn xuống, tối thiểu 1. Đảo là vật phẩm, mua một lần là có mãi; đảo cấp sẵn của màn dùng miễn phí, đảo tự đặt tốn 200 cho đảo thứ nhất, +50 cho mỗi đảo tiếp theo.
 
 **Cần người duyệt chốt khi tới giai đoạn P5:** đảo từ thứ 5 mở khóa bằng Tiền Vàng hay bằng tiến trình; giá và công thức nâng cấp công trình.

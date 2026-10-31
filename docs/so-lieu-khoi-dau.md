@@ -14,7 +14,8 @@ trong `data/*.tres` để chơi thử; khi cân bằng (bước 12) hoặc sau b
 | Chia địch cho từng luồng ở đợt 3–5 | xem file đợt | `data/waves/north_dock_waves.tres` | Kế hoạch chỉ ghi luồng nào có địch |
 | Chia đợt 5 cho 4 luồng (mỗi luồng 6 Xuồng Cướp; Ca Nô ở Đông, Tây; Cua ở Bắc, Nam) | xem file đợt | `data/waves/north_dock_waves.tres` | GDD mục 8.6 chỉ ghi đợt 5 dùng cả 4 luồng |
 | Chiều dài luồng: cả 4 luồng khoảng 126–128 đơn vị (31–32 ô) | xem file bản đồ | `data/maps/north_dock_layout.tres` | Góp ý 3 của đạo diễn (31/10): bốn phía cân bằng như nhau, bản đồ rộng hơn để đường đi dài hơn |
-| Phí dời đảo vệ tinh: 1/2 giá xây lô cốt rẻ nhất (hiện 30 Tiền Vàng); đặt đảo miễn phí | công thức, tính từ `data/towers/*.tres` | Người duyệt chốt 31/10 |
+| Phí dùng đảo tự đặt trong một màn: thứ 1 là 200 Tiền Vàng, mỗi đảo sau +50 (200, 250, 300…); đảo cấp sẵn miễn phí; đảo đã mua tồn tại mãi | `data/economy.tres` (`island_use_base`, `island_use_step`) | Người duyệt chốt 31/10 |
+| Phí dời đảo vệ tinh: 1/2 giá xây lô cốt rẻ nhất (hiện 30 Tiền Vàng) | `data/economy.tres` (`island_move_ratio`), tính từ `data/towers/*.tres` | Người duyệt chốt 31/10 |
 | Giãn cách địch: khoảng trống tối thiểu 0,5 thân; +0,25 thân mỗi lần máu gấp đôi 60 | `data/combat_rules.tres` | Góp ý 4 (mục 14); số 0,25 đặt tạm. Làm đàn dày sẽ xếp hàng ở đầu luồng nên nhịp địch tới chậm hơn bản gấp đôi số địch trước đó, cần cân bằng lại |
 | Dập dìu của đảo: độ cao ×0,6, độ nghiêng ×0,5 theo sóng, tối đa 1,5°, hệ số theo cỡ đảo = 4 ÷ bán kính | xem `battle/map/island.gd` | Góp ý 4 (mục 15); số đặt tạm |
 | Sóng: độ cao tối đa 0,34; tốc độ mỗi lớp ×0,65–1,35; đợt sóng lớn đổi biên độ ±30–60% | xem `battle/ocean/ocean.gd` | Góp ý 4 (mục 11); số đặt tạm |
