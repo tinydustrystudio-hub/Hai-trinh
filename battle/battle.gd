@@ -53,7 +53,6 @@ var _enemy_types: Array[EnemyData] = []
 ## Các loại địch đã xuất hiện trong trận (cho thẻ địch ở màn Tạm dừng).
 var _enemies_met: Array[EnemyData] = []
 ## Đợt gần nhất đã cho luồng hiện rõ, để chỉ hiện một lần mỗi đợt.
-var _revealed_wave: int = -1
 
 @onready var ocean: Ocean = $Ocean
 @onready var island: Island = $Island
@@ -130,6 +129,7 @@ func step(delta: float) -> void:
 	if is_over() or delta <= 0.0:
 		return
 	spawner.advance(delta)
+	_update_lane_warnings()
 	if is_over():
 		return
 	enemy_pool.advance(delta)
@@ -157,19 +157,20 @@ func start_battle() -> void:
 	buoyancy.reset(layout.starting_buoyancy)
 	economy.reset(layout.starting_steel)
 	state = State.PREPARING
-	_revealed_wave = -1
 	_enemies_met.clear()
 	hud.hide_pause()
 	set_paused(false)
 	set_speed(1.0)
 	hud.hide_result()
 	spawner.start(wave_data)
+	_update_lane_warnings()
 
 
 ## Chuyển sang cảnh thử hiệu năng.
 func enter_stress_mode() -> void:
 	stress_mode = true
 	spawner.stop()
+	_update_lane_warnings()
 	buoyancy.reset(1_000_000)
 	hud.hide_result()
 	state = State.FIGHTING
@@ -416,6 +417,7 @@ func _end_battle(won: bool) -> void:
 		return
 	state = State.WON if won else State.LOST
 	spawner.stop()
+	_update_lane_warnings()
 	close_build_ring()
 	close_branch_cards()
 	set_paused(false)
@@ -453,12 +455,17 @@ func _on_wave_cleared(index: int) -> void:
 
 
 func _on_wave_incoming(index: int, lane_indices: PackedInt32Array, seconds: float) -> void:
-	if index != _revealed_wave:
-		_revealed_wave = index
-		for lane_index: int in lane_indices:
-			if lane_index < lanes.size():
-				lanes[lane_index].reveal()
 	Events.wave_incoming.emit(index, lane_indices, seconds)
+
+
+## Luồng nào sắp có địch trong Lane.WARNING_SECONDS giây thì hiện luồng và bật đèn báo hướng trên đảo;
+## địch đầu tiên của luồng đã ra thì tắt.
+func _update_lane_warnings() -> void:
+	for lane: Lane in lanes:
+		var seconds: float = spawner.seconds_until_lane(lane.lane_index)
+		var warning: bool = seconds >= 0.0 and seconds <= Lane.WARNING_SECONDS
+		lane.set_warning(warning)
+		island.set_lane_warning(lane.lane_index, warning)
 
 
 func _on_all_waves_cleared() -> void:
