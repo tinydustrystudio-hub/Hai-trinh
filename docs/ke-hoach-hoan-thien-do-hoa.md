@@ -27,4 +27,4 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 
 **Đã chốt (31/10): giá mua đảo vệ tinh:** đảo mua thêm thứ nhất 250 Tiền Vàng, mỗi đảo sau +50; mua bằng Tiền Vàng.
 
-**Cần người duyệt chốt khi tới giai đoạn P5:** giá và công thức nâng cấp công trình.
+**Giá nâng cấp công trình (người duyệt chọn dùng số tạm, 31/10):** lên cấp 2 / 3 / 4 / 5 tốn 200 / 320 / 510 / 820 Tiền Vàng (công thức 200 × 1,6^(cấp − 2)); chỉnh sau khi chơi thử. Không còn điều gì cần chốt trước P5.

@@ -78,3 +78,16 @@ func test_island_buy_cost_starts_at_250_and_rises_by_fifty() -> void:
 	assert_eq(rules.island_buy_cost(2), 300)
 	assert_eq(rules.island_buy_cost(4), 400)
 	assert_eq(rules.island_buy_cost(0), 250, "không âm")
+
+
+func test_building_upgrade_cost_formula() -> void:
+	# Số tạm (người duyệt 31/10: dùng số tạm): 200 → ×1,6 mỗi cấp, làm tròn tới 10.
+	var rules: EconomyData = load("res://data/economy.tres")
+	assert_eq(rules.building_upgrade_cost(1), 0)
+	assert_eq(rules.building_upgrade_cost(2), 200)
+	assert_eq(rules.building_upgrade_cost(3), 320)
+	assert_eq(rules.building_upgrade_cost(4), 510)
+	assert_eq(rules.building_upgrade_cost(5), 820)
+	assert_eq(rules.building_upgrade_cost(3, 1.5), 480, "hệ số riêng của công trình")
+	assert_eq(rules.building_total_cost(5), 200 + 320 + 510 + 820)
+	assert_eq(rules.building_total_cost(1), 0)

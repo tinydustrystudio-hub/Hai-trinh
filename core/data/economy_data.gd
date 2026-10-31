@@ -41,3 +41,26 @@ func island_use_total(n: int) -> int:
 ## Phí dời đảo, theo giá xây lô cốt rẻ nhất (cấp 1) trong danh sách.
 func island_move_cost(cheapest_tower_cost: int) -> int:
 	return maxi(floori(float(cheapest_tower_cost) * island_move_ratio), 1)
+
+
+@export_group("Nâng cấp công trình (số tạm)")
+## Giá lên cấp 2 của công trình có hệ số 1,0; mỗi cấp sau nhân thêm building_growth (200, 320, 512, 819 → làm tròn
+## tới 10). Công trình khác nhau nhân thêm hệ số riêng ở BuildingData.upgrade_multiplier. Số tạm, chỉnh sau khi chơi thử.
+@export var building_base_cost: int = 200
+@export var building_growth: float = 1.6
+
+
+## Giá lên cấp level (2–5) của một công trình có hệ số multiplier, làm tròn tới 10 Tiền Vàng; cấp 1 và dưới là 0.
+func building_upgrade_cost(level: int, multiplier: float = 1.0) -> int:
+	if level < 2:
+		return 0
+	var raw: float = float(building_base_cost) * pow(building_growth, float(level - 2)) * multiplier
+	return int(roundf(raw / 10.0)) * 10
+
+
+## Tổng giá đưa công trình từ cấp 1 lên cấp level.
+func building_total_cost(level: int, multiplier: float = 1.0) -> int:
+	var total: int = 0
+	for l: int in range(2, level + 1):
+		total += building_upgrade_cost(l, multiplier)
+	return total
