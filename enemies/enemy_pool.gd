@@ -73,6 +73,7 @@ func acquire(data: EnemyData, lane: Lane, start_distance: float = 0.0) -> Enemy:
 	var enemy: Enemy = _free.pop_back()
 	var offset: float = _rng.randf_range(-LATERAL_SPREAD, LATERAL_SPREAD)
 	enemy.spawn(data, lane, offset, _rng.randf_range(0.0, TAU), start_distance)
+	enemy.set_wander(_rng)
 	enemy.serial = _next_serial
 	_next_serial += 1
 	active.append(enemy)
@@ -261,7 +262,7 @@ func _update_effects() -> void:
 		# Vệt chỉ dài bằng quãng tàu đã đi, để không vẽ ra ngoài đầu luồng.
 		var wake_length: float = minf(length * WAKE_LENGTH, enemy.distance - stern)
 		if wake_length > 0.5:
-			var back: Vector3 = enemy.lane.direction_at(enemy.distance - stern - wake_length)
+			var back: Vector3 = enemy.heading_at(enemy.distance - stern - wake_length)
 			var curvature: float = wake_curvature(yaw, back, wake_length)
 			wakes.set_instance_transform(wake_count, Transform3D(yaw, ground - forward * stern))
 			wakes.set_instance_custom_data(wake_count, Color(curvature, length * 0.5 * WAKE_WIDTH, wake_length, 0.0))

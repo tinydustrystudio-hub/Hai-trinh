@@ -122,3 +122,17 @@ func test_one_satellite_per_lane() -> void:
 		for center: Vector3 in LAYOUT.satellite_centers:
 			nearest = minf(nearest, lane.distance_to(center))
 		assert_lte(nearest, MIN_TOWER_RANGE_CELLS * MapLayout.UNITS_PER_CELL, "luồng %d có đảo vệ tinh canh" % lane.lane_index)
+
+
+func test_satellite_counts_follow_level_rules() -> void:
+	# GDD mục 5.4: màn 1 cấp sẵn 4 đảo, đặt tối đa 8; các đảo cấp sẵn nằm trong bố cục.
+	assert_eq(LAYOUT.free_satellites(), 4)
+	assert_eq(LAYOUT.satellite_max_count, 8)
+	assert_eq(LAYOUT.extra_satellites(), 4)
+	assert_gte(LAYOUT.satellite_centers.size(), LAYOUT.free_satellites())
+	assert_lte(LAYOUT.free_satellites(), LAYOUT.satellite_max_count)
+	var open_layout: MapLayout = MapLayout.new()
+	open_layout.satellite_centers = PackedVector3Array([Vector3.ZERO, Vector3(1, 0, 1)])
+	assert_eq(open_layout.free_satellites(), 2, "không khai báo thì dùng số đảo đã đặt")
+	open_layout.satellite_max_count = 1
+	assert_eq(open_layout.extra_satellites(), 0)
