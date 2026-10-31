@@ -23,3 +23,23 @@ trong `data/*.tres` để chơi thử; khi cân bằng (bước 12) hoặc sau b
 | Keo Ăn Mòn: thời gian chậm 2 giây | 2 giây | `data/towers/glue_sprayer.tres` | GDD không ghi; lấy theo cấp 4 |
 | Trận chậm còn 30% khi chọn nhánh | 0,3 | `battle/battle.gd` (`BRANCH_CHOICE_SPEED`) | GDD mục 7.10 (luật giao diện, không phải số cân bằng) |
 | 5 đợt ở Bến Bắc | cả bảng | `data/waves/north_dock_waves.tres` | Kế hoạch mục 5.1, "bản đầu", rồi gấp đôi số địch theo góp ý 3 |
+
+## Thử cân bằng bằng người chơi giả (31/10/2026)
+
+Chạy bằng `tests/test_balance.gd` và `tests/bots/battle_bot.gd`, trên bản đồ và 5 đợt sau góp ý 3 (luồng dài 31 ô, gấp đôi số địch).
+Người chơi giả có chiến thuật (SMART) chuẩn bị trước một đợt, đặt lô cốt theo luồng, thêm Keo cho luồng có Ca Nô hoặc Cua,
+nâng Súng Máy giữ các luồng đó lên cấp 3 và kích MEGA khi có từ 3 địch trong tầm. Người chơi qua loa (NAIVE) chỉ đặt Súng Máy theo thứ tự bệ.
+
+| Thử | SMART | NAIVE |
+| --- | --- | --- |
+| Số GDD hiện tại | Thua ở đợt 4 | Thua ở đợt 2 |
+| Thép khởi đầu 300 | Thua ở đợt 4 | Thua ở đợt 2 |
+| Thưởng mỗi đợt 40 | Thua ở đợt 4 | Thua ở đợt 2 |
+| Thép mỗi tàu ×1,5 | Thua ở đợt 4 | Thua ở đợt 2 |
+| Dàn thưa các cụm Ca Nô ở đợt 2, 4, 5 | Thua ở đợt 5 | Thua ở đợt 2 |
+| Sát thương Súng Máy ×1,5 | Thua ở đợt 5 | Thua ở đợt 2 |
+| Máu Xuồng Cướp và Ca Nô ×0,7 (42) | Thua ở đợt 5 | Thua ở đợt 2 |
+| Máu Xuồng Cướp và Ca Nô ×0,5 (30) | **Thắng, còn 5/20 Độ Nổi** | Thua ở đợt 2 |
+
+Nút thắt là sát thương, không phải Thép: Súng Máy không hạ kịp cụm 6 Ca Nô Cảm Tử chạy 1,5 ô/giây.
+Đạo diễn chọn giữ số GDD, cân bằng lại sau buổi chơi thử trên điện thoại.

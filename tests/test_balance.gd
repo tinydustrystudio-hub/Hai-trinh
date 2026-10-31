@@ -38,7 +38,8 @@ func test_naive_player_loses() -> void:
 func test_smart_player_wins_but_not_too_easily() -> void:
 	var battle: BattleController = _play(BattleBot.Strategy.SMART)
 	if battle.state != BattleController.State.WON:
-		# Cân bằng làm sau góp ý 3 của đạo diễn (bản đồ rộng hơn, gấp đôi số địch); xem PR bước 12.
+		# Đạo diễn chọn giữ số GDD và cân bằng sau buổi chơi thử trên điện thoại (31/10); kết quả thử ở
+		# docs/so-lieu-khoi-dau.md, mục "Thử cân bằng".
 		pending("Chưa cân bằng: người chơi có chiến thuật thua ở đợt %d" % (battle.spawner.wave_index + 1))
 		return
 	assert_lt(battle.buoyancy.value, 20, "không thắng quá dễ: vẫn để lọt vài tàu")
