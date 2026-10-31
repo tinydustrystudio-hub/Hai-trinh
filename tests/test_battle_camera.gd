@@ -80,6 +80,23 @@ func test_starts_zoomed_out() -> void:
 	camera.free()
 
 
+func test_start_distance_between_limits() -> void:
+	var layout: MapLayout = MapLayout.new()
+	layout.camera_distance = 150.0
+	layout.camera_min_distance = 46.0
+	assert_eq(layout.start_distance(), 150.0, "0 = vào trận ở toàn cảnh")
+	layout.camera_start_distance = 104.0
+	assert_eq(layout.start_distance(), 104.0)
+	layout.camera_start_distance = 400.0
+	assert_eq(layout.start_distance(), 150.0)
+	var camera: BattleCamera = BattleCamera.new()
+	layout.camera_start_distance = 104.0
+	camera.configure(layout)
+	assert_eq(camera.distance, 104.0)
+	assert_eq(camera.max_distance, 150.0)
+	camera.free()
+
+
 func test_zoom_is_clamped_to_limits() -> void:
 	var camera: BattleCamera = _zoom_camera()
 	camera.set_distance(10.0)
@@ -136,3 +153,26 @@ func test_layout_zoom_range() -> void:
 	var layout: MapLayout = load("res://data/maps/north_dock_layout.tres")
 	assert_lt(layout.camera_min_distance, layout.camera_distance)
 	assert_true(layout.camera_zoom_bounds.encloses(layout.camera_bounds))
+
+
+func test_full_zoom_out_sees_whole_battlefield() -> void:
+	# Màn hình gốc 16:9: thu nhỏ hết cỡ thì thấy mọi bệ và cả bốn luồng (trừ điểm xuất phát ngay mép).
+	var layout: MapLayout = load("res://data/maps/north_dock_layout.tres")
+	var viewport: SubViewport = add_child_autofree(SubViewport.new())
+	viewport.size = Vector2i(1920, 1080)
+	var camera: BattleCamera = BattleCamera.new()
+	viewport.add_child(camera)
+	camera.configure(layout)
+	camera.make_current()
+	camera.set_distance(layout.camera_distance)
+	var screen: Rect2 = Rect2(Vector2.ZERO, Vector2(viewport.size))
+	var points: Array[Vector3] = []
+	points.append_array(layout.pad_positions)
+	for lane: PackedVector3Array in layout.lane_points:
+		points.append_array(lane.slice(1))
+	for point: Vector3 in points:
+		assert_true(screen.has_point(camera.unproject_position(point)), "thấy %s" % point)
+	# Điểm xuất phát nằm sát mép: địch đi vào từ mép màn hình.
+	for lane: PackedVector3Array in layout.lane_points:
+		var start: Vector2 = camera.unproject_position(lane[0])
+		assert_true(screen.grow(screen.size.x * 0.06).has_point(start), "luồng bắt đầu sát mép %s" % lane[0])

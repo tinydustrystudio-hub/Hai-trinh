@@ -68,7 +68,7 @@ func test_wins_after_five_waves_when_island_survives() -> void:
 	assert_eq(_battle.state, BattleController.State.WON)
 	assert_eq(_waves_started, [0, 1, 2, 3, 4])
 	# Không lô cốt: mọi địch đều lọt.
-	assert_eq(_battle.buoyancy.value, 1000 - (6 + 17 + 12 + 26 + 34))
+	assert_eq(_battle.buoyancy.value, 1000 - 2 * (6 + 17 + 12 + 26 + 34))
 	assert_eq(_battle.enemy_pool.active_count(), 0)
 	assert_signal_emitted_with_parameters(Events, "battle_ended", [true])
 

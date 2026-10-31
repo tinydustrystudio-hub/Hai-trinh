@@ -45,10 +45,20 @@ const UNITS_PER_CELL: float = 4.0
 @export var camera_start: Vector2 = Vector2.ZERO
 ## Khoảng cách từ camera tới điểm nhìn khi thu nhỏ hết cỡ (thấy toàn bộ chiến trường).
 @export var camera_distance: float = 60.0
+## Khoảng cách lúc vào trận (đảo chính chiếm khoảng 1/3 chiều cao màn hình); 0 = thu nhỏ hết cỡ.
+@export var camera_start_distance: float = 0.0
 ## Khoảng cách khi phóng to hết cỡ (đảo chính gần đầy màn hình).
 @export var camera_min_distance: float = 30.0
 ## Góc nghiêng của camera so với mặt nước, độ.
 @export var camera_pitch_degrees: float = 55.0
+
+
+## Khoảng cách camera lúc vào trận, kẹp trong giới hạn thu phóng.
+func start_distance() -> float:
+	var farthest: float = camera_distance
+	if camera_start_distance <= 0.0:
+		return farthest
+	return clampf(camera_start_distance, minf(camera_min_distance, farthest), farthest)
 
 
 func lane_count() -> int:

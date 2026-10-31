@@ -7,7 +7,7 @@ extends MeshInstance3D
 
 enum Quality { LOW, HIGH }
 
-const SIZE: float = 320.0
+const SIZE: float = 440.0
 const SUBDIVISIONS: Dictionary[Quality, int] = { Quality.LOW: 63, Quality.HIGH: 127 }
 const WAVE_COUNTS: Dictionary[Quality, int] = { Quality.LOW: 2, Quality.HIGH: 3 }
 const WATER_SHADER: Shader = preload("res://battle/ocean/water.gdshader")

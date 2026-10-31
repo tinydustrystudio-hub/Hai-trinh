@@ -103,3 +103,22 @@ func test_camera_looks_at_island_and_pans_only_a_little() -> void:
 	assert_lte(LAYOUT.camera_bounds.size.x, LAYOUT.fortress_radius * 2.0, "chỉ kéo trượt nhẹ")
 	assert_lte(LAYOUT.camera_bounds.size.y, LAYOUT.fortress_radius * 2.0, "chỉ kéo trượt nhẹ")
 	assert_almost_eq(LAYOUT.camera_pitch_degrees, 55.0, 0.001)
+
+
+func test_four_lanes_are_balanced_and_long() -> void:
+	# Góp ý 3 của đạo diễn: bốn phía cân bằng như nhau, đường đi dài hơn bản đầu (dài nhất khoảng 18 ô).
+	var shortest: float = INF
+	var longest: float = 0.0
+	for lane: Lane in _lanes:
+		shortest = minf(shortest, lane.length())
+		longest = maxf(longest, lane.length())
+	assert_gte(shortest / MapLayout.UNITS_PER_CELL, 30.0, "luồng ngắn nhất phải từ 30 ô")
+	assert_lte(longest / shortest, 1.03, "bốn luồng dài gần bằng nhau")
+
+
+func test_one_satellite_per_lane() -> void:
+	for lane: Lane in _lanes:
+		var nearest: float = INF
+		for center: Vector3 in LAYOUT.satellite_centers:
+			nearest = minf(nearest, lane.distance_to(center))
+		assert_lte(nearest, MIN_TOWER_RANGE_CELLS * MapLayout.UNITS_PER_CELL, "luồng %d có đảo vệ tinh canh" % lane.lane_index)
