@@ -14,6 +14,13 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 | P6 | **Ánh sáng và hậu kỳ:** bình minh, hoàng hôn theo bản đồ, chỉnh màu, glow, bóng; hạ chất lượng gọn trên máy yếu | Ảnh đẹp ở cả hai mức nước; không tụt dưới ngân sách khung hình đã đo |
 | P7 | **Đo lại hiệu năng và thời gian vào trận** (đang hơn 3 giây): lưu sẵn texture nhiễu, đo trên điện thoại | Đạt ngân sách ở `docs/nhat-ky-hieu-nang.md` |
 
+**Quyết định về tiền (người duyệt, 31/10): gộp Thép và Xu thành một loại tiền duy nhất, "Tiền Vàng".**
+
+- Tiền Vàng dùng cho mọi chi phí: xây, nâng cấp, bán lô cốt trong trận; nâng cấp công trình, mua và dời đảo vệ tinh ở căn cứ.
+- Tiền kiếm được trong trận (hạ địch, thưởng đợt) và thưởng cuối trận cộng vào ví dùng ở căn cứ; số vàng đầu trận lấy từ cấu hình của bản đồ.
+- Thay đổi theo từng giai đoạn: P1 đổi chữ "Thép" thành "Tiền Vàng" ở HUD, vòng chọn, thẻ nhánh, tạm dừng và kèm biểu tượng đồng vàng; P5 làm ví chung giữa trận và căn cứ. Các số giá hiện có (70, 60, 90…) giữ nguyên làm số khởi đầu.
+- GDD cần viết lại mục 3.1, 5.4 và 5.6 (và các bảng giá Thép, Xu) khi làm P5; trước đó `docs/so-lieu-khoi-dau.md` ghi mọi giá là Tiền Vàng. Tên trong code (`steel`) đổi dần ở P1, không đổi hành vi.
+
 **Để dành, làm sau khi chơi thử:** số máu, sát thương, tốc độ, số địch và giá; cân bằng 5 đợt; nhánh cấp 5 của Lô Cốt Tia Sáng.
 
-**Cần người duyệt chốt khi tới giai đoạn P5:** phí di chuyển đảo vệ tinh; đảo từ thứ 5 mở khóa bằng Xu hay bằng tiến trình; giá và công thức nâng cấp công trình.
+**Cần người duyệt chốt khi tới giai đoạn P5:** phí di chuyển đảo vệ tinh (bằng Tiền Vàng); đảo từ thứ 5 mở khóa bằng Tiền Vàng hay bằng tiến trình; giá và công thức nâng cấp công trình.
