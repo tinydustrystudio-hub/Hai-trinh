@@ -57,6 +57,7 @@ func volley() -> void:
 ## Một phát trúng enemy: sát thương × hệ số, sau giáp (Enemy tự trừ giáp, Xuyên Giáp bỏ qua một phần).
 func shoot(enemy: Enemy) -> void:
 	shots_fired += 1
+	Events.tower_fired.emit(self)
 	var amount: float = stats().damage * damage_multiplier * overload_multiplier()
 	var armor_ignore: float = 0.0
 	if branch != null:
