@@ -1,33 +1,36 @@
 shader_type canvas_item;
-// Màn mưa phủ toàn màn hình: ba lớp vệt mưa rơi xiên theo gió; lớp gần dày và nhanh, lớp xa mảnh và chậm.
-// intensity (0–1) quyết định mật độ; slant là độ xiên theo gió.
+// Màn mưa nhẹ, mảnh và rơi chậm: ba lớp vệt mưa xiên theo gió; lớp gần thưa, to và nhanh hơn một chút, lớp xa dày hơn,
+// mảnh và chậm. Tốc độ tính theo "chiều cao màn hình mỗi giây" nên không phụ thuộc độ phân giải.
 uniform float intensity : hint_range(0.0, 1.0) = 0.0;
-uniform float slant = 0.15;
+uniform float slant = 0.12;
 uniform float aspect = 1.7778;
 
 float hash(float n) {
 	return fract(sin(n * 127.1) * 43758.5453);
 }
 
-float layer(vec2 uv, float columns, float rows, float speed, float length, float seed, float width) {
-	vec2 p = vec2((uv.x + uv.y * slant) * columns * aspect, uv.y * rows + TIME * speed);
+// columns: số cột; fall: màn hình mỗi giây; streak: độ dài vệt (tỉ lệ ô); width: độ mảnh; density: tỉ lệ cột có mưa.
+float layer(vec2 uv, float columns, float fall, float streak, float width, float density, float seed) {
+	vec2 p = vec2((uv.x + uv.y * slant) * columns * aspect, uv.y * 3.0 + TIME * fall * 3.0);
 	float col = floor(p.x);
-	float r = hash(col + seed);
-	float y = p.y + r * 17.0;
+	float y = p.y + hash(col + seed) * 23.0;
 	float cell = floor(y);
-	float show = step(hash(col * 1.37 + cell * 3.1 + seed), intensity * 0.55);
+	float show = step(hash(col * 1.37 + cell * 3.1 + seed), density);
 	float fy = fract(y);
 	float fx = abs(fract(p.x) - 0.5);
-	float line = (1.0 - smoothstep(width * 0.4, width, fx)) * step(fy, length) * (fy / length);
-	return line * show;
+	float body = 1.0 - smoothstep(width * 0.3, width, fx);
+	// Đầu vệt sáng hơn, đuôi mờ dần.
+	float tail = step(fy, streak) * (fy / streak);
+	return body * tail * show;
 }
 
 void fragment() {
-	float far = layer(UV, 38.0, 6.0, 7.0, 0.5, 1.0, 0.07) * 0.35;
-	float mid = layer(UV, 24.0, 4.0, 11.0, 0.55, 7.0, 0.09) * 0.5;
-	float near = layer(UV, 13.0, 2.5, 17.0, 0.6, 13.0, 0.12) * 0.7;
+	float d = intensity;
+	float far = layer(UV, 46.0, 0.32, 0.30, 0.10, d * 0.28, 1.0) * 0.30;
+	float mid = layer(UV, 30.0, 0.50, 0.34, 0.11, d * 0.22, 7.0) * 0.40;
+	float near = layer(UV, 17.0, 0.78, 0.38, 0.12, d * 0.14, 13.0) * 0.50;
 	float rain = clamp(far + mid + near, 0.0, 1.0);
-	// Phủ một lớp xám lam mỏng cho cảm giác ẩm ướt.
-	float haze = intensity * 0.12;
-	COLOR = vec4(mix(vec3(0.05, 0.1, 0.16), vec3(0.78, 0.86, 0.95), rain), max(rain * 0.55, haze));
+	// Chỉ lớp sương rất mỏng, để biển vẫn rõ.
+	float haze = d * 0.05;
+	COLOR = vec4(mix(vec3(0.10, 0.16, 0.22), vec3(0.82, 0.9, 0.97), rain), max(rain * 0.7, haze));
 }

@@ -48,3 +48,24 @@ func test_data_values() -> void:
 	var data: EconomyData = load("res://data/economy.tres")
 	assert_eq(data.wave_bonus, 20)
 	assert_almost_eq(data.sell_refund, 0.7, 0.0001)
+
+
+func test_island_use_cost_rises_by_fifty() -> void:
+	# Đảo tự đặt thứ 1 là 200, mỗi đảo tiếp theo +50 (người duyệt chốt 31/10).
+	var rules: EconomyData = load("res://data/economy.tres")
+	assert_eq(rules.island_use_cost(1), 200)
+	assert_eq(rules.island_use_cost(2), 250)
+	assert_eq(rules.island_use_cost(4), 350)
+	assert_eq(rules.island_use_total(0), 0)
+	assert_eq(rules.island_use_total(4), 200 + 250 + 300 + 350)
+
+
+func test_island_move_cost_is_half_cheapest_tower() -> void:
+	var rules: EconomyData = load("res://data/economy.tres")
+	var cheapest: int = 9999
+	for path: String in ["machine_gun", "glue_sprayer", "light_beam"]:
+		var data: TowerData = load("res://data/towers/%s.tres" % path)
+		cheapest = mini(cheapest, data.level(1).steel_cost)
+	assert_eq(cheapest, 60)
+	assert_eq(rules.island_move_cost(cheapest), 30)
+	assert_eq(rules.island_move_cost(1), 1, "tối thiểu 1")
