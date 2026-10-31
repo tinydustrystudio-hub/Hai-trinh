@@ -14,8 +14,10 @@ var health: float = 0.0
 var active: bool = false
 ## Lệch sang ngang so với tâm luồng, để một đàn không chồng lên nhau.
 var lateral_offset: float = 0.0
-## Hệ số tốc độ do hiệu ứng (làm chậm ở bước 8). 1 = tốc độ gốc.
+## Hệ số tốc độ do hiệu ứng làm chậm, tính lại mỗi nhịp từ status. 1 = tốc độ gốc.
 var speed_multiplier: float = 1.0
+## Làm chậm từ các lô cốt (cộng dồn có trần).
+var status: StatusEffects = StatusEffects.new()
 ## Địch do WaveSpawner sinh (tính vào việc dọn sạch đợt); địch sinh từ bảng debug thì không.
 var counts_for_wave: bool = false
 ## Hướng đi hiện tại trên mặt nước (đã chuẩn hóa), cập nhật mỗi lần tàu đi.
@@ -43,6 +45,7 @@ func spawn(enemy_data: EnemyData, on_lane: Lane, offset: float, bob_phase: float
 	health = enemy_data.max_health
 	lateral_offset = offset
 	speed_multiplier = 1.0
+	status.clear()
 	counts_for_wave = false
 	_bob_phase = bob_phase
 	_body.mesh = EnemyMeshes.mesh_for(enemy_data)
@@ -60,6 +63,8 @@ func despawn() -> void:
 
 ## Đi tiếp delta giây. Trả true nếu vừa tới cuối luồng (lọt vào đảo).
 func advance(delta: float, wave_height: float) -> bool:
+	speed_multiplier = StatusEffects.speed_factor(status.total_slow(data.is_boss))
+	status.advance(delta)
 	distance += data.speed_units() * speed_multiplier * delta
 	if distance >= lane.length():
 		distance = lane.length()

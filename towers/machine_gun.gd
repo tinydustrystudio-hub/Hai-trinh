@@ -12,7 +12,7 @@ var _cooldown: float = 0.0
 
 
 func _setup_effects(effects: Node) -> void:
-	_bullets = effects as BulletRenderer
+	_bullets = effects.get_node_or_null("BulletRenderer") as BulletRenderer if effects != null else null
 
 
 func fire(delta: float) -> void:
