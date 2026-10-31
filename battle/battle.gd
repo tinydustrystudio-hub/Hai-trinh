@@ -69,6 +69,7 @@ var _revealed_wave: int = -1
 @onready var glue_puddles: GluePuddles = $Effects/GluePuddles
 @onready var overload_bars: OverloadBars = $Effects/OverloadBars
 @onready var mega_bursts: MegaBursts = $Effects/MegaBursts
+@onready var sound_board: SoundBoard = $Effects/SoundBoard
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
