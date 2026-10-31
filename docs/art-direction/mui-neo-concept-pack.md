@@ -32,11 +32,12 @@ Nhìn một giây nhận ra: lục giác trắng ngà, viền cam, tháp hải �
 | Vành trong | Tầng hai lục giác xoay 30°, viền cam; khối công trình xếp vòng quanh |
 | Trung tâm | Trung Tâm Chỉ Huy kết hợp hải đăng, điểm cao nhất của đảo |
 
-- **Vị trí cố định theo GDD 5.3:** 1 Trung Tâm giữa; 8 ô công trình quanh trung tâm; 12 ô trang trí nhỏ; bệ lô cốt ở rìa; một số vị trí mô-đun trống ở vành ngoài để mở rộng.
-- **Gán 8 ô quanh trung tâm (đề xuất, GDD chưa gán chi tiết):** Khiên Chắn Sóng ở rìa hướng biển; Xưởng Sửa Chữa và Xưởng Tàu gần bến; Trạm Năng Lượng ở rìa nước; Radar ở điểm cao; Sân Bay ở dải bằng phía đông; Trạm Cộng Hưởng ở mỏm; Viện Giếng Sâu sau Trung Tâm.
+- **Vị trí cố định theo GDD 5.3:** 1 Trung Tâm giữa; 8 ô công trình quanh trung tâm; 12 ô trang trí nhỏ; một số vị trí mô-đun trống ở vành ngoài để mở rộng.
+- **Bệ lô cốt (đã chốt):** 6 bệ trên 6 mỏm bến; thêm tối thiểu 4 đảo vệ tinh. Số đảo vệ tinh tăng dần khi người chơi mở khóa ở các màn sau, tối đa tùy màn. Mỗi hướng tấn công phải có ít nhất 4 lô cốt trong tầm. Người chơi tự đặt đảo vệ tinh đầu màn hoặc bất cứ lúc nào, đặt không tốn phí, di chuyển tốn phí.
+- **Gán 8 ô quanh trung tâm (đã chốt theo đề xuất này):** Khiên Chắn Sóng ở rìa hướng biển; Xưởng Sửa Chữa và Xưởng Tàu gần bến; Trạm Năng Lượng ở rìa nước; Radar ở điểm cao; Sân Bay ở dải bằng phía đông; Trạm Cộng Hưởng ở mỏm; Viện Giếng Sâu sau Trung Tâm.
 - **Chiều cao:** sàn thấp nhất, đê chắn sóng +1 đơn vị, tầng hai +1,3, các khối công trình +1,5 đến 3, tháp chỉ huy cao nhất (khoảng 0,8 bán kính đảo). Mỗi tầng phải thấy rõ khi nhìn 55°.
 - **Kết nối module:** cầu nối tấm thép có lan can dây, khớp nối cao su vàng cam, ống cáp chạy dọc mép.
-- **Đối chiếu code (tham khảo):** pháo đài bán kính 14 đơn vị (khoảng 3,5 ô), 6 mỏm bến mang 6 bệ, 4 đảo vệ tinh. Concept thể hiện bản đầy đủ; bản đồ trận giữ nguyên.
+- **Đối chiếu code (tham khảo):** pháo đài bán kính 14 đơn vị (khoảng 3,5 ô), 6 mỏm bến mang 6 bệ, 4 đảo vệ tinh bán kính 3 (1,5 ô). Concept thể hiện bản đầy đủ; bản đồ trận giữ nguyên.
 
 ## C. Chín công trình hỗ trợ
 
@@ -60,7 +61,7 @@ Cấp 1 / 3 / 5 theo GDD 5.3 và 8.2. Phần đổi khi nâng cấp ghi sau mũi
 
 ## D. Đảo vệ tinh và 5 tiện ích
 
-- **Nền chung (SAT_BASE):** phao tròn đường kính khoảng 1,5 ô, thân Sea Blue, mặt ivory, viền cam; một bệ ở giữa; neo động, xích hoặc dây neo; một phao cam; mép bọt trắng. Có cầu hoặc dây kết nối về Đảo Chính (tùy chọn).
+- **Nền chung (SAT_BASE):** phao tròn đường kính 2 ô, thân Sea Blue, mặt ivory, viền cam; một bệ ở giữa; neo động, xích hoặc dây neo; một phao cam; mép bọt trắng. Có cầu hoặc dây kết nối về Đảo Chính (tùy chọn).
 - **Đọc được khi thu nhỏ:** mỗi tiện ích có hình bóng và màu nhấn riêng, không trùng nhau nhìn từ trên xuống.
 
 | ID | Tiện ích | Hình bóng (nhìn từ trên) | Chi tiết, màu | Mở từ |
@@ -69,7 +70,10 @@ Cấp 1 / 3 / 5 theo GDD 5.3 và 8.2. Phần đổi khi nâng cấp ghi sau mũi
 | SAT_STEEL_DEPOT | Kho Thép | Hai khối container xếp chữ nhật | Sea Blue, ivory, sọc cam | Hồi I |
 | SAT_BUOY_STATION | Trạm Phao Cứu Hộ | Vòng phao tròn lớn trên đài | Cam là chính (duy nhất), ivory | Hồi I |
 | SAT_TRADE_DOCK | Bến Thương Hội | Cầu tàu chữ T, quầy hàng | Ivory, đồng nhạt, phao trắng | Hồi II |
-| SAT_SIGNAL_BEACON | Đài tín hiệu cứu hộ | Tháp thon có chóp đèn | Ivory, Graphite, đèn vàng ấm | Hồi III |
+| SAT_COMMS_TOWER | Đài truyền tin | Tháp thon có chảo nhỏ và đèn báo | Ivory, Graphite, đèn vàng ấm | Hồi III |
+
+- **Bến Thương Hội không dùng được trên đảo vệ tinh** (chỉ đảo lãnh thổ). Vẫn có concept riêng trên nền đảo chung cho đảo lãnh thổ; đảo vệ tinh chỉ dùng 4 tiện ích còn lại.
+- **Đặt đảo:** đặt tự do, miễn phí; di chuyển đảo tốn phí.
 
 ## E. Đạo cụ môi trường
 
@@ -114,7 +118,7 @@ BLD_DEEP_WELL_LAB: three levels side by side, a small laboratory, then a sealed 
 
 **F3. Đảo vệ tinh (tổng thể)**
 ```
-Set of small round floating satellite islands, about 1.5 cells wide, reinforced pontoon base, ivory deck with orange edge, one central utility pad, dynamic anchor chain and mooring rope, one orange buoy, white foam at the edge, readable silhouette from far away, top-down camera tilted 55 degrees, sea blue, ivory, rescue orange, dark graphite. Stylized semi-realistic 3D game asset, optimized low-to-mid poly design, clean readable silhouette, physically plausible materials, no text, no logo, no watermark.
+Set of small round floating satellite islands, about 2 cells wide, reinforced pontoon base, ivory deck with orange edge, one central utility pad, dynamic anchor chain and mooring rope, one orange buoy, white foam at the edge, readable silhouette from far away, top-down camera tilted 55 degrees, sea blue, ivory, rescue orange, dark graphite. Stylized semi-realistic 3D game asset, optimized low-to-mid poly design, clean readable silhouette, physically plausible materials, no text, no logo, no watermark.
 ```
 Mẫu tiện ích (thêm vào giữa mẫu và hậu tố; thay {UTILITY}):
 ```
@@ -124,7 +128,7 @@ Satellite island base with {UTILITY} on the central pad, distinct silhouette fro
 - SAT_STEEL_DEPOT: `two stacked blue and ivory shipping containers with an orange stripe`
 - SAT_BUOY_STATION: `a large orange rescue life-buoy ring on a raised platform`
 - SAT_TRADE_DOCK: `a T-shaped jetty with a small market counter and round white buoys, pale bronze trim`
-- SAT_SIGNAL_BEACON: `a slender signal tower with a warm yellow lamp cap`
+- SAT_COMMS_TOWER: `a slender communications tower with a small dish and a warm yellow indicator lamp`
 
 **F4. Đạo cụ môi trường**
 ```
@@ -152,19 +156,24 @@ text, letters, numbers, logo, watermark, signature, weapons, guns, cannons, miss
 - [ ] Màu đúng bảng; cam chỉ làm nhấn, không quá 8%.
 - [ ] Vật liệu rõ (thép sơn, composite, kính, cao su); ánh sáng từ trên trái, có nguồn nhìn thấy.
 - [ ] Mỗi công trình khác hình bóng; cấp 1, 3, 5 khác nhau ở bộ phận ghi trong bảng C.
-- [ ] 5 tiện ích đảo vệ tinh khác nhau khi nhìn từ trên xuống và khi thu nhỏ.
+- [ ] 5 tiện ích khác nhau khi nhìn từ trên xuống và khi thu nhỏ (4 dùng trên đảo vệ tinh, Bến Thương Hội cho đảo lãnh thổ).
 - [ ] Đạo cụ gần luồng thấp, ít tương phản.
 - [ ] Không chữ, số, logo, watermark, vũ khí; không giống tài sản của game hoặc phim khác.
 - [ ] Đủ góc nhìn (3/4 trên, trước, trên) cho họa sĩ 3D; ghi rõ phần chưa chắc.
 - [ ] Không xung đột với GDD; mọi khác biệt đã ghi ở "Điểm cần duyệt" bên dưới.
 
-## Điểm cần duyệt (khác nhau giữa các tài liệu)
+## Quyết định đã chốt và điểm còn mở
 
-1. **Số bệ lô cốt:** GDD 5.3 ghi 8–12 bệ ở rìa; GDD 8.2 ghi 12 bệ tròn; bản đồ trận hiện có 6 bệ mỏm bến và 4 đảo vệ tinh. Concept theo GDD, chưa quyết số cuối.
-2. **Đường kính đảo vệ tinh:** GDD 8.6 ghi khoảng 1,5 ô; GDD 8.2 ghi kích thước 2,5 cho Đảo Gỗ Trôi. Concept dùng 1,5 ô.
-3. **Tên tiện ích thứ 5:** GDD 5.4 ghi "Đài Pháo Sáng" (mở Hồi III); yêu cầu này ghi "Đài tín hiệu cứu hộ". Pack dùng tên trong yêu cầu, cần chốt.
-4. **Bến Thương Hội:** GDD 5.4 ghi chỉ dùng được trên đảo lãnh thổ, không dùng trên đảo vệ tinh; yêu cầu này xếp là một trong 5 tiện ích đảo vệ tinh.
-5. **Hướng sáng:** yêu cầu ghi trên trái; hướng nắng trong dữ liệu bản đồ nghiêng về phía đông bắc. Chưa đổi gì trong code.
-6. **Màu code và bảng màu:** màu trong code gần bảng nhưng không trùng hex (Graphite code sáng hơn, #525C66). Cần chốt hex làm chuẩn.
-7. **Phân kỳ:** GDD 8.2 nêu 5 công trình MVP, 4 công trình còn lại từ Hồi II. Khớp với yêu cầu này.
-8. **Vị trí 8 ô công trình:** GDD 5.3 chỉ ghi chỗ tương đối; bảng gán ở mục B là đề xuất.
+**Đã chốt (người duyệt, 31/10):**
+1. **Bệ lô cốt:** 6 bệ mỏm bến + tối thiểu 4 đảo vệ tinh; mỗi hướng tấn công có ít nhất 4 lô cốt; đặt đảo miễn phí, di chuyển tốn phí (chi tiết ở mục B).
+2. **Đảo vệ tinh:** đường kính 2 ô.
+3. **Tiện ích thứ 5:** "Đài truyền tin" (`SAT_COMMS_TOWER`).
+4. **Bến Thương Hội:** không dùng trên đảo vệ tinh.
+5. **8 ô công trình quanh trung tâm:** theo bảng gán ở mục B.
+6. **Hướng sáng:** concept dùng ánh sáng từ trên trái; hướng nắng trong dữ liệu bản đồ (nghiêng về đông bắc) chưa đổi.
+7. **Màu:** bảng màu mục A (Graphite #3A4048) là chuẩn cho concept; màu trong code gần nhưng không trùng (Graphite code #525C66).
+
+**Còn mở, cần sửa ở tài liệu hoặc code khác (pack này không sửa):**
+- GDD 5.3 và 8.2 vẫn ghi 8–12 hoặc 12 bệ; GDD 8.6 ghi đảo vệ tinh khoảng 1,5 ô (code bán kính 3 = 1,5 ô); GDD 8.2 ghi 2,5 cho Đảo Gỗ Trôi.
+- GDD 5.4 vẫn ghi "Đài Pháo Sáng", tối đa 6 đảo vệ tinh, mua ở Chợ Phao bằng Xu, đổi tiện ích miễn phí; quy tắc mới (đặt miễn phí, di chuyển tốn phí, số đảo tùy màn) chưa có trong GDD.
+- Hướng nắng và Graphite trong code chưa khớp concept; cần quyết khi dựng model thật.
