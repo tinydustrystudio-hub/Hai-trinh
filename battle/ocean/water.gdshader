@@ -41,6 +41,11 @@ uniform vec4 wave_shapes[6];
 // Chuyển động riêng: hệ số tốc độ, tần số, tốc độ trôi và độ sâu của đợt sóng lớn (lúc to lúc nhỏ theo vùng).
 uniform vec4 wave_motions[6];
 uniform int wave_count : hint_range(0, 6) = 6;
+// Thời tiết: nhân độ cao sóng, góc gió quay các lớp sóng, độ tối của biển, độ gợn.
+uniform float wave_boost = 1.0;
+uniform float wind_angle = 0.0;
+uniform float sea_dim : hint_range(0.0, 1.0) = 0.0;
+uniform float chop = 1.0;
 uniform float gravity = 9.8;
 // 1 = đủ chi tiết (hai lớp normal map, mây hai lớp, lấp lánh); 0 = rẻ.
 uniform int detail : hint_range(0, 1) = 1;
@@ -55,10 +60,13 @@ vec3 gerstner(vec4 wave, vec4 shape, vec4 motion, vec3 p, float t, inout vec3 ta
 	float k = 6.2831853 / wave.w;
 	float c = sqrt(gravity / k) * motion.x;
 	vec2 d = normalize(wave.xy);
+	float wc = cos(wind_angle);
+	float ws = sin(wind_angle);
+	d = vec2(d.x * wc - d.y * ws, d.x * ws + d.y * wc);
 	// Biên độ nhấp nhô dọc theo ngọn sóng (cùng công thức với Ocean.crest_modulation).
 	float along = -d.y * p.x + d.x * p.z;
 	float swell = 1.0 + motion.w * sin((p.x * 0.78 + p.z * 0.62) * motion.y + t * motion.z + shape.x * 1.7);
-	float steepness = wave.z * swell * (1.0 + shape.w * sin(along * k * shape.y + t * shape.z + shape.x));
+	float steepness = wave.z * wave_boost * swell * (1.0 + shape.w * sin(along * k * shape.y + t * shape.z + shape.x));
 	float f = k * (dot(d, p.xz) - c * t);
 	float a = steepness / k;
 	float s = sin(f);
@@ -97,7 +105,7 @@ void fragment() {
 		vec2 nb = texture(normal_b, v_world.xz * normal_scale_b + TIME * scroll_b).xy * 2.0 - 1.0;
 		tilt = (na + nb) * 0.6;
 	}
-	vec3 n = normalize(v_normal + vec3(tilt.x, 0.0, tilt.y) * normal_strength);
+	vec3 n = normalize(v_normal + vec3(tilt.x, 0.0, tilt.y) * normal_strength * chop);
 	vec3 view = normalize(CAMERA_POSITION_WORLD - v_world);
 
 	float h = clamp(v_height * 1.8 + 0.5, 0.0, 1.0);
@@ -141,7 +149,10 @@ void fragment() {
 		float life = fract(beat);
 		float blink = smoothstep(0.0, 0.08, life) * (1.0 - smoothstep(0.12, 0.3, life));
 		float facet = smoothstep(0.25, 0.7, length(tilt)) * (0.6 + 0.4 * h);
-		color += mix(sun_color.rgb, vec3(1.0), 0.3) * chosen * blink * facet * sparkle_strength;
+		color += mix(sun_color.rgb, vec3(1.0), 0.3) * chosen * blink * facet * sparkle_strength * (1.0 - sea_dim);
 	}
-	ALBEDO = color;
+	// Trời tối (mưa, bão): biển tối và xám đi.
+	float grey = dot(color, vec3(0.3, 0.55, 0.15));
+	color = mix(color, vec3(grey) * vec3(0.8, 0.88, 1.0), sea_dim * 0.5);
+	ALBEDO = color * (1.0 - sea_dim * 0.6);
 }

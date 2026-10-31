@@ -10,7 +10,7 @@ const BAKE_INTERVAL: float = 0.5
 const SMOOTHNESS: float = 0.25
 const RIBBON_WIDTH: float = 2.4
 ## Cao hơn đỉnh sóng lớn nhất (khoảng 0,4) để sóng không xuyên qua dải.
-const RIBBON_HEIGHT: float = 0.55
+const RIBBON_HEIGHT: float = 0.9
 const RIBBON_STEP: float = 1.0
 const RIBBON_SHADER: Shader = preload("res://battle/map/lane.gdshader")
 ## Luồng hiện trong chừng này giây trước khi địch đầu tiên của luồng xuất hiện.

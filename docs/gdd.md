@@ -2161,6 +2161,16 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - **Đảo dập dìu (mục 15):** đảo chính, đảo vệ tinh nhấp nhô và lắc nhẹ theo sóng dưới chân; đảo càng to càng ít dập dìu (tỉ lệ nghịch với bán kính). Lực nghiêng theo Độ Nổi của đảo chính vẫn giữ.
 - Giữ hai mức chất lượng.
 
+**Thời tiết (góp ý 4, mục 12).** Ba kiểu, chỉ đổi hình ảnh và âm thanh, không đổi số liệu chiến đấu:
+
+| Kiểu | Sóng | Trời | Gió | Âm thanh |
+| --- | --- | --- | --- | --- |
+| Bình thường | Như hiện tại | Nắng | Không đổi | Nhạc nền |
+| Mưa | Cao hơn (×1,6), gợn nhiều hơn | Mưa xiên, trời tối nhẹ | Đổi chiều nhẹ | – |
+| Bão | Rất cao (×2,2), gợn mạnh | Mưa dày, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục (các lớp sóng quay ±0,6 rad theo hai nhịp chồng nhau) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
+
+Chuyển kiểu mượt trong 4 giây. Tàu và đảo dập dìu theo đúng độ cao sóng đang có. Chọn kiểu thời tiết ở màn hình sau này theo từng bản đồ; bản thử tháng 1 dùng nút "Thời tiết" ở bảng debug hoặc `?weather=rain` / `?weather=storm`.
+
 **Ánh sáng**
 
 - Nắng ấm chiếu từ một hướng, ánh trời lạnh.

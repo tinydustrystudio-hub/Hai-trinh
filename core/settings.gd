@@ -69,6 +69,22 @@ func debug_tools_enabled() -> bool:
 	return OS.is_debug_build() or launch_flag("debug") or launch_flag("stress")
 
 
+## Giá trị của tham số "<name>=giá_trị" trong tham số dòng lệnh ("--name=giá_trị") hoặc query trang web; rỗng nếu không có.
+func launch_value(name: String) -> String:
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--" + name + "="):
+			return argument.substr(name.length() + 3)
+	return query_value(_web_query, name)
+
+
+static func query_value(query: String, name: String) -> String:
+	var trimmed: String = query.trim_prefix("?")
+	for part: String in trimmed.split("&", false):
+		if part.begins_with(name + "="):
+			return part.substr(name.length() + 1)
+	return ""
+
+
 static func has_query_flag(query: String, flag: String) -> bool:
 	var trimmed: String = query.trim_prefix("?")
 	if trimmed.is_empty():

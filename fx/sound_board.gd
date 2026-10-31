@@ -5,21 +5,21 @@ extends Node
 ## Giới hạn số lần phát mỗi loại để 10 khẩu Súng Máy bắn cùng lúc không thành một tràng ồn.
 ## Tắt khi Settings.sound_enabled là false.
 
-enum Sound { SHOT, EXPLOSION, MEGA }
+enum Sound { SHOT, EXPLOSION, MEGA, THUNDER }
 
 const MIX_RATE: int = 22050
 const PLAYERS: int = 8
 ## Khoảng cách tối thiểu giữa hai lần phát cùng loại, giây.
-const MIN_GAP: Dictionary[Sound, float] = { Sound.SHOT: 0.07, Sound.EXPLOSION: 0.09, Sound.MEGA: 0.2 }
-const VOLUME_DB: Dictionary[Sound, float] = { Sound.SHOT: -16.0, Sound.EXPLOSION: -9.0, Sound.MEGA: -6.0 }
+const MIN_GAP: Dictionary[Sound, float] = { Sound.SHOT: 0.07, Sound.EXPLOSION: 0.09, Sound.MEGA: 0.2, Sound.THUNDER: 0.5 }
+const VOLUME_DB: Dictionary[Sound, float] = { Sound.SHOT: -16.0, Sound.EXPLOSION: -9.0, Sound.MEGA: -6.0, Sound.THUNDER: -4.0 }
 
 ## Số lần đã phát mỗi loại (để thử).
-var played: Dictionary[Sound, int] = { Sound.SHOT: 0, Sound.EXPLOSION: 0, Sound.MEGA: 0 }
+var played: Dictionary[Sound, int] = { Sound.SHOT: 0, Sound.EXPLOSION: 0, Sound.MEGA: 0, Sound.THUNDER: 0 }
 
 var _streams: Dictionary[Sound, AudioStreamWAV] = {}
 var _players: Array[AudioStreamPlayer] = []
 var _next_player: int = 0
-var _last_played: Dictionary[Sound, float] = { Sound.SHOT: -1.0, Sound.EXPLOSION: -1.0, Sound.MEGA: -1.0 }
+var _last_played: Dictionary[Sound, float] = { Sound.SHOT: -1.0, Sound.EXPLOSION: -1.0, Sound.MEGA: -1.0, Sound.THUNDER: -1.0 }
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
@@ -28,6 +28,7 @@ func _ready() -> void:
 	_streams[Sound.SHOT] = make_shot()
 	_streams[Sound.EXPLOSION] = make_explosion()
 	_streams[Sound.MEGA] = make_mega()
+	_streams[Sound.THUNDER] = make_thunder()
 	for i: int in PLAYERS:
 		var player: AudioStreamPlayer = AudioStreamPlayer.new()
 		player.name = "Player%d" % i
@@ -36,6 +37,7 @@ func _ready() -> void:
 	Events.enemy_killed.connect(func(_enemy: Enemy, _reward: int) -> void: play(Sound.EXPLOSION))
 	Events.mega_started.connect(func(_tower: Node3D) -> void: play(Sound.MEGA))
 	Events.tower_fired.connect(func(_tower: Node3D) -> void: play(Sound.SHOT))
+	Events.lightning_struck.connect(_on_lightning)
 
 
 ## Phát một tiếng nếu đã đủ khoảng cách với lần trước cùng loại; trả true nếu đã phát.
@@ -55,6 +57,14 @@ func play(sound: Sound) -> bool:
 	if player.is_inside_tree():
 		player.play()
 	return true
+
+
+## Tiếng sấm tới chậm hơn tia chớp thunder_delay giây.
+func _on_lightning(thunder_delay: float) -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().create_timer(thunder_delay).timeout
+	play(Sound.THUNDER)
 
 
 func stream(sound: Sound) -> AudioStreamWAV:
@@ -108,6 +118,26 @@ static func make_mega() -> AudioStreamWAV:
 		var tone: float = sin(phase) * 0.6 + sin(phase * 2.0) * 0.25 + sin(phase * 3.01) * 0.12
 		var envelope: float = smoothstep(0.0, 0.05, t) * (1.0 - smoothstep(0.75, 1.0, t))
 		samples[i] = tone * envelope * 0.8
+	return _to_wav(samples)
+
+
+## Tiếng sấm: một tiếng nứt ngắn rồi tiếng rền trầm lăn dài 1,8 giây (nhiễu lọc rất trầm, ba nhịp tắt dần).
+static func make_thunder() -> AudioStreamWAV:
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = 31
+	var count: int = int(MIX_RATE * 1.8)
+	var samples: PackedFloat32Array = PackedFloat32Array()
+	samples.resize(count)
+	var low: float = 0.0
+	var deeper: float = 0.0
+	for i: int in count:
+		var t: float = float(i) / float(count)
+		var noise: float = rng.randf_range(-1.0, 1.0)
+		low = lerpf(low, noise, 0.07)
+		deeper = lerpf(deeper, low, 0.12)
+		var crack: float = noise * exp(-t * 60.0) * 0.5
+		var roll: float = 0.55 + 0.45 * sin(t * 17.0 + 1.3)
+		samples[i] = (deeper * 9.0 * roll * exp(-t * 2.2) + crack) * 0.8
 	return _to_wav(samples)
 
 

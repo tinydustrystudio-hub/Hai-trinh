@@ -1,0 +1,150 @@
+extends GutTest
+## Thời tiết (góp ý 4, mục 12): bình thường như hiện tại; mưa sóng to hơn và có mưa; bão sóng lớn, sấm sét,
+## gió đổi chiều liên tục. Chuyển mượt, chỉ đổi hình ảnh và âm thanh.
+
+const BATTLE_SCENE: PackedScene = preload("res://battle/battle.tscn")
+
+var _battle: BattleController
+
+
+func before_each() -> void:
+	_battle = add_child_autofree(BATTLE_SCENE.instantiate())
+
+
+func test_three_kinds_get_stronger() -> void:
+	var clear: WeatherData = Weather.by_id(&"clear")
+	var rain: WeatherData = Weather.by_id(&"rain")
+	var storm: WeatherData = Weather.by_id(&"storm")
+	assert_eq(clear.wave_boost, 1.0, "bình thường như hiện tại")
+	assert_eq(clear.rain, 0.0)
+	assert_eq(clear.wind_swing, 0.0)
+	assert_false(clear.has_lightning())
+	assert_gt(rain.wave_boost, clear.wave_boost, "mưa sóng to hơn")
+	assert_gt(rain.rain, 0.0, "và có mưa")
+	assert_false(rain.has_lightning())
+	assert_gt(storm.wave_boost, rain.wave_boost, "bão sóng lớn hơn nữa")
+	assert_gt(storm.wind_swing, rain.wind_swing, "gió đổi chiều mạnh")
+	assert_true(storm.has_lightning(), "có sấm sét")
+	assert_gt(storm.rain, rain.rain)
+	assert_gt(storm.darkness, rain.darkness)
+	assert_eq(Weather.by_id(&"không có"), clear, "lạ thì về bình thường")
+
+
+func test_starts_clear_by_default() -> void:
+	assert_eq(_battle.weather.data.id, &"clear")
+	assert_eq(_battle.ocean.wave_boost, 1.0)
+	assert_false(_battle.weather.rain_overlay.is_showing())
+
+
+func test_transition_is_smooth() -> void:
+	_battle.set_weather(&"storm")
+	assert_almost_eq(_battle.weather.wave_boost, 1.0, 0.001, "chưa đổi ngay")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS * 0.5, 10.0)
+	var middle: float = _battle.weather.wave_boost
+	assert_gt(middle, 1.0)
+	assert_lt(middle, Weather.by_id(&"storm").wave_boost)
+	_battle.weather.advance(Weather.TRANSITION_SECONDS, 20.0)
+	assert_almost_eq(_battle.weather.wave_boost, Weather.by_id(&"storm").wave_boost, 0.001)
+	assert_almost_eq(_battle.ocean.wave_boost, Weather.by_id(&"storm").wave_boost, 0.001, "biển nhận đúng sóng bão")
+
+
+func test_storm_waves_are_bigger_in_height() -> void:
+	var generated: Array = Ocean.make_waves(Ocean.WAVE_SEED)
+	var waves: Array[Vector4] = generated[0]
+	var shapes: Array[Vector4] = generated[1]
+	var motions: Array[Vector4] = generated[2]
+	var clear_top: float = 0.0
+	var storm_top: float = 0.0
+	for i: int in 400:
+		var x: float = float(i) * 0.8
+		clear_top = maxf(clear_top, absf(Ocean.wave_height(waves, waves.size(), x, 3.0, 9.0, shapes, motions, 1.0, 0.0)))
+		storm_top = maxf(storm_top, absf(Ocean.wave_height(waves, waves.size(), x, 3.0, 9.0, shapes, motions, Weather.by_id(&"storm").wave_boost, 0.0)))
+	assert_almost_eq(storm_top / clear_top, Weather.by_id(&"storm").wave_boost, 0.01)
+	assert_lt(storm_top, 0.9, "vẫn thấp hơn dải luồng")
+
+
+func test_wind_changes_direction_continuously() -> void:
+	var swing: float = Weather.by_id(&"storm").wind_swing
+	var angles: Array[float] = []
+	for i: int in 200:
+		angles.append(Weather.wind_angle(swing, Weather.by_id(&"storm").wind_period, float(i) * 0.5))
+	assert_gt(angles.max(), swing * 0.5, "quay sang một phía")
+	assert_lt(angles.min(), -swing * 0.5, "rồi quay sang phía kia")
+	assert_lte(angles.max(), swing + 0.0001)
+	var changes: int = 0
+	for i: int in range(2, angles.size()):
+		if (angles[i] - angles[i - 1]) * (angles[i - 1] - angles[i - 2]) < 0.0:
+			changes += 1
+	assert_gt(changes, 4, "đổi chiều nhiều lần, không một nhịp đều")
+	assert_eq(Weather.wind_angle(0.0, 20.0, 5.0), 0.0, "trời quang không có gió đổi chiều")
+
+
+func test_wind_rotates_wave_directions() -> void:
+	var waves: Array[Vector4] = [Vector4(1, 0, 0.1, 20.0)]
+	var straight: float = Ocean.wave_height(waves, 1, 5.0, 0.0, 0.0, [], [], 1.0, 0.0)
+	var turned: float = Ocean.wave_height(waves, 1, 5.0, 0.0, 0.0, [], [], 1.0, PI * 0.5)
+	assert_ne(straight, turned)
+	# Quay 90°: sóng chạy dọc trục z nên dọc trục x không còn dao động.
+	assert_almost_eq(turned, 0.0, 0.0001)
+
+
+func test_rain_overlay_shows_only_when_raining() -> void:
+	_battle.set_weather(&"rain")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
+	assert_true(_battle.weather.rain_overlay.is_showing())
+	assert_almost_eq(_battle.weather.rain_overlay.rain, Weather.by_id(&"rain").rain, 0.001)
+	_battle.set_weather(&"clear")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 15.0)
+	assert_false(_battle.weather.rain_overlay.is_showing(), "hết mưa thì ẩn")
+
+
+func test_sun_dims_in_storm_and_recovers() -> void:
+	var base: float = _battle.sun.light_energy
+	_battle.set_weather(&"storm")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
+	assert_lt(_battle.sun.light_energy, base * 0.8)
+	_battle.set_weather(&"clear")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 15.0)
+	assert_almost_eq(_battle.sun.light_energy, base, 0.001)
+
+
+func test_lightning_only_in_storm_and_triggers_thunder() -> void:
+	watch_signals(Events)
+	_battle.set_weather(&"rain")
+	for i: int in 300:
+		_battle.weather.advance(0.5, float(i) * 0.5)
+	assert_eq(_battle.weather.strikes, 0, "mưa thường không có sét")
+	_battle.set_weather(&"storm")
+	var elapsed: float = 0.0
+	while elapsed < 120.0:
+		_battle.weather.advance(0.5, 200.0 + elapsed)
+		elapsed += 0.5
+	assert_gte(_battle.weather.strikes, 120.0 / Weather.by_id(&"storm").lightning_max_seconds - 1.0)
+	assert_lte(_battle.weather.strikes, int(120.0 / Weather.by_id(&"storm").lightning_min_seconds) + 1)
+	assert_signal_emitted(Events, "lightning_struck")
+	assert_eq(_battle.weather.lightning_overlay.strikes, _battle.weather.strikes)
+
+
+func test_thunder_sound_exists_and_is_throttled() -> void:
+	var board: SoundBoard = add_child_autofree(SoundBoard.new())
+	var wav: AudioStreamWAV = board.stream(SoundBoard.Sound.THUNDER)
+	assert_not_null(wav)
+	assert_almost_eq(wav.get_length(), 1.8, 0.02)
+	assert_true(board.play(SoundBoard.Sound.THUNDER))
+	assert_false(board.play(SoundBoard.Sound.THUNDER))
+
+
+func test_bolt_points_run_from_top_toward_sea() -> void:
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	var size: Vector2 = Vector2(1920, 1080)
+	var points: PackedVector2Array = LightningOverlay.bolt_points(rng, size, 0.5)
+	assert_eq(points.size(), LightningOverlay.BOLT_SEGMENTS + 1)
+	assert_eq(points[0].y, 0.0)
+	assert_gt(points[points.size() - 1].y, size.y * 0.5)
+	assert_almost_eq(points[0].x, size.x * 0.5, 0.001)
+
+
+func test_weather_is_selectable_by_launch_value() -> void:
+	assert_eq(Settings.query_value("?weather=storm&debug", "weather"), "storm")
+	assert_eq(Settings.query_value("?debug", "weather"), "")
+	assert_eq(Settings.query_value("", "weather"), "")

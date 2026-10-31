@@ -77,11 +77,13 @@ var _enemies_met: Array[EnemyData] = []
 @onready var music: MusicPlayer = $Effects/Music
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
+var weather: Weather
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 
 
 func _ready() -> void:
 	build_map()
+	_build_weather()
 	enemy_pool.ocean = ocean
 	enemy_pool.face_camera(camera.global_basis)
 	overload_bars.face_camera(camera.global_basis)
@@ -136,6 +138,7 @@ func _process(delta: float) -> void:
 func step(delta: float) -> void:
 	if is_over() or delta <= 0.0:
 		return
+	weather.advance(delta, enemy_pool.wave_time())
 	spawner.advance(delta)
 	_update_lane_warnings()
 	if is_over():
@@ -404,6 +407,27 @@ func build_map() -> void:
 	camera.configure(layout)
 	_place_sun()
 	enemy_pool.configure_effects(layout.sun_direction)
+
+
+## Dựng thời tiết: màn mưa, sét và bộ điều khiển; kiểu ban đầu lấy từ ?weather=rain|storm (hoặc --weather=…), mặc định bình thường.
+func _build_weather() -> void:
+	var rain_fx: RainOverlay = RainOverlay.new()
+	rain_fx.name = "RainOverlay"
+	add_child(rain_fx)
+	var lightning_fx: LightningOverlay = LightningOverlay.new()
+	lightning_fx.name = "LightningOverlay"
+	add_child(lightning_fx)
+	weather = Weather.new()
+	weather.name = "Weather"
+	add_child(weather)
+	weather.attach(ocean, sun, rain_fx, lightning_fx)
+	var wanted: StringName = StringName(Settings.launch_value("weather"))
+	weather.set_weather(Weather.by_id(wanted), true)
+
+
+## Đổi thời tiết (bảng debug, thử): bình thường, mưa, bão.
+func set_weather(id: StringName) -> void:
+	weather.set_weather(Weather.by_id(id))
 
 
 ## Nắng chiếu công trình từ hướng sun_direction của bản đồ. Nước dùng cùng màu nắng nhưng vệt sáng

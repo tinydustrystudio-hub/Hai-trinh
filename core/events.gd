@@ -20,4 +20,6 @@ signal overload_ready(tower: Node3D)
 signal mega_started(tower: Node3D)
 signal mega_ended(tower: Node3D)
 signal battle_ended(won: bool)
+## Sét đánh; thunder_delay là số giây tới khi tiếng sấm tới.
+signal lightning_struck(thunder_delay: float)
 @warning_ignore_restore("unused_signal")
