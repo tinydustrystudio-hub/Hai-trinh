@@ -25,4 +25,6 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 
 **Đã chốt (người duyệt, 31/10): phí dời đảo vệ tinh = 1/2 giá xây lô cốt rẻ nhất.** Tính theo công thức từ dữ liệu lô cốt (giá cấp 1 thấp nhất trong các lô cốt đã mở), không viết cứng: hiện Lô Cốt Keo 60 nên phí dời là 30 Tiền Vàng, đổi giá lô cốt thì phí đổi theo. Làm tròn xuống, tối thiểu 1. Đảo là vật phẩm, mua một lần là có mãi; đảo cấp sẵn của màn dùng miễn phí, đảo tự đặt tốn 200 cho đảo thứ nhất, +50 cho mỗi đảo tiếp theo.
 
-**Cần người duyệt chốt khi tới giai đoạn P5:** đảo từ thứ 5 mở khóa bằng Tiền Vàng hay bằng tiến trình; giá và công thức nâng cấp công trình.
+**Đã chốt (31/10): giá mua đảo vệ tinh:** đảo mua thêm thứ nhất 250 Tiền Vàng, mỗi đảo sau +50; mua bằng Tiền Vàng.
+
+**Cần người duyệt chốt khi tới giai đoạn P5:** giá và công thức nâng cấp công trình.

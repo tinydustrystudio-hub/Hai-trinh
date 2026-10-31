@@ -14,6 +14,9 @@ trong `data/*.tres` để chơi thử; khi cân bằng (bước 12) hoặc sau b
 | Chia địch cho từng luồng ở đợt 3–5 | xem file đợt | `data/waves/north_dock_waves.tres` | Kế hoạch chỉ ghi luồng nào có địch |
 | Chia đợt 5 cho 4 luồng (mỗi luồng 6 Xuồng Cướp; Ca Nô ở Đông, Tây; Cua ở Bắc, Nam) | xem file đợt | `data/waves/north_dock_waves.tres` | GDD mục 8.6 chỉ ghi đợt 5 dùng cả 4 luồng |
 | Chiều dài luồng: cả 4 luồng khoảng 126–128 đơn vị (31–32 ô) | xem file bản đồ | `data/maps/north_dock_layout.tres` | Góp ý 3 của đạo diễn (31/10): bốn phía cân bằng như nhau, bản đồ rộng hơn để đường đi dài hơn |
+| Đảo vệ tinh theo màn Hồi I (đề xuất, người duyệt xem): cấp sẵn / tối đa = 4/8, 4/8, 4/9, 5/9, 5/10, 5/10, 6/11, 6/12 cho 8 nhiệm vụ | `satellite_free_count`, `satellite_max_count` trong `data/maps/*.tres` | Người duyệt chốt 31/10: số đảo tùy màn, màn 1 là 4/8; các màn sau là đề xuất theo độ khó, chờ xem |
+| Giá mua đảo vệ tinh (vật phẩm, mua một lần là có mãi): đảo mua thêm thứ nhất (đảo thứ 5 của màn 1) 250 Tiền Vàng, mỗi đảo sau +50 (250, 300, 350, 400) | `data/economy.tres` (`island_buy_base`, `island_buy_step`) | Người duyệt chốt 31/10 |
+| Xê dịch của địch: biên độ ±1,2 đơn vị, bước sóng 24–44 | `data/combat_rules.tres` | Góp ý 5; số đặt tạm |
 | Phí dùng đảo tự đặt trong một màn: thứ 1 là 200 Tiền Vàng, mỗi đảo sau +50 (200, 250, 300…); đảo cấp sẵn miễn phí; đảo đã mua tồn tại mãi | `data/economy.tres` (`island_use_base`, `island_use_step`) | Người duyệt chốt 31/10 |
 | Phí dời đảo vệ tinh: 1/2 giá xây lô cốt rẻ nhất (hiện 30 Tiền Vàng) | `data/economy.tres` (`island_move_ratio`), tính từ `data/towers/*.tres` | Người duyệt chốt 31/10 |
 | Giãn cách địch: khoảng trống tối thiểu 0,5 thân; +0,25 thân mỗi lần máu gấp đôi 60 | `data/combat_rules.tres` | Góp ý 4 (mục 14); số 0,25 đặt tạm. Làm đàn dày sẽ xếp hàng ở đầu luồng nên nhịp địch tới chậm hơn bản gấp đôi số địch trước đó, cần cân bằng lại |
