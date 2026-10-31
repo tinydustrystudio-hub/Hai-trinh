@@ -1,7 +1,7 @@
 class_name PauseMenu
 extends Control
 ## Màn Tạm dừng (GDD mục 7.11): trái là mục tiêu của màn; giữa là nút Tiếp tục cỡ lớn, Chơi lại và cài đặt
-## nhanh (âm thanh, tốc độ, rung); phải là thẻ các địch đã gặp; dưới phải là Tiếp tục.
+## nhanh (âm thanh, nhạc nền, tốc độ, rung); phải là thẻ các địch đã gặp; dưới phải là Tiếp tục.
 ## Tháng 1 chưa có bản đồ thế giới nên chưa có nút Thoát ra bản đồ ở dưới trái.
 
 signal resume_requested
@@ -15,6 +15,7 @@ const QUICK_BUTTON: Vector2 = Vector2(280, 130)
 var _resume_big: Button
 var _restart: Button
 var _sound: Button
+var _music: Button
 var _speed: Button
 var _vibration: Button
 var _resume_corner: Button
@@ -58,6 +59,10 @@ func _ready() -> void:
 	_sound.add_theme_font_size_override(&"font_size", 34)
 	_sound.pressed.connect(_on_sound_pressed)
 	quick.add_child(_sound)
+	_music = UiStyle.primary_button(&"", QUICK_BUTTON)
+	_music.add_theme_font_size_override(&"font_size", 34)
+	_music.pressed.connect(_on_music_pressed)
+	quick.add_child(_music)
 	_speed = UiStyle.primary_button(&"", QUICK_BUTTON)
 	_speed.add_theme_font_size_override(&"font_size", 34)
 	_speed.pressed.connect(speed_toggled.emit)
@@ -106,12 +111,13 @@ func is_open() -> bool:
 func refresh(speed: float) -> void:
 	_speed_value = speed
 	_sound.text = tr(&"PAUSE_SOUND_ON") if Settings.sound_enabled else tr(&"PAUSE_SOUND_OFF")
+	_music.text = tr(&"PAUSE_MUSIC_ON") if Settings.music_enabled else tr(&"PAUSE_MUSIC_OFF")
 	_vibration.text = tr(&"PAUSE_VIBRATION_ON") if Settings.vibration_enabled else tr(&"PAUSE_VIBRATION_OFF")
 	_speed.text = tr(&"HUD_SPEED_FAST") if speed > 1.0 else tr(&"HUD_SPEED_NORMAL")
 
 
 func buttons() -> Array[Button]:
-	return [_resume_big, _restart, _sound, _speed, _vibration, _resume_corner]
+	return [_resume_big, _restart, _sound, _music, _speed, _vibration, _resume_corner]
 
 
 func resume_corner_button() -> Button:
@@ -124,6 +130,11 @@ func resume_big_button() -> Button:
 
 func _on_sound_pressed() -> void:
 	Settings.sound_enabled = not Settings.sound_enabled
+	refresh(_speed_value)
+
+
+func _on_music_pressed() -> void:
+	Settings.music_enabled = not Settings.music_enabled
 	refresh(_speed_value)
 
 

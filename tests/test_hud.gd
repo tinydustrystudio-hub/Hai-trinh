@@ -142,6 +142,12 @@ func test_quick_settings_toggle() -> void:
 	assert_eq(Settings.sound_enabled, not sound)
 	_hud.pause_menu.buttons()[2].pressed.emit()
 	assert_eq(Settings.sound_enabled, sound)
+	var music: bool = Settings.music_enabled
+	_hud.pause_menu.buttons()[3].pressed.emit()
+	assert_eq(Settings.music_enabled, not music)
+	assert_string_contains(_hud.pause_menu.buttons()[3].text, "Nhạc")
+	_hud.pause_menu.buttons()[3].pressed.emit()
+	assert_eq(Settings.music_enabled, music)
 
 
 func test_auto_pause_on_focus_lost() -> void:
