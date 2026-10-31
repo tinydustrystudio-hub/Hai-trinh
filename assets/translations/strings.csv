@@ -56,3 +56,22 @@ TOWER_LEVEL,Cấp %d,Level %d
 BRANCH_TITLE,Chọn nhánh cấp 5,Choose a level 5 branch
 BUTTON_BACK,Quay lại,Back
 DEBUG_ADD_STEEL,+500 Thép,+500 Steel
+HUD_PAUSE,II,II
+HUD_SPEED_NORMAL,×1,×1
+HUD_SPEED_FAST,×2,×2
+HUD_CALL_WAVE,Gọi đợt sớm,Call wave
+LAYER_SURFACE,Mặt biển,Surface
+LAYER_UNDERWATER,Dưới nước,Underwater
+LAYER_AIR,Trên không,Air
+PAUSE_TITLE,Tạm dừng,Paused
+BUTTON_RESUME,Tiếp tục,Resume
+BUTTON_RESTART,Chơi lại,Restart
+PAUSE_SOUND_ON,Âm thanh: bật,Sound: on
+PAUSE_SOUND_OFF,Âm thanh: tắt,Sound: off
+PAUSE_VIBRATION_ON,Rung: bật,Vibration: on
+PAUSE_VIBRATION_OFF,Rung: tắt,Vibration: off
+PAUSE_ENEMIES,Địch đã gặp,Enemies met
+OBJECTIVE_HOLD,"Mục tiêu: giữ đảo nổi qua %d đợt.","Goal: keep the island afloat through %d waves."
+ENEMY_RAIDER_SKIFF_TIP,"Xuồng Cướp: đi thành đàn. Dùng Súng Máy.","Raider Skiff: comes in swarms. Use the Machine Gun."
+ENEMY_RAM_DRONE_TIP,"Ca Nô Cảm Tử: rất nhanh. Làm chậm rồi bắn, đừng để lọt.","Ram Drone Boat: very fast. Slow it, then shoot; never let it through."
+ENEMY_SPIKED_CRAB_TIP,"Cua Giáp Gai: trâu và chậm. Dùng nhánh Xuyên Giáp.","Spiked Crab: tough and slow. Use the Armor Piercer branch."

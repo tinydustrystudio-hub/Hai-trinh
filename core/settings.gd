@@ -13,6 +13,9 @@ var water_quality: Ocean.Quality = Ocean.Quality.HIGH:
 		water_quality_changed.emit(value)
 ## Tự hạ chất lượng nước khi khung hình thấp kéo dài.
 var auto_lower_quality: bool = true
+## Cài đặt nhanh trong màn Tạm dừng (GDD mục 7.11). Âm thanh có ở bước 12; rung dùng về sau.
+var sound_enabled: bool = true
+var vibration_enabled: bool = true
 
 var _watch: FrameRateWatch = FrameRateWatch.new()
 var _last_usec: int = 0
