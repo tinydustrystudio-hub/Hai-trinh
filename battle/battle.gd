@@ -93,6 +93,8 @@ func _ready() -> void:
 	touch_input.zoomed.connect(close_build_ring.unbind(2))
 	economy.changed.connect(_on_steel_changed)
 	hud.build_ring.tower_chosen.connect(_on_tower_chosen)
+	hud.build_ring.option_previewed.connect(_on_option_previewed)
+	hud.build_ring.cancelled.connect(close_build_ring)
 	hud.upgrade_ring.upgrade_requested.connect(_on_upgrade_requested)
 	hud.upgrade_ring.branch_requested.connect(_on_branch_requested)
 	hud.upgrade_ring.sell_requested.connect(_on_sell_requested)
@@ -229,6 +231,8 @@ func build_tower(pad: TowerPad, data: TowerData) -> Tower:
 
 ## Đóng vòng chọn, vòng nâng cấp và bỏ chọn bệ.
 func close_build_ring() -> void:
+	if selected_pad != null:
+		selected_pad.hide_range()
 	hud.build_ring.close()
 	hud.upgrade_ring.close()
 	select_pad(null)
@@ -522,6 +526,7 @@ func _on_tapped(screen_position: Vector2) -> void:
 
 func _open_upgrade_ring(tower: Tower, at: Vector2) -> void:
 	if tower != null:
+		tower.pad.show_range(tower.range_units())
 		hud.upgrade_ring.open(at, tower, economy.steel, economy.refund_for(tower.invested))
 
 
@@ -546,6 +551,12 @@ func _on_sell_requested() -> void:
 	var tower: Tower = hud.upgrade_ring.tower
 	close_build_ring()
 	sell_tower(tower)
+
+
+## Xem trước một lô cốt trong vòng chọn: hiện tầm bắn cấp 1 trên bệ đang chọn.
+func _on_option_previewed(data: TowerData) -> void:
+	if selected_pad != null:
+		selected_pad.show_range(data.level(1).range_units())
 
 
 func _on_tower_chosen(data: TowerData) -> void:
