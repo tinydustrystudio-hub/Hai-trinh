@@ -11,8 +11,8 @@ extends Tower
 ## Số vũng keo của một lô cốt cùng lúc (đủ cho 2 giây ở nhịp phun 0,5 giây).
 const MAX_PUDDLES: int = 4
 
-## Hệ số hiệu ứng hiện tại (MEGA ×1,5 ở bước 10). 1 lúc bình thường.
-var effect_multiplier: float = 1.0
+## Số địch đang bị chính lô cốt này làm chậm (để nạp Quá tải).
+var slowed_count: int = 0
 var sprays: int = 0
 var holds: int = 0
 ## Tâm hồ keo của nhánh Hồ Keo.
@@ -133,9 +133,9 @@ func _corrode(point: Vector3) -> void:
 			enemy.status.reset_spray_streak()
 
 
-## Bán kính vùng keo (đơn vị Godot), MEGA làm rộng thêm.
+## Bán kính vùng keo (đơn vị Godot); MEGA nới rộng theo hệ số hỗ trợ (×1,5), làm mát không thu hẹp.
 func glue_radius() -> float:
-	return stats().glue_radius_cells * MapLayout.UNITS_PER_CELL * effect_multiplier
+	return stats().glue_radius_cells * MapLayout.UNITS_PER_CELL * maxf(overload_multiplier(), 1.0)
 
 
 func in_glue(point: Vector3) -> bool:
@@ -161,13 +161,18 @@ func draw_puddles(renderer: GluePuddles) -> void:
 
 func _apply_glue(delta: float) -> void:
 	var level: TowerLevel = stats()
-	var slow: float = level.slow_amount * effect_multiplier
+	var power: float = overload_multiplier()
+	var slow: float = level.slow_amount * power
 	var source: int = get_instance_id()
+	slowed_count = 0
 	# Duyệt ngược vì địch bị hạ sẽ rời danh sách.
 	for i: int in range(_pool.active.size() - 1, -1, -1):
 		var enemy: Enemy = _pool.active[i]
 		if not data.target_layers.has(enemy.data.layer) or not in_glue(enemy.global_position):
 			continue
 		enemy.status.apply_slow(source, slow, level.slow_duration)
+		slowed_count += 1
 		if level.damage_per_second > 0.0:
-			_pool.damage(enemy, level.damage_per_second * delta)
+			_pool.damage(enemy, level.damage_per_second * power * delta)
+	# Nạp Quá tải theo số địch đang dính keo (kế hoạch mục 5.4).
+	overload.add_charge(Overload.glue_charge_rate(slowed_count, data.overload_charge_seconds) * delta)

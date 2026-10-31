@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://battle/battle.gd" id="1_battle"]
 [ext_resource type="PackedScene" path="res://battle/ocean/ocean.tscn" id="2_ocean"]
@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://battle/economy.gd" id="11_economy"]
 [ext_resource type="Script" path="res://fx/bullet_renderer.gd" id="12_bullets"]
 [ext_resource type="Script" path="res://fx/glue_puddles.gd" id="13_puddles"]
+[ext_resource type="Script" path="res://fx/overload_bars.gd" id="14_bars"]
+[ext_resource type="Script" path="res://fx/mega_bursts.gd" id="15_bursts"]
 
 [sub_resource type="Environment" id="Environment_sea"]
 background_mode = 1
@@ -76,6 +78,12 @@ script = ExtResource("12_bullets")
 
 [node name="GluePuddles" type="MultiMeshInstance3D" parent="Effects"]
 script = ExtResource("13_puddles")
+
+[node name="OverloadBars" type="MultiMeshInstance3D" parent="Effects"]
+script = ExtResource("14_bars")
+
+[node name="MegaBursts" type="MultiMeshInstance3D" parent="Effects"]
+script = ExtResource("15_bursts")
 
 [node name="HUD" parent="." instance=ExtResource("9_hud")]
 

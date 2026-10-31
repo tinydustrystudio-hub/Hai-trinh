@@ -1,7 +1,7 @@
 class_name Hud
 extends CanvasLayer
 ## HUD trận. Hiện có Độ Nổi, đợt hiện tại, báo đợt sắp tới, Thép (trên phải), vòng chọn lô cốt,
-## vòng nâng cấp, thẻ chọn nhánh và màn kết quả; Tạm dừng, ×2 và khay MEGA thêm ở các bước sau. Chỉ nghe Events.
+## vòng nâng cấp, thẻ chọn nhánh, khay MEGA (dưới phải) và màn kết quả; Tạm dừng và ×2 thêm ở bước 11. Chỉ nghe Events.
 
 signal retry_requested
 
@@ -15,6 +15,7 @@ var _wave_total: int = 0
 @onready var build_ring: BuildRing = $BuildRing
 @onready var upgrade_ring: UpgradeRing = $UpgradeRing
 @onready var branch_cards: BranchCards = $BranchCards
+@onready var mega_tray: MegaTray = $MegaTray
 
 
 func _ready() -> void:

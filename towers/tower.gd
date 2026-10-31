@@ -4,6 +4,9 @@ extends Node3D
 ## xoay đầu nòng về mục tiêu.
 ## Cách bắn do lớp con quyết định (fire()). Không có _process riêng: BattleController gọi tick() mỗi nhịp trận.
 
+## Đầu nòng phình to chừng này khi đang MEGA.
+const MEGA_TURRET_SCALE: float = 1.35
+
 var data: TowerData
 var level: int = 1
 ## Nhánh cấp 5 đã chọn, hoặc null.
@@ -12,6 +15,8 @@ var pad: TowerPad
 ## Tổng Thép đã bỏ vào lô cốt (xây và nâng), để tính hoàn lại khi bán.
 var invested: int = 0
 var target: Enemy = null
+## Thanh Quá tải; giữ nguyên khi nâng cấp.
+var overload: Overload
 
 var _pool: EnemyPool
 var _retarget_left: float = 0.0
@@ -27,6 +32,10 @@ func setup(tower_data: TowerData, on_pad: TowerPad, pool: EnemyPool, effects: No
 	level = 1
 	branch = null
 	invested = tower_data.level(1).steel_cost
+	overload = Overload.new(tower_data)
+	overload.ready.connect(func() -> void: Events.overload_ready.emit(self))
+	overload.mega_started.connect(_on_mega_started)
+	overload.mega_ended.connect(_on_mega_ended)
 	_build_visual()
 	_setup_effects(effects)
 
@@ -89,8 +98,32 @@ func range_units() -> float:
 	return stats().range_units()
 
 
+## Kích MEGA nếu thanh đã đầy; trả true nếu đã kích.
+func activate_mega() -> bool:
+	return overload.activate()
+
+
+## Hệ số Quá tải hiện tại: ×3 (hỗ trợ ×1,5) khi MEGA, 0,2 khi làm mát, 1 lúc bình thường.
+func overload_multiplier() -> float:
+	return overload.multiplier()
+
+
+func _on_mega_started() -> void:
+	# Hình thái MEGA tạm: đầu nòng phình to; model thật ở tháng sau.
+	if _turret != null:
+		_turret.scale = Vector3.ONE * MEGA_TURRET_SCALE
+	Events.mega_started.emit(self)
+
+
+func _on_mega_ended() -> void:
+	if _turret != null:
+		_turret.scale = Vector3.ONE
+	Events.mega_ended.emit(self)
+
+
 ## Một nhịp trận: tìm lại mục tiêu theo nhịp, xoay nòng, rồi để lớp con bắn.
 func tick(delta: float) -> void:
+	overload.advance(delta)
 	_retarget_left -= delta
 	var origin: Vector3 = global_position
 	var range_squared: float = range_units() * range_units()
