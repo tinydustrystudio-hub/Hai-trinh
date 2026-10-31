@@ -12,6 +12,11 @@ const PAD_PICK_TOLERANCE: float = 1.4
 const FAST_SPEED: float = 2.0
 ## Trận chậm còn chừng này trong lúc chọn nhánh cấp 5 (GDD mục 7.10).
 const BRANCH_CHOICE_SPEED: float = 0.3
+const LAYER_KEYS: Dictionary[EnemyData.Layer, StringName] = {
+	EnemyData.Layer.SURFACE: &"LAYER_SURFACE",
+	EnemyData.Layer.UNDERWATER: &"LAYER_UNDERWATER",
+	EnemyData.Layer.AIR: &"LAYER_AIR",
+}
 ## Lớp script của từng loại lô cốt theo id trong TowerData.
 const TOWER_SCRIPTS: Dictionary[StringName, GDScript] = {
 	&"machine_gun": preload("res://towers/machine_gun.gd"),
@@ -45,6 +50,8 @@ var ready_msec: int = 0
 var towers: Array[Tower] = []
 
 var _enemy_types: Array[EnemyData] = []
+## Các loại địch đã xuất hiện trong trận (cho thẻ địch ở màn Tạm dừng).
+var _enemies_met: Array[EnemyData] = []
 ## Đợt gần nhất đã cho luồng hiện rõ, để chỉ hiện một lần mỗi đợt.
 var _revealed_wave: int = -1
 
@@ -101,6 +108,10 @@ func _ready() -> void:
 	Events.enemy_leaked.connect(_on_enemy_leaked)
 	Events.enemy_killed.connect(_on_enemy_killed)
 	hud.retry_requested.connect(retry)
+	hud.pause_requested.connect(pause)
+	hud.resume_requested.connect(resume)
+	hud.speed_toggled.connect(toggle_fast)
+	hud.call_wave_requested.connect(call_wave_early)
 	Settings.water_quality_changed.connect(_apply_quality)
 	_apply_quality(Settings.water_quality)
 	_enemy_types = enemy_types_in(wave_data)
@@ -146,6 +157,8 @@ func start_battle() -> void:
 	economy.reset(layout.starting_steel)
 	state = State.PREPARING
 	_revealed_wave = -1
+	_enemies_met.clear()
+	hud.hide_pause()
 	set_paused(false)
 	set_speed(1.0)
 	hud.hide_result()
@@ -299,6 +312,56 @@ func set_paused(value: bool) -> void:
 func set_speed(value: float) -> void:
 	speed = value
 	_apply_time_scale()
+	hud.set_speed_label(speed)
+
+
+## Tạm dừng trận và mở màn Tạm dừng (GDD mục 7.11).
+func pause() -> void:
+	if is_over() or paused:
+		return
+	close_build_ring()
+	set_paused(true)
+	hud.show_pause(tr(&"OBJECTIVE_HOLD") % wave_data.wave_count(), enemy_tips(), speed)
+
+
+func resume() -> void:
+	hud.hide_pause()
+	set_paused(false)
+
+
+func toggle_pause() -> void:
+	if paused:
+		resume()
+	else:
+		pause()
+
+
+## Gọi đợt kế ngay khi đang chờ (nút Gọi đợt sớm).
+func call_wave_early() -> void:
+	if not is_over() and not stress_mode:
+		spawner.call_next_wave_now()
+
+
+## Tên các tầng địch có trong đợt index, đã dịch, không trùng.
+func layer_names_in_wave(index: int) -> PackedStringArray:
+	var names: PackedStringArray = PackedStringArray()
+	if wave_data == null or index < 0 or index >= wave_data.wave_count():
+		return names
+	for group: SpawnGroup in wave_data.waves[index].groups:
+		if group.enemy == null:
+			continue
+		var layer_name: String = tr(LAYER_KEYS[group.enemy.layer])
+		if not names.has(layer_name):
+			names.append(layer_name)
+	return names
+
+
+## Thẻ ngắn cho từng loại địch đã gặp (tên, điểm yếu), đã dịch.
+func enemy_tips() -> PackedStringArray:
+	var tips: PackedStringArray = PackedStringArray()
+	for data: EnemyData in _enemies_met:
+		tips.append(tr(StringName("%s_TIP" % data.name_key)))
+	return tips
 
 
 func toggle_fast() -> void:
@@ -369,6 +432,8 @@ func _apply_time_scale() -> void:
 
 func _on_spawn_requested(enemy: EnemyData, lane_index: int) -> void:
 	var spawned: Enemy = enemy_pool.acquire(enemy, lanes[lane_index])
+	if not _enemies_met.has(enemy):
+		_enemies_met.append(enemy)
 	if spawned == null:
 		spawner.notify_enemy_removed()
 	else:
@@ -496,6 +561,27 @@ func _on_steel_changed(value: int) -> void:
 
 func _on_drag_ended(_screen_position: Vector2) -> void:
 	camera.end_drag()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Esc trên web, nút Quay lại trên Android: tạm dừng hoặc tiếp tục (GDD mục 7.1).
+	if event.is_action_pressed(&"ui_cancel"):
+		toggle_pause()
+		get_viewport().set_input_as_handled()
+
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_WM_GO_BACK_REQUEST:
+			toggle_pause()
+		NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+			if is_node_ready() and DisplayServer.get_name() != "headless":
+				on_focus_lost()
+
+
+## Tự tạm dừng khi chuyển ứng dụng hoặc chuyển tab (GDD mục 7.11).
+func on_focus_lost() -> void:
+	pause()
 
 
 func _exit_tree() -> void:

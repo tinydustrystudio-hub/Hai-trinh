@@ -16,6 +16,7 @@ run/main_scene="res://main/boot.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 run/max_fps=60
+config/quit_on_go_back=false
 
 [autoload]
 

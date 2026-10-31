@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://ui/result_panel.tscn" id="2_result"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://ui/upgrade_ring.tscn" id="4_upgrade"]
 [ext_resource type="PackedScene" path="res://ui/branch_cards.tscn" id="5_branch"]
 [ext_resource type="PackedScene" path="res://ui/mega_tray.tscn" id="6_tray"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="7_pause"]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -17,5 +18,7 @@ script = ExtResource("1_hud")
 [node name="UpgradeRing" parent="." instance=ExtResource("4_upgrade")]
 
 [node name="BranchCards" parent="." instance=ExtResource("5_branch")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("7_pause")]
 
 [node name="ResultPanel" parent="." instance=ExtResource("2_result")]
