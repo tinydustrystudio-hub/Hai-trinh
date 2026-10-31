@@ -7,8 +7,8 @@ uniform vec4 edge_color : source_color = vec4(1.0, 0.75, 0.4, 0.7);
 uniform vec4 chevron_color : source_color = vec4(1.0, 0.92, 0.75, 0.55);
 uniform float chevron_spacing = 3.0;
 uniform float scroll_speed = 2.0;
-// Độ rõ của cả dải: rất mờ bình thường, 1 khi đang báo đợt sắp tới.
-uniform float strength : hint_range(0.0, 1.0) = 0.18;
+// Độ rõ của cả dải: 0 bình thường (ẩn), 1 trong vài giây trước khi địch của luồng xuất hiện.
+uniform float strength : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
 	float across = abs(UV.x - 0.5) * 2.0;

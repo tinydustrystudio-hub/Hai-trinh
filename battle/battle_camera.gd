@@ -40,7 +40,7 @@ func configure(layout: MapLayout) -> void:
 	bounds_zoomed_in = layout.camera_zoom_bounds
 	max_distance = layout.camera_distance
 	min_distance = minf(layout.camera_min_distance, layout.camera_distance)
-	distance = max_distance
+	distance = layout.start_distance()
 	pitch_degrees = layout.camera_pitch_degrees
 	fov = FIELD_OF_VIEW
 	velocity = Vector2.ZERO

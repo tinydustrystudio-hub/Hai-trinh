@@ -67,3 +67,29 @@ func test_tilt_moves_fortress_only() -> void:
 	island.set_tilt(5.0)
 	assert_almost_eq(island.tilt_degrees(), 5.0, 0.0001)
 	assert_eq(island.pads.size(), 10)
+
+
+func test_lane_beacons_point_to_each_lane() -> void:
+	var layout: MapLayout = load("res://data/maps/north_dock_layout.tres")
+	var expected: Array[Vector3] = [Vector3(0, 0, -1), Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(0, 0, 1)]
+	var used: PackedVector3Array = PackedVector3Array()
+	for i: int in layout.lane_count():
+		var at: Vector3 = LaneBeacons.beacon_position(layout, i)
+		var end: Vector3 = layout.lane_points[i][layout.lane_points[i].size() - 1]
+		assert_lt(at.distance_to(end), 3.0, "đèn %d đứng chỗ luồng cập đảo" % i)
+		assert_lt(at.distance_to(layout.fortress_center), layout.fortress_radius, "đèn %d nằm trên pháo đài" % i)
+		assert_false(used.has(at), "mỗi luồng một đèn riêng")
+		used.append(at)
+		assert_gt(LaneBeacons.incoming_direction(layout, i).dot(expected[i]), 0.9, "vệt sáng của đèn %d chỉ đúng phía" % i)
+
+
+func test_lane_beacons_toggle() -> void:
+	var island: Island = add_child_autofree(Island.new())
+	island.build(load("res://data/maps/north_dock_layout.tres"))
+	assert_eq(island.beacons.active_count(), 0)
+	island.set_lane_warning(2, true)
+	assert_true(island.beacons.is_active(2))
+	assert_eq(island.beacons.active_count(), 1)
+	island.set_lane_warning(2, false)
+	island.set_lane_warning(9, true)
+	assert_eq(island.beacons.active_count(), 0)

@@ -1692,7 +1692,7 @@ Mục đích: dừng trận an toàn và chỉnh nhanh vài cài đặt.
 | Vùng | Nội dung |
 | --- | --- |
 | Trái | Mục tiêu của màn và điều kiện từng sao |
-| Giữa | Nút Tiếp tục cỡ lớn; Chơi lại; cài đặt nhanh: âm thanh, tốc độ, rung |
+| Giữa | Nút Tiếp tục cỡ lớn; Chơi lại; cài đặt nhanh: âm thanh, nhạc nền, tốc độ, rung |
 | Phải | Thẻ thông tin các địch đã gặp trong trận |
 | Dưới trái | Thoát ra bản đồ (→ cửa sổ Xác nhận → Bản đồ thế giới) |
 | Dưới phải | Tiếp tục (→ Trong trận) |
@@ -2110,11 +2110,12 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 
 **Bố cục trận**
 
-- Đảo chính nằm giữa màn hình, chiếm khoảng 1/3 chiều cao màn hình.
-- Camera nghiêng 55° nhìn vào tâm đảo, mặc định thấy toàn bộ chiến trường; chỉ kéo trượt nhẹ.
-- Thu phóng: chụm hai ngón để phóng to, thu nhỏ; trên web dùng lăn chuột. Nhỏ nhất là thấy toàn bộ chiến trường; lớn nhất là đảo chính gần đầy màn hình. Khi đã phóng to thì kéo một ngón để trượt, trong giới hạn bản đồ. Luôn giữ góc 55°, không xoay. Đang chụm thì không tính là chạm vào bệ hay địch.
-- Luồng địch bình thường chỉ hiện mờ; khi báo đợt sắp tới, luồng của đợt đó hiện rõ trong vài giây rồi mờ dần.
-- Địch đến theo 4 luồng tỏa từ các mép màn hình: Bắc, Đông, Tây, Nam.
+- Đảo chính nằm giữa màn hình; lúc vào trận chiếm khoảng 1/3 chiều cao màn hình.
+- Camera nghiêng 55° nhìn vào tâm đảo; chỉ kéo trượt nhẹ.
+- Thu phóng: chụm hai ngón để phóng to, thu nhỏ; trên web dùng lăn chuột. Nhỏ nhất là thấy toàn bộ chiến trường (cả 4 luồng tới tận mép); lớn nhất là đảo chính gần đầy màn hình. Khi đã phóng to thì kéo một ngón để trượt, trong giới hạn bản đồ. Luôn giữ góc 55°, không xoay. Đang chụm thì không tính là chạm vào bệ hay địch.
+- Địch đến theo 4 luồng tỏa từ các mép màn hình: Bắc, Đông, Tây, Nam. Bốn phía cân bằng như nhau: bốn luồng dài gần bằng nhau (khoảng 31 ô), mỗi luồng có một đảo vệ tinh canh (góp ý 3, ngày 31/10). Bản đồ rộng hơn màn hình lúc vào trận nên đường đi dài; thu nhỏ để thấy toàn cảnh.
+- Luồng địch bình thường ẩn hẳn. Chỉ trong 10 giây trước khi con địch đầu tiên của luồng xuất hiện thì luồng hiện ra; địch xuất hiện thì luồng tắt.
+- Hướng địch tới không ghi bằng chữ. Trên đảo chính có 4 cột đèn báo, đứng ở chỗ từng luồng cập đảo; trong 10 giây đó, đèn của luồng nháy đỏ cam và chiếu một vệt sáng quét ra mặt nước về phía địch sẽ tới. HUD chỉ ghi đợt mấy, còn bao nhiêu giây và tầng địch.
 - Bệ xếp thành hai vòng: 6 bệ trên các mỏm bến của đảo chính, 4 bệ trên 4 đảo vệ tinh.
 
 **Đảo chính (phe Liên Minh Mũi Neo)**
@@ -2133,9 +2134,9 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Xanh chàm đậm thay cho xanh ngọc.
 - Hai lớp normal map cuộn.
 - Phản chiếu bầu trời theo góc nhìn.
-- Vệt sáng của nước tách khỏi hướng nắng chiếu công trình: một vệt sáng mềm, rộng, nằm phía sau đảo chính theo hướng nhìn của camera; lấp lánh nhẹ rải đều khắp mặt nước. Nắng chiếu công trình giữ nguyên hướng.
+- Sóng nhẹ nhưng tự nhiên: nhiều lớp sóng lệch hướng nhau, bước sóng lẻ nhau, biên độ đổi dần dọc theo ngọn sóng; không chạy chéo đều một hướng, một tốc độ, một chu kỳ (góp ý 3).
+- Phản chiếu ngẫu nhiên khắp biển: mây trôi phản chiếu thành những mảng sáng rải khắp mặt nước; lấp lánh lóe lên ở chỗ ngẫu nhiên. Vệt sáng mềm sau đảo chính chỉ còn rất nhẹ. Ánh sáng của nước tách khỏi hướng nắng chiếu công trình; nắng chiếu công trình giữ nguyên hướng.
 - Bọt trắng quanh đảo chính, quanh đảo vệ tinh và sau đuôi tàu; vệt bọt đuôi tàu uốn mềm theo đường tàu đi, kể cả lúc đổi hướng.
-- Sóng nhẹ.
 - Giữ hai mức chất lượng.
 
 **Ánh sáng**
@@ -2143,6 +2144,13 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Nắng ấm chiếu từ một hướng, ánh trời lạnh.
 - Chỉnh màu nhẹ (tonemap, glow nhẹ) nếu renderer Compatibility hỗ trợ.
 - Bóng của đảo chính làm giả hoặc nướng sẵn; tàu dùng bóng tròn.
+
+**Đèn báo MEGA** (góp ý 3): lô cốt đang MEGA có đèn báo kiểu hiện đại ngay tại lô cốt: vòng đèn LED quay quanh chân và một cột sáng dựng thẳng lên, cột thấp dần theo thời gian MEGA còn lại; hết MEGA thì tắt.
+
+**Rung và nhạc** (góp ý 3)
+
+- Điện thoại rung khi tàu địch đâm vào đảo chính, khi nổ MEGA và khi tàu trùm nổ (trùm rung lâu nhất). Nhiều tàu đâm dồn dập thì chỉ rung cách quãng. Tắt được bằng nút Rung trong màn Tạm dừng.
+- Có nhạc nền trong lúc thử để đỡ nhàm chán; bản tạm dựng bằng code, lặp liền mạch. Màn Tạm dừng có nút Nhạc; tắt Âm thanh thì tắt cả nhạc.
 
 **Phong cách đảo theo phe** (dùng cho cứ điểm địch và màn trùm về sau)
 

@@ -35,3 +35,47 @@ func test_highlight_ignores_sun_direction() -> void:
 	# Hàm không nhận hướng nắng: đổi nắng không làm vệt sáng dồn về góc nào.
 	var a: Vector2 = Ocean.highlight_center(Vector3(5, 0, 3), 10.0, Vector3(0, -1, -1))
 	assert_eq(a, Vector2(5, 3) + Vector2(0, -1) * 10.0 * Ocean.HIGHLIGHT_DISTANCE)
+
+
+func test_generated_waves_are_irregular_but_gentle() -> void:
+	# Góp ý 3: sóng ngẫu nhiên, không chạy chéo đều một hướng, một chu kỳ.
+	var generated: Array = Ocean.make_waves(Ocean.WAVE_SEED)
+	var waves: Array[Vector4] = generated[0]
+	var shapes: Array[Vector4] = generated[1]
+	assert_eq(waves.size(), Ocean.MAX_WAVES)
+	assert_eq(shapes.size(), Ocean.MAX_WAVES)
+	var min_angle: float = INF
+	var max_angle: float = -INF
+	var lengths: Dictionary = {}
+	var base: float = atan2(waves[0].y, waves[0].x)
+	for wave: Vector4 in waves:
+		var angle: float = wrapf(atan2(wave.y, wave.x) - base, -PI, PI)
+		min_angle = minf(min_angle, angle)
+		max_angle = maxf(max_angle, angle)
+		lengths[snappedf(wave.w, 0.1)] = true
+	assert_gt(max_angle - min_angle, 0.8, "các lớp sóng lệch hướng nhau")
+	assert_eq(lengths.size(), Ocean.MAX_WAVES, "bước sóng không trùng nhau")
+	# Ở bất kỳ đâu, bất kỳ lúc nào cũng không cao hơn MAX_WAVE_HEIGHT.
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = 5
+	var highest: float = 0.0
+	for i: int in 500:
+		var h: float = Ocean.wave_height(waves, waves.size(), rng.randf_range(-150, 150), rng.randf_range(-150, 150), rng.randf_range(0, 100), shapes)
+		highest = maxf(highest, absf(h))
+	assert_lte(highest, Ocean.MAX_WAVE_HEIGHT + 0.0001)
+	assert_gt(highest, Ocean.MAX_WAVE_HEIGHT * 0.3, "vẫn có sóng")
+
+
+func test_same_seed_same_sea() -> void:
+	assert_eq(Ocean.make_waves(3), Ocean.make_waves(3))
+	assert_ne(Ocean.make_waves(3), Ocean.make_waves(4))
+
+
+func test_crest_modulation_varies_along_crest() -> void:
+	# Cùng một ngọn sóng (đi dọc vuông góc với hướng sóng), biên độ đổi dần chứ không đều.
+	var shape: Vector4 = Vector4(0.0, 0.3, 0.0, 0.5)
+	var k: float = TAU / 20.0
+	var a: float = Ocean.crest_modulation(shape, Vector2(1, 0), k, 0.0, 0.0, 0.0)
+	var b: float = Ocean.crest_modulation(shape, Vector2(1, 0), k, 0.0, 20.0 / 0.3 / 4.0, 0.0)
+	assert_almost_eq(a, 1.0, 0.0001)
+	assert_almost_eq(b, 1.5, 0.0001)

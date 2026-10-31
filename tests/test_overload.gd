@@ -232,3 +232,36 @@ func test_at_most_two_full_bursts() -> void:
 	bursts.advance(MegaBursts.DURATION + 0.01)
 	assert_eq(bursts.active_count(), 0)
 	assert_true(bursts.spawn(Vector3.ZERO, 12.0), "hết vòng cũ thì lại được vòng đầy đủ")
+
+
+func test_mega_beacon_only_while_mega() -> void:
+	# Góp ý 3: lô cốt đang MEGA có đèn báo; nạp, sẵn sàng hay làm mát thì không.
+	var beacons: MegaBeacons = add_child_autofree(MegaBeacons.new())
+	var gun: Tower = _tower(MachineGun, MG, Vector3.ZERO)
+	var other: Tower = _tower(MachineGun, MG, Vector3(8, 0, 0))
+	var towers: Array[Tower] = [gun, other]
+	gun.overload.add_charge(1.0)
+	assert_eq(beacons.update_beacons(towers), 0, "sẵn sàng thôi thì chưa bật")
+	gun.activate_mega()
+	assert_eq(beacons.update_beacons(towers), 1)
+	var elapsed: float = 0.0
+	while gun.overload.state == Overload.State.MEGA and elapsed < 60.0:
+		gun.overload.advance(STEP)
+		elapsed += STEP
+	assert_eq(gun.overload.state, Overload.State.COOLDOWN)
+	assert_eq(beacons.update_beacons(towers), 0, "hết MEGA thì tắt")
+
+
+func test_mega_beacon_mesh_has_ring_and_beam() -> void:
+	var mesh: ArrayMesh = MegaBeacons.build_mesh()
+	var colors: PackedColorArray = mesh.surface_get_arrays(0)[Mesh.ARRAY_COLOR]
+	var ring: int = 0
+	var beam: int = 0
+	for color: Color in colors:
+		if color.r < 0.5:
+			ring += 1
+		else:
+			beam += 1
+	assert_eq(ring, MegaBeacons.SEGMENTS * 6)
+	assert_eq(beam, MegaBeacons.SEGMENTS * 6)
+	assert_gt(mesh.get_aabb().end.y, MegaBeacons.BEAM_HEIGHT, "cột sáng cao hơn thanh Quá tải")

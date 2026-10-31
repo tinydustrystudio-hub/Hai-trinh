@@ -2,7 +2,7 @@ class_name Hud
 extends CanvasLayer
 ## HUD trận theo GDD mục 7.10, mọi thứ nằm trong vùng an toàn (tránh tai thỏ):
 ## - trên trái: Độ Nổi (thanh và số), đợt hiện tại / tổng số đợt;
-## - trên giữa: báo đợt sắp tới (giây còn lại, luồng, tầng địch);
+## - trên giữa: báo đợt sắp tới (giây còn lại, tầng địch); hướng địch tới do đèn báo trên đảo chính chỉ;
 ## - trên phải: Thép, nút ×1/×2, nút Tạm dừng;
 ## - dưới trái: Gọi đợt sớm khi đang chờ đợt kế;
 ## - dưới phải: khay MEGA.
@@ -213,16 +213,12 @@ func _on_wave_cleared(_index: int) -> void:
 	_incoming.text = ""
 
 
-func _on_wave_incoming(index: int, lane_indices: PackedInt32Array, seconds: float) -> void:
-	var names: PackedStringArray = PackedStringArray()
+func _on_wave_incoming(index: int, _lane_indices: PackedInt32Array, seconds: float) -> void:
 	var battle: BattleController = owner as BattleController
 	var layers: PackedStringArray = PackedStringArray()
 	if battle != null:
-		for lane_index: int in lane_indices:
-			if lane_index < battle.lanes.size():
-				names.append(tr(battle.lanes[lane_index].name_key))
 		layers = battle.layer_names_in_wave(index)
-	_incoming.text = tr(&"HUD_NEXT_WAVE") % [index + 1, ceili(seconds), ", ".join(names)]
+	_incoming.text = tr(&"HUD_NEXT_WAVE") % [index + 1, ceili(seconds)]
 	if not layers.is_empty():
 		_incoming.text += "\n" + " · ".join(layers)
 	_call_wave.visible = battle != null and not battle.is_over() and not battle.stress_mode

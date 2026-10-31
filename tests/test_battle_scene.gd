@@ -44,8 +44,8 @@ func test_select_pad_toggles_highlight() -> void:
 func test_ocean_quality_levels() -> void:
 	var ocean: Ocean = _battle.ocean
 	ocean.set_quality(Ocean.Quality.LOW)
-	assert_eq(ocean.wave_count(), 2)
-	assert_eq((ocean.mesh as PlaneMesh).subdivide_width, 63)
-	ocean.set_quality(Ocean.Quality.HIGH)
 	assert_eq(ocean.wave_count(), 3)
-	assert_eq((ocean.mesh as PlaneMesh).subdivide_width, 127)
+	assert_eq((ocean.mesh as PlaneMesh).subdivide_width, 95)
+	ocean.set_quality(Ocean.Quality.HIGH)
+	assert_eq(ocean.wave_count(), 6)
+	assert_eq((ocean.mesh as PlaneMesh).subdivide_width, 191)

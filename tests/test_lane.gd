@@ -47,18 +47,20 @@ func test_curve_passes_through_points() -> void:
 	assert_eq(curve.get_point_out(1), (points[2] - points[0]) * Lane.SMOOTHNESS)
 
 
-func test_reveal_strength_curve() -> void:
-	assert_almost_eq(Lane.reveal_strength(0.0), Lane.IDLE_STRENGTH, 0.0001)
-	assert_almost_eq(Lane.reveal_strength(Lane.REVEAL_SECONDS + Lane.FADE_SECONDS), 1.0, 0.0001)
-	assert_almost_eq(Lane.reveal_strength(Lane.FADE_SECONDS), 1.0, 0.0001)
-	assert_almost_eq(Lane.reveal_strength(Lane.FADE_SECONDS * 0.5), lerpf(Lane.IDLE_STRENGTH, 1.0, 0.5), 0.0001)
+func test_fade_toward() -> void:
+	assert_almost_eq(Lane.fade_toward(0.0, true, Lane.FADE_IN_SECONDS * 0.5), 0.5, 0.0001)
+	assert_almost_eq(Lane.fade_toward(0.0, true, 10.0), 1.0, 0.0001)
+	assert_almost_eq(Lane.fade_toward(1.0, false, Lane.FADE_OUT_SECONDS * 0.5), 0.5, 0.0001)
+	assert_almost_eq(Lane.fade_toward(1.0, false, 10.0), 0.0, 0.0001)
 
 
-func test_lane_is_faint_until_revealed_then_fades() -> void:
-	assert_almost_eq(_lane.strength(), Lane.IDLE_STRENGTH, 0.0001)
-	_lane.reveal()
+func test_lane_hidden_until_warning_then_hides_again() -> void:
+	assert_eq(_lane.strength(), 0.0, "bình thường luồng ẩn")
+	_lane.set_warning(true)
+	_lane.advance_fade(Lane.FADE_IN_SECONDS)
 	assert_almost_eq(_lane.strength(), 1.0, 0.0001)
-	_lane._process(Lane.REVEAL_SECONDS)
-	assert_almost_eq(_lane.strength(), 1.0, 0.0001, "vẫn rõ trong lúc báo đợt")
-	_lane._process(Lane.FADE_SECONDS)
-	assert_almost_eq(_lane.strength(), Lane.IDLE_STRENGTH, 0.0001, "mờ lại sau vài giây")
+	_lane.advance_fade(5.0)
+	assert_almost_eq(_lane.strength(), 1.0, 0.0001, "rõ suốt lúc báo động")
+	_lane.set_warning(false)
+	_lane.advance_fade(Lane.FADE_OUT_SECONDS)
+	assert_eq(_lane.strength(), 0.0, "tắt khi địch đã ra")

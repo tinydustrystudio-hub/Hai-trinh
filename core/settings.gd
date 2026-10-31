@@ -4,6 +4,8 @@ extends Node
 ## Tháng 1 chưa lưu xuống đĩa; các bước sau thêm khi có màn Cài đặt.
 
 signal water_quality_changed(quality: Ocean.Quality)
+## Bật tắt âm thanh hoặc nhạc nền.
+signal audio_changed
 
 var water_quality: Ocean.Quality = Ocean.Quality.HIGH:
 	set(value):
@@ -13,8 +15,21 @@ var water_quality: Ocean.Quality = Ocean.Quality.HIGH:
 		water_quality_changed.emit(value)
 ## Tự hạ chất lượng nước khi khung hình thấp kéo dài.
 var auto_lower_quality: bool = true
-## Cài đặt nhanh trong màn Tạm dừng (GDD mục 7.11). Âm thanh có ở bước 12; rung dùng về sau.
-var sound_enabled: bool = true
+## Cài đặt nhanh trong màn Tạm dừng (GDD mục 7.11). Tắt âm thanh thì tắt cả nhạc nền.
+var sound_enabled: bool = true:
+	set(value):
+		if sound_enabled == value:
+			return
+		sound_enabled = value
+		audio_changed.emit()
+## Nhạc nền tạm (góp ý 3 của đạo diễn), bật tắt riêng.
+var music_enabled: bool = true:
+	set(value):
+		if music_enabled == value:
+			return
+		music_enabled = value
+		audio_changed.emit()
+## Rung khi địch đâm vào đảo chính, khi nổ MEGA và khi tàu trùm nổ (góp ý 3).
 var vibration_enabled: bool = true
 
 var _watch: FrameRateWatch = FrameRateWatch.new()

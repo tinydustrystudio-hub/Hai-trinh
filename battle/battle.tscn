@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://battle/battle.gd" id="1_battle"]
 [ext_resource type="PackedScene" path="res://battle/ocean/ocean.tscn" id="2_ocean"]
@@ -16,6 +16,9 @@
 [ext_resource type="Script" path="res://fx/overload_bars.gd" id="14_bars"]
 [ext_resource type="Script" path="res://fx/mega_bursts.gd" id="15_bursts"]
 [ext_resource type="Script" path="res://fx/sound_board.gd" id="16_sound"]
+[ext_resource type="Script" path="res://fx/mega_beacons.gd" id="17_beacons"]
+[ext_resource type="Script" path="res://fx/haptics.gd" id="18_haptics"]
+[ext_resource type="Script" path="res://fx/music_player.gd" id="19_music"]
 
 [sub_resource type="Environment" id="Environment_sea"]
 background_mode = 1
@@ -86,8 +89,17 @@ script = ExtResource("14_bars")
 [node name="MegaBursts" type="MultiMeshInstance3D" parent="Effects"]
 script = ExtResource("15_bursts")
 
+[node name="MegaBeacons" type="MultiMeshInstance3D" parent="Effects"]
+script = ExtResource("17_beacons")
+
 [node name="SoundBoard" type="Node" parent="Effects"]
 script = ExtResource("16_sound")
+
+[node name="Haptics" type="Node" parent="Effects"]
+script = ExtResource("18_haptics")
+
+[node name="Music" type="AudioStreamPlayer" parent="Effects"]
+script = ExtResource("19_music")
 
 [node name="HUD" parent="." instance=ExtResource("9_hud")]
 

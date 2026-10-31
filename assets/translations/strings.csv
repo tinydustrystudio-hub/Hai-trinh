@@ -9,7 +9,7 @@ ENEMY_RAM_DRONE,Ca Nô Cảm Tử,Ram Drone Boat
 ENEMY_SPIKED_CRAB,Cua Giáp Gai,Spiked Crab
 HUD_BUOYANCY,Độ Nổi: %d/%d,Buoyancy: %d/%d
 HUD_WAVE,Đợt %d/%d,Wave %d/%d
-HUD_NEXT_WAVE,Đợt %d tới sau %d giây: %s,Wave %d in %d s: %s
+HUD_NEXT_WAVE,Đợt %d tới sau %d giây,Wave %d in %d s
 RESULT_WIN,Chiến thắng,Victory
 RESULT_LOSE,Đảo đã chìm,The island has sunk
 BUTTON_RETRY,Chơi lại,Retry
@@ -68,6 +68,8 @@ BUTTON_RESUME,Tiếp tục,Resume
 BUTTON_RESTART,Chơi lại,Restart
 PAUSE_SOUND_ON,Âm thanh: bật,Sound: on
 PAUSE_SOUND_OFF,Âm thanh: tắt,Sound: off
+PAUSE_MUSIC_ON,Nhạc: bật,Music: on
+PAUSE_MUSIC_OFF,Nhạc: tắt,Music: off
 PAUSE_VIBRATION_ON,Rung: bật,Vibration: on
 PAUSE_VIBRATION_OFF,Rung: tắt,Vibration: off
 PAUSE_ENEMIES,Địch đã gặp,Enemies met

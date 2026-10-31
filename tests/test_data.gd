@@ -75,11 +75,11 @@ func test_five_waves() -> void:
 
 func test_wave_composition_matches_plan() -> void:
 	var expected: Array[Array] = [
-		[6, 0, 0, [NORTH]],
-		[8, 3, 0, [NORTH, EAST]],
-		[10, 0, 1, [NORTH, EAST, WEST]],
-		[8, 6, 0, [EAST, WEST]],
-		[12, 6, 2, [NORTH, EAST, WEST, SOUTH]],
+		[12, 0, 0, [NORTH]],
+		[16, 6, 0, [NORTH, EAST]],
+		[20, 0, 2, [NORTH, EAST, WEST]],
+		[16, 12, 0, [EAST, WEST]],
+		[24, 12, 4, [NORTH, EAST, WEST, SOUTH]],
 	]
 	for i: int in expected.size():
 		var wave: Wave = _waves.waves[i]
@@ -92,7 +92,7 @@ func test_wave_composition_matches_plan() -> void:
 
 func test_first_wave_spacing() -> void:
 	var group: SpawnGroup = _waves.waves[0].groups[0]
-	assert_almost_eq(group.interval, 1.5, 0.0001)
+	assert_almost_eq(group.interval, 0.75, 0.0001)
 
 
 func test_groups_are_valid() -> void:
@@ -107,7 +107,14 @@ func test_groups_are_valid() -> void:
 
 
 func test_total_enemies() -> void:
-	assert_eq(_waves.total_enemy_count(), 6 + 11 + 11 + 14 + 20)
+	# Góp ý 3 của đạo diễn: gấp đôi số địch so với bản đầu (6, 11, 11, 14, 20).
+	assert_eq(_waves.total_enemy_count(), 2 * (6 + 11 + 11 + 14 + 20))
+
+
+func test_no_wave_exceeds_enemy_cap() -> void:
+	# Cả đợt cùng có mặt một lúc cũng không vượt trần hiệu năng.
+	for wave: Wave in _waves.waves:
+		assert_lte(wave.enemy_count(), BattleController.MAX_ACTIVE_ENEMIES)
 
 
 func test_group_last_spawn_time() -> void:

@@ -44,7 +44,7 @@ func test_loses_without_towers() -> void:
 	assert_eq(_battle.state, BattleController.State.LOST)
 	assert_eq(_battle.buoyancy.value, 0)
 	assert_signal_emitted_with_parameters(Events, "battle_ended", [false])
-	# Đợt 1 lọt 6 Độ Nổi; đợt 2 có 8 Xuồng Cướp (8) và 3 Ca Nô Cảm Tử (9): chìm ở đợt 2.
+	# Đợt 1 lọt 12 Độ Nổi; đợt 2 có 16 Xuồng Cướp và 6 Ca Nô Cảm Tử: chìm ở đợt 2.
 	assert_eq(_waves_started, [0, 1])
 	assert_almost_eq(_battle.island.tilt_degrees(), Buoyancy.MAX_TILT_DEGREES, 0.0001)
 	# Bệ trên đảo vệ tinh là phao riêng, không nghiêng; bệ trên mỏm bến nghiêng theo pháo đài.
@@ -68,7 +68,7 @@ func test_wins_after_five_waves_when_island_survives() -> void:
 	assert_eq(_battle.state, BattleController.State.WON)
 	assert_eq(_waves_started, [0, 1, 2, 3, 4])
 	# Không lô cốt: mọi địch đều lọt.
-	assert_eq(_battle.buoyancy.value, 1000 - (6 + 17 + 12 + 26 + 34))
+	assert_eq(_battle.buoyancy.value, 1000 - 2 * (6 + 17 + 12 + 26 + 34))
 	assert_eq(_battle.enemy_pool.active_count(), 0)
 	assert_signal_emitted_with_parameters(Events, "battle_ended", [true])
 
@@ -108,15 +108,35 @@ func test_max_enemies_on_screen_within_budget() -> void:
 	assert_lte(peak, 60)
 
 
-func test_incoming_wave_reveals_only_its_lanes() -> void:
-	# Đợt 1 chỉ đi luồng Bắc: lúc báo đợt, chỉ luồng Bắc hiện rõ.
-	assert_almost_eq(_battle.lanes[0].strength(), 1.0, 0.0001)
+func test_lane_shows_only_in_the_ten_seconds_before_its_enemies() -> void:
+	# Đợt 1 chỉ đi luồng Bắc, chờ first_wave_delay (10 giây): luồng Bắc và đèn báo của nó bật ngay.
+	var island: Island = _battle.island
+	assert_true(_battle.lanes[0].is_warning())
+	assert_true(island.beacons.is_active(0))
 	for i: int in range(1, _battle.lanes.size()):
-		assert_almost_eq(_battle.lanes[i].strength(), Lane.IDLE_STRENGTH, 0.0001)
-	# Báo lại mỗi giây trong lúc chờ không kéo dài thời gian hiện rõ.
-	for i: int in 3:
-		_battle.step(1.0)
-		_battle.lanes[0]._process(1.0)
-	assert_almost_eq(_battle.lanes[0].strength(), 1.0, 0.0001)
-	_battle.lanes[0]._process(Lane.REVEAL_SECONDS)
-	assert_almost_eq(_battle.lanes[0].strength(), Lane.IDLE_STRENGTH, 0.0001)
+		assert_false(_battle.lanes[i].is_warning(), "luồng %d không có địch đợt 1" % i)
+		assert_false(island.beacons.is_active(i))
+	# Địch đầu tiên ra thì tắt.
+	var waited: float = 0.0
+	while _battle.enemy_pool.active_count() == 0 and waited < 20.0:
+		_battle.step(0.25)
+		waited += 0.25
+	assert_gt(_battle.enemy_pool.active_count(), 0)
+	assert_false(_battle.lanes[0].is_warning())
+	assert_false(island.beacons.is_active(0))
+
+
+func test_seconds_until_lane_counts_group_delay() -> void:
+	# Đợt 2: luồng Bắc ra ngay khi đợt bắt đầu, luồng Đông chậm hơn theo delay của nhóm.
+	var spawner: WaveSpawner = _battle.spawner
+	var east_delay: float = INF
+	for group: SpawnGroup in _battle.wave_data.waves[1].groups:
+		if group.lane_index == 1:
+			east_delay = minf(east_delay, group.delay)
+	while spawner.wave_index < 1 or spawner.state != WaveSpawner.State.WAITING:
+		_battle.step(0.25)
+	var wait: float = spawner.seconds_until_next_wave()
+	assert_almost_eq(spawner.seconds_until_lane(0), wait, 0.0001)
+	assert_almost_eq(spawner.seconds_until_lane(1), wait + east_delay, 0.0001)
+	assert_eq(spawner.seconds_until_lane(2), -1.0, "đợt 2 không đi luồng Tây")
+

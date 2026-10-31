@@ -48,6 +48,27 @@ func seconds_until_next_wave() -> float:
 	return _wait_left if state == State.WAITING else 0.0
 
 
+## Số giây tới khi con địch đầu tiên của đợt hiện tại (hoặc đợt sắp tới, nếu đang chờ) xuất hiện ở luồng
+## lane_index. Trả về −1 nếu đợt đó không đi luồng này, địch đã xuất hiện, hoặc không còn đợt nào.
+func seconds_until_lane(lane_index: int) -> float:
+	if wave_data == null or (state != State.WAITING and state != State.SPAWNING):
+		return -1.0
+	var wave: Wave = wave_data.waves[wave_index]
+	var first: float = INF
+	for g: int in wave.groups.size():
+		var group: SpawnGroup = wave.groups[g]
+		if group.lane_index != lane_index:
+			continue
+		if state == State.SPAWNING and _spawned[g] > 0:
+			return -1.0
+		first = minf(first, group.delay)
+	if first == INF:
+		return -1.0
+	if state == State.WAITING:
+		return maxf(_wait_left, 0.0) + first
+	return maxf(first - _wave_time, 0.0)
+
+
 ## Gọi khi một địch đã sinh bị hạ hoặc lọt.
 func notify_enemy_removed() -> void:
 	alive = maxi(alive - 1, 0)

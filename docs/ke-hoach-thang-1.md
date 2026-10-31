@@ -245,15 +245,17 @@ Quy ước khoảng cách: 1 ô (đơn vị tầm trong GDD) = 4 đơn vị Godo
 
 Thang tốc độ đề xuất cho GDD: bậc 1 = 0,4; bậc 2 = 0,6; bậc 3 = 0,8; bậc 4 = 1,1; bậc 5 = 1,5 ô/giây. Độ Nổi khởi đầu: 20.
 
-**5 đợt ở Bến Bắc** (bản đầu, sẽ cân bằng lại khi chơi thử)
+**5 đợt ở Bến Bắc** (bản đầu đã gấp đôi số địch theo góp ý 3 của đạo diễn ngày 31/10; sẽ cân bằng lại khi chơi thử)
 
 | Đợt | Địch | Luồng |
 | --- | --- | --- |
-| 1 | 6 Xuồng Cướp, cách nhau 1,5 giây | Bắc |
-| 2 | 8 Xuồng Cướp và 3 Ca Nô Cảm Tử | Bắc, Đông |
-| 3 | 10 Xuồng Cướp và 1 Cua Giáp Gai | Cả 3 luồng |
-| 4 | 8 Xuồng Cướp và 6 Ca Nô Cảm Tử đi thành cụm | Đông, Tây |
-| 5 | 12 Xuồng Cướp, 6 Ca Nô Cảm Tử và 2 Cua Giáp Gai | Cả 4 luồng |
+| 1 | 12 Xuồng Cướp, cách nhau 0,75 giây | Bắc |
+| 2 | 16 Xuồng Cướp và 6 Ca Nô Cảm Tử | Bắc, Đông |
+| 3 | 20 Xuồng Cướp và 2 Cua Giáp Gai | Cả 3 luồng |
+| 4 | 16 Xuồng Cướp và 12 Ca Nô Cảm Tử đi thành cụm | Đông, Tây |
+| 5 | 24 Xuồng Cướp, 12 Ca Nô Cảm Tử và 4 Cua Giáp Gai | Cả 4 luồng |
+
+Mỗi đợt tối đa 40 địch, dưới trần 60 địch cùng lúc.
 
 ### 5.2 Script
 
@@ -368,7 +370,7 @@ Mười ba bước trong 4 tuần. Mỗi bước chỉ bắt đầu khi bước 
 | --- | --- | --- | --- |
 | 1 | 1 | Tạo repo: `project.godot` theo mục 2, cây thư mục theo mục 3, `CLAUDE.md`, `.gitattributes`, addon GUT; `boot.tscn` hiện chữ "Hải Trình" | Repo đúng cấu trúc; một test GUT mẫu chạy được |
 | 2 | 1 | CI cho web và Android (mục 6) | Mở được link web trên máy tính và cài được APK trên điện thoại, cả hai hiện chữ "Hải Trình". Đây là việc quan trọng nhất của tuần 1 |
-| 3 | 1 | Bản đồ Bến Bắc theo GDD mục 8.6, dựng từ `MapLayout`: đảo chính pháo đài lục giác nhiều tầng ở giữa màn hình; 10 bệ xếp hai vòng (6 trên mỏm bến, 4 trên đảo vệ tinh); 4 luồng Bắc, Đông, Tây, Nam; nước bản 2 với vệt sáng mềm sau đảo theo hướng nhìn và lấp lánh rải đều (tách khỏi hướng nắng chiếu công trình); nắng ấm, ánh trời lạnh, bóng giả; camera 55° nhìn tâm đảo, thấy toàn bộ chiến trường, kéo trượt nhẹ; chụm hai ngón hoặc lăn chuột để thu phóng (từ toàn cảnh tới đảo chính gần đầy màn hình, phóng to thì kéo để trượt trong giới hạn bản đồ, không xoay); luồng mờ, chỉ hiện rõ vài giây khi báo đợt; vệt bọt đuôi tàu uốn mềm theo đường đi | Ảnh chụp bản web thấy đảo chính ở giữa, rõ tầng và vành, nước đậm có phản chiếu và bọt; bản đồ trống chạy 60 khung/giây trong Chromium của máy ảo; kéo camera mượt trên điện thoại; test GUT cho giới hạn thu phóng |
+| 3 | 1 | Bản đồ Bến Bắc theo GDD mục 8.6, dựng từ `MapLayout`: đảo chính pháo đài lục giác nhiều tầng ở giữa màn hình; 10 bệ xếp hai vòng (6 trên mỏm bến, 4 trên đảo vệ tinh); 4 luồng Bắc, Đông, Tây, Nam dài bằng nhau (khoảng 31 ô), mỗi luồng một đảo vệ tinh; nước bản 2 với sóng ngẫu nhiên nhiều lớp, mây phản chiếu và lấp lánh rải khắp biển, vệt sáng rất nhẹ sau đảo (tách khỏi hướng nắng chiếu công trình); nắng ấm, ánh trời lạnh, bóng giả; camera 55° nhìn tâm đảo, vào trận với đảo chính chiếm khoảng 1/3 màn hình, kéo trượt nhẹ; chụm hai ngón hoặc lăn chuột để thu phóng (từ toàn cảnh thấy cả 4 luồng tới đảo chính gần đầy màn hình, phóng to thì kéo để trượt trong giới hạn bản đồ, không xoay); luồng ẩn, chỉ hiện trong 10 giây trước khi địch của luồng xuất hiện, kèm đèn báo hướng trên đảo chính; vệt bọt đuôi tàu uốn mềm theo đường đi | Ảnh chụp bản web thấy đảo chính ở giữa, rõ tầng và vành, nước đậm có phản chiếu và bọt; bản đồ trống chạy 60 khung/giây trong Chromium của máy ảo; kéo camera mượt trên điện thoại; test GUT cho giới hạn thu phóng |
 | 4 | 2 | Lớp dữ liệu và file `.tres` cho 3 địch, 5 đợt, bản đồ (mục 5.1) | Test đọc dữ liệu chạy xanh |
 | 5 | 2 | Enemy, EnemyPool, đi theo luồng, lọt thì trừ Độ Nổi; WaveSpawner; vòng đời trận; màn thắng và thua đơn giản | Chạy đủ 5 đợt khi chưa có lô cốt, và thua đúng như mong đợi |
 | 6 | 2 | Bảng debug và `stress_test.tscn`; đo trên điện thoại và web | Ghi được số liệu 60 địch vào nhật ký. Nếu dưới 30 khung/giây, hạ chất lượng nước và sửa trước khi làm tiếp |

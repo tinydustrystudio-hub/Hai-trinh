@@ -1,7 +1,7 @@
 class_name Island
 extends Node3D
-## Đảo của bản đồ trận, dựng từ MapLayout: pháo đài lục giác của Liên Minh ở giữa (có mỏm bến mang bệ),
-## các đảo vệ tinh mang bệ, phao cam; bóng giả trên mặt nước và dải bọt quanh chân đảo.
+## Đảo của bản đồ trận, dựng từ MapLayout: pháo đài lục giác của Liên Minh ở giữa (có mỏm bến mang bệ và
+## đèn báo hướng địch), các đảo vệ tinh mang bệ, phao cam; bóng giả trên mặt nước và dải bọt quanh chân đảo.
 ## Pháo đài và các bệ trên mỏm bến nghiêng theo Độ Nổi; đảo vệ tinh là phao riêng nên đứng yên.
 
 const PAD_SCENE: PackedScene = preload("res://battle/map/tower_pad.tscn")
@@ -17,6 +17,7 @@ static var _shadow: StandardMaterial3D
 static var _foam: ShaderMaterial
 
 var pads: Array[TowerPad] = []
+var beacons: LaneBeacons
 
 var _body: Node3D
 
@@ -31,9 +32,13 @@ func build(layout: MapLayout) -> void:
 	_body.position = layout.fortress_center
 	add_child(_body)
 	var fortress_offset: Transform3D = Transform3D(Basis.IDENTITY, -layout.fortress_center)
-	_add_mesh(_body, "Fortress", AllianceFortress.build_fortress(layout), _solid_material(), fortress_offset)
+	_add_mesh(_body, "Fortress", AllianceFortress.build_fortress(layout), solid_material(), fortress_offset)
 	_add_mesh(_body, "Lamp", AllianceFortress.build_lamp(layout), _lamp_material(), fortress_offset)
-	_add_mesh(self, "Satellites", AllianceFortress.build_satellites(layout), _solid_material())
+	beacons = LaneBeacons.new()
+	beacons.name = "LaneBeacons"
+	_body.add_child(beacons)
+	beacons.build(layout, fortress_offset)
+	_add_mesh(self, "Satellites", AllianceFortress.build_satellites(layout), solid_material())
 	_add_mesh(self, "Shadow", build_shadow(layout), _shadow_material())
 	_add_mesh(self, "Foam", build_foam(layout), _foam_material())
 	for i: int in layout.pad_positions.size():
@@ -47,6 +52,12 @@ func build(layout: MapLayout) -> void:
 			pad.position = layout.pad_positions[i] - layout.fortress_center
 			_body.add_child(pad)
 		pads.append(pad)
+
+
+## Bật hoặc tắt đèn báo hướng địch của một luồng.
+func set_lane_warning(lane_index: int, active: bool) -> void:
+	if beacons != null:
+		beacons.set_active(lane_index, active)
 
 
 ## Nghiêng pháo đài: mép phía Bắc (−z) chìm xuống.
@@ -165,7 +176,7 @@ static func _soft_disc(st: SurfaceTool, center: Vector3, radius: float, soft: fl
 		MeshKit.quad(st, mid + d0 * radius, mid + d1 * radius, mid + d1 * (radius + soft), mid + d0 * (radius + soft), Vector3.UP, inner, outer)
 
 
-static func _solid_material() -> StandardMaterial3D:
+static func solid_material() -> StandardMaterial3D:
 	if _solid == null:
 		_solid = StandardMaterial3D.new()
 		_solid.vertex_color_use_as_albedo = true
