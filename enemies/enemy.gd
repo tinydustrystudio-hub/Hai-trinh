@@ -24,6 +24,8 @@ var status: StatusEffects = StatusEffects.new()
 var counts_for_wave: bool = false
 ## Hướng đi hiện tại trên mặt nước (đã chuẩn hóa), cập nhật mỗi lần tàu đi.
 var forward: Vector3 = Vector3.FORWARD
+## Số thứ tự sinh ra, để phân xử khi hai địch đứng cùng chỗ.
+var serial: int = 0
 
 var _body: MeshInstance3D
 var _bob_phase: float = 0.0
@@ -64,10 +66,11 @@ func despawn() -> void:
 
 
 ## Đi tiếp delta giây. Trả true nếu vừa tới cuối luồng (lọt vào đảo).
-func advance(delta: float, wave_height: float) -> bool:
+## limit là quãng đường tối đa được tới (không đâm vào địch đi trước); không bao giờ lùi.
+func advance(delta: float, wave_height: float, limit: float = INF) -> bool:
 	speed_multiplier = status.speed_factor_now(data.is_boss)
 	status.advance(delta)
-	distance += data.speed_units() * speed_multiplier * delta
+	distance = maxf(distance, minf(distance + data.speed_units() * speed_multiplier * delta, limit))
 	if distance >= lane.length():
 		distance = lane.length()
 		return true

@@ -39,6 +39,8 @@ var _shadows: MultiMeshInstance3D
 var _shadow_offset: Vector3 = Vector3.ZERO
 var _bar_basis: Basis = Basis.IDENTITY
 var _time: float = 0.0
+var _next_serial: int = 0
+var _limits: Dictionary[Enemy, float] = {}
 
 
 ## Đồng hồ sóng (giây trận đã chạy), dùng chung cho mọi thứ nhấp nhô theo sóng.
@@ -71,6 +73,8 @@ func acquire(data: EnemyData, lane: Lane, start_distance: float = 0.0) -> Enemy:
 	var enemy: Enemy = _free.pop_back()
 	var offset: float = _rng.randf_range(-LATERAL_SPREAD, LATERAL_SPREAD)
 	enemy.spawn(data, lane, offset, _rng.randf_range(0.0, TAU), start_distance)
+	enemy.serial = _next_serial
+	_next_serial += 1
 	active.append(enemy)
 	return enemy
 
@@ -109,17 +113,37 @@ func clear() -> void:
 ## Cho mọi địch đi tiếp delta giây; địch tới cuối luồng thì báo lọt và trả về pool.
 func advance(delta: float) -> void:
 	_time += delta
+	_compute_limits()
 	for i: int in range(active.size() - 1, -1, -1):
 		var enemy: Enemy = active[i]
 		var height: float = 0.0
 		if ocean != null:
 			height = ocean.height_at(enemy.position.x, enemy.position.z, _time)
-		if enemy.advance(delta, height):
+		if enemy.advance(delta, height, _limits.get(enemy, INF)):
 			var damage: int = enemy.data.buoyancy_damage
 			Events.enemy_leaked.emit(enemy, damage)
 			release(enemy)
 	_update_bars()
 	_update_effects()
+
+
+## Giãn cách (góp ý 4, mục 14): mỗi địch không được tiến sát địch đi ngay trước nó trên cùng luồng;
+## khoảng trống tối thiểu là nửa kích thước thân, và địch càng mạnh càng cần xa (CombatRules.min_center_gap).
+func _compute_limits() -> void:
+	_limits.clear()
+	var by_lane: Dictionary[Lane, Array] = {}
+	for enemy: Enemy in active:
+		if not by_lane.has(enemy.lane):
+			by_lane[enemy.lane] = []
+		by_lane[enemy.lane].append(enemy)
+	for lane: Lane in by_lane:
+		var queue: Array = by_lane[lane]
+		queue.sort_custom(func(a: Enemy, b: Enemy) -> bool:
+			return a.distance > b.distance or (a.distance == b.distance and a.serial < b.serial))
+		for k: int in range(1, queue.size()):
+			var ahead: Enemy = queue[k - 1]
+			var behind: Enemy = queue[k]
+			_limits[behind] = ahead.distance - Enemy.RULES.min_center_gap(ahead.data, behind.data, MapLayout.UNITS_PER_CELL)
 
 
 ## Gây sát thương cho một địch; nếu hạ được thì báo và trả về pool. Trả sát thương thật.
