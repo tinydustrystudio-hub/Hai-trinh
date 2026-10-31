@@ -150,3 +150,20 @@ func test_cancel_branch_choice_restores_speed() -> void:
 func test_cards_big_and_side_by_side() -> void:
 	assert_gte(BranchCards.CARD_SIZE.y, 120.0)
 	assert_lte(BranchCards.CARD_SIZE.x * 2.0 + BranchCards.GAP, 1920.0)
+
+
+func test_upgrade_ring_buttons_do_not_overlap() -> void:
+	var tower: Tower = _battle.build_tower(_battle.island.pads[0], MG)
+	for i: int in 3:
+		_battle.upgrade_tower(tower)
+	_battle.choose_branch(tower, MG.branches[0])
+	var ring: UpgradeRing = _battle.hud.upgrade_ring
+	ring.open(Vector2(900, 500), tower, 0, _battle.economy.refund_for(tower.invested))
+	await wait_process_frames(2)
+	assert_eq(ring.upgrade_button().text, tr(&"UPGRADE_MAX"))
+	assert_true(ring.upgrade_button().disabled)
+	var a: Rect2 = ring.upgrade_button().get_global_rect()
+	var b: Rect2 = ring.sell_button().get_global_rect()
+	assert_false(a.grow(4.0).intersects(b.grow(4.0)), "hai nút cách nhau ít nhất 8 px: %s và %s" % [a, b])
+	assert_gte(a.size.x, 120.0)
+	assert_gte(b.size.y, 120.0)

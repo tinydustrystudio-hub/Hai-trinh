@@ -57,7 +57,6 @@ func open(chosen: Tower, steel: int) -> void:
 			tr(option.skill_name_key), tr(option.skill_description_key), option.steel_cost]
 		var affordable: bool = option.steel_cost <= steel
 		card.disabled = not affordable
-		card.modulate = Color.WHITE if affordable else BuildRing.GREY
 		card.pressed.connect(_on_card_pressed.bind(option))
 		add_child(card)
 		_cards.append(card)

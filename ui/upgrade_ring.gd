@@ -97,7 +97,6 @@ func _refresh() -> void:
 
 func _set_enabled(button: Button, enabled: bool) -> void:
 	button.disabled = not enabled
-	button.modulate = Color.WHITE if enabled else BuildRing.GREY
 
 
 func _on_upgrade_pressed() -> void:

@@ -10,7 +10,6 @@ const BUTTON_SIZE: float = 168.0
 const RADIUS: float = 165.0
 ## Các nút xếp trên cung phía trên bệ, từ trái sang phải.
 const ARC_DEGREES: float = 70.0
-const GREY: Color = Color(0.45, 0.47, 0.5)
 
 var options: Array[TowerData] = []
 var anchor: Vector2 = Vector2.ZERO
@@ -83,8 +82,7 @@ func _rebuild() -> void:
 func _style(button: Button, data: TowerData) -> void:
 	var affordable: bool = data.level(1).steel_cost <= _steel
 	button.disabled = not affordable
-	button.modulate = Color.WHITE if affordable else GREY
-
+	
 
 func _on_pressed(data: TowerData) -> void:
 	if data.level(1).steel_cost <= _steel:

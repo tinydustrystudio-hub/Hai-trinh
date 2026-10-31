@@ -1,12 +1,14 @@
 class_name DebugOverlay
 extends CanvasLayer
 ## Bảng debug (kế hoạch mục 7): khung/giây, mili giây mỗi khung, số địch, lệnh vẽ, tam giác,
-## chất lượng nước, thời gian vào trận; nút sinh 60 địch và nút đổi chất lượng nước.
+## chất lượng nước, thời gian vào trận; nút sinh 60 địch, nút đổi chất lượng nước và nút thêm Thép
+## (để thử nâng cấp và nhánh cấp 5 cho nhanh).
 ## Chỉ có trong bản debug, hoặc bản web mở với ?debug (hay ?stress cho cảnh thử 60 địch).
 
 const REFRESH_SECONDS: float = 0.25
 const LOG_SECONDS: float = 2.0
 const BURST_SIZE: int = 60
+const STEEL_GIFT: int = 500
 
 ## Ghi số đo ra console mỗi LOG_SECONDS (cảnh thử dùng để đọc số từ trình duyệt hoặc logcat).
 var log_to_console: bool = false
@@ -49,6 +51,10 @@ func _ready() -> void:
 	burst.name = "Burst"
 	burst.pressed.connect(_on_burst_pressed)
 	column.add_child(burst)
+	var gift: Button = UiStyle.primary_button(&"DEBUG_ADD_STEEL", Vector2(420, 120))
+	gift.name = "Steel"
+	gift.pressed.connect(_on_steel_pressed)
+	column.add_child(gift)
 	_water = UiStyle.primary_button(&"", Vector2(420, 120))
 	_water.name = "Water"
 	_water.pressed.connect(_on_water_pressed)
@@ -109,6 +115,12 @@ func _on_burst_pressed() -> void:
 	var battle: BattleController = owner as BattleController
 	if battle != null:
 		battle.spawn_burst(BURST_SIZE)
+
+
+func _on_steel_pressed() -> void:
+	var battle: BattleController = owner as BattleController
+	if battle != null:
+		battle.economy.earn(STEEL_GIFT)
 
 
 func _on_water_pressed() -> void:
