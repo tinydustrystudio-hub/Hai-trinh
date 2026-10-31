@@ -6,7 +6,7 @@ extends RefCounted
 ## Kèm đảo vệ tinh (một bệ, một cột neo, một phao cam). Khối gộp thành ít mesh tô bằng màu đỉnh.
 ## Kích thước tính theo bán kính pháo đài để đổi cỡ vẫn cân đối.
 
-const IVORY: Color = Color(0.93, 0.91, 0.84)
+const IVORY: Color = Color(0.88, 0.85, 0.77)
 const SEA_BLUE: Color = Color(0.13, 0.36, 0.6)
 const DEEP_BLUE: Color = Color(0.08, 0.2, 0.36)
 const ORANGE: Color = Color(1.0, 0.45, 0.1)
@@ -18,7 +18,7 @@ const LAMP: Color = Color(1.0, 0.82, 0.45)
 ## Mặt sàn chính của pháo đài.
 const DECK_Y: float = 0.8
 ## Sàn vành ngoài xám thép nhạt, để tách khỏi vành trong trắng ngà.
-const DECK: Color = Color(0.62, 0.68, 0.72)
+const DECK: Color = Color(0.55, 0.61, 0.66)
 ## Mặt mỏm bến và đảo vệ tinh (bệ đặt lên trên).
 const PIER_Y: float = 0.55
 const BASE_BOTTOM: float = -1.2
@@ -48,6 +48,22 @@ static func build_satellites(layout: MapLayout) -> ArrayMesh:
 		_buoy(st, buoy)
 	for center: Vector3 in layout.satellite_centers:
 		_satellite(st, center, layout.satellite_radius, layout.fortress_center)
+	return MeshKit.commit(st)
+
+
+## Phao cam quanh pháo đài (đứng yên, không thuộc đảo vệ tinh nào).
+static func build_buoys(layout: MapLayout) -> ArrayMesh:
+	var st: SurfaceTool = MeshKit.begin()
+	for buoy: Vector3 in buoy_positions(layout):
+		_buoy(st, buoy)
+	return MeshKit.commit(st)
+
+
+## Một đảo vệ tinh, tọa độ tương đối với tâm đảo (để đảo dập dìu riêng theo sóng).
+static func build_satellite(layout: MapLayout, index: int) -> ArrayMesh:
+	var st: SurfaceTool = MeshKit.begin()
+	var center: Vector3 = layout.satellite_centers[index]
+	_satellite(st, Vector3.ZERO, layout.satellite_radius, layout.fortress_center - center)
 	return MeshKit.commit(st)
 
 

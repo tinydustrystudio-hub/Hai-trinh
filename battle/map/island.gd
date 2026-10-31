@@ -11,6 +11,13 @@ const FOAM_Y: float = 0.2
 const SHADOW_Y: float = 0.16
 const SHADOW_ALPHA: float = 0.42
 
+## Dập dìu: đảo vệ tinh bán kính 4 (2 ô) là chuẩn; đảo lớn hơn dập dìu ít hơn tỉ lệ nghịch với bán kính.
+const REFERENCE_RADIUS: float = 4.0
+## Chỉ lấy một phần độ cao sóng (nhấp nhô ít thôi) và một phần độ dốc sóng.
+const HEAVE_SCALE: float = 0.6
+const ROCK_SCALE: float = 0.5
+const MAX_ROCK_DEGREES: float = 1.5
+
 static var _solid: StandardMaterial3D
 static var _lamp: StandardMaterial3D
 static var _shadow: StandardMaterial3D
@@ -18,8 +25,15 @@ static var _foam: ShaderMaterial
 
 var pads: Array[TowerPad] = []
 var beacons: LaneBeacons
+## Từng đảo vệ tinh, mỗi đảo một nút để dập dìu riêng.
+var satellites: Array[Node3D] = []
 
 var _body: Node3D
+var _tilt_degrees: float = 0.0
+var _body_rock: Vector3 = Vector3.ZERO
+var _fortress_radius: float = 14.0
+var _satellite_radius: float = 4.0
+var _layout: MapLayout
 
 
 func build(layout: MapLayout) -> void:
@@ -27,6 +41,12 @@ func build(layout: MapLayout) -> void:
 		remove_child(child)
 		child.queue_free()
 	pads.clear()
+	satellites.clear()
+	_layout = layout
+	_fortress_radius = layout.fortress_radius
+	_satellite_radius = layout.satellite_radius
+	_tilt_degrees = 0.0
+	_body_rock = Vector3.ZERO
 	_body = Node3D.new()
 	_body.name = "Body"
 	_body.position = layout.fortress_center
@@ -38,16 +58,24 @@ func build(layout: MapLayout) -> void:
 	beacons.name = "LaneBeacons"
 	_body.add_child(beacons)
 	beacons.build(layout, fortress_offset)
-	_add_mesh(self, "Satellites", AllianceFortress.build_satellites(layout), solid_material())
+	_add_mesh(self, "Buoys", AllianceFortress.build_buoys(layout), solid_material())
+	for k: int in layout.satellite_centers.size():
+		var satellite: Node3D = Node3D.new()
+		satellite.name = "Satellite%d" % k
+		satellite.position = layout.satellite_centers[k]
+		add_child(satellite)
+		_add_mesh(satellite, "Mesh", AllianceFortress.build_satellite(layout, k), solid_material())
+		satellites.append(satellite)
 	_add_mesh(self, "Shadow", build_shadow(layout), _shadow_material())
 	_add_mesh(self, "Foam", build_foam(layout), _foam_material())
 	for i: int in layout.pad_positions.size():
 		var pad: TowerPad = PAD_SCENE.instantiate()
 		pad.name = "TowerPad%d" % i
 		pad.pad_index = i
-		if layout.is_satellite_pad(i):
-			pad.position = layout.pad_positions[i]
-			add_child(pad)
+		var satellite_index: int = layout.satellite_index_of_pad(i)
+		if satellite_index >= 0:
+			pad.position = layout.pad_positions[i] - layout.satellite_centers[satellite_index]
+			satellites[satellite_index].add_child(pad)
 		else:
 			pad.position = layout.pad_positions[i] - layout.fortress_center
 			_body.add_child(pad)
@@ -62,12 +90,53 @@ func set_lane_warning(lane_index: int, active: bool) -> void:
 
 ## Nghiêng pháo đài: mép phía Bắc (−z) chìm xuống.
 func set_tilt(degrees: float) -> void:
-	if _body != null:
-		_body.rotation_degrees.x = -degrees
+	_tilt_degrees = degrees
+	_apply_body_pose()
 
 
 func tilt_degrees() -> float:
-	return -_body.rotation_degrees.x if _body != null else 0.0
+	return _tilt_degrees
+
+
+## Dập dìu theo sóng (góp ý 4): mỗi đảo nhấp nhô và lắc nhẹ theo độ cao sóng dưới chân nó;
+## đảo càng to càng ít dập dìu. time là đồng hồ sóng của mặt nước (giây).
+func bob(ocean: Ocean, time: float) -> void:
+	if _layout == null:
+		return
+	var body_pose: Vector3 = sample_pose(ocean, _layout.fortress_center, _fortress_radius, time)
+	_body.position = _layout.fortress_center + Vector3(0.0, body_pose.x, 0.0)
+	_body_rock = Vector3(body_pose.y, 0.0, body_pose.z)
+	_apply_body_pose()
+	for k: int in satellites.size():
+		var center: Vector3 = _layout.satellite_centers[k]
+		var pose: Vector3 = sample_pose(ocean, center, _satellite_radius, time)
+		satellites[k].position = center + Vector3(0.0, pose.x, 0.0)
+		satellites[k].rotation_degrees = Vector3(pose.y, 0.0, pose.z)
+
+
+func _apply_body_pose() -> void:
+	if _body != null:
+		_body.rotation_degrees = Vector3(-_tilt_degrees + _body_rock.x, 0.0, _body_rock.z)
+
+
+## Độ nhấp nhô và lắc của một đảo tâm center, bán kính radius: (độ cao, nghiêng quanh x, nghiêng quanh z), độ.
+static func sample_pose(ocean: Ocean, center: Vector3, radius: float, time: float) -> Vector3:
+	var gain: float = bob_gain(radius)
+	var reach: float = maxf(radius * 0.6, 1.0)
+	var here: float = ocean.height_at(center.x, center.z, time)
+	var north: float = ocean.height_at(center.x, center.z - reach, time)
+	var south: float = ocean.height_at(center.x, center.z + reach, time)
+	var east: float = ocean.height_at(center.x + reach, center.z, time)
+	var west: float = ocean.height_at(center.x - reach, center.z, time)
+	# Bắc (−z) cao hơn nam thì mũi bắc ngẩng lên: quay quanh x theo chiều âm đảo dấu.
+	var pitch: float = clampf(rad_to_deg(atan2(north - south, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES, MAX_ROCK_DEGREES)
+	var roll: float = clampf(rad_to_deg(atan2(west - east, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES, MAX_ROCK_DEGREES)
+	return Vector3(here * gain * HEAVE_SCALE, -pitch, roll)
+
+
+## Hệ số dập dìu theo cỡ đảo: 1 ở đảo bán kính REFERENCE_RADIUS, giảm theo tỉ lệ nghịch khi đảo to hơn.
+static func bob_gain(radius: float) -> float:
+	return clampf(REFERENCE_RADIUS / maxf(radius, 0.1), 0.1, 1.0)
 
 
 ## Bệ gần điểm trên mặt nước nhất, trong bán kính max_distance; không có thì trả null.
@@ -180,7 +249,9 @@ static func solid_material() -> StandardMaterial3D:
 	if _solid == null:
 		_solid = StandardMaterial3D.new()
 		_solid.vertex_color_use_as_albedo = true
-		_solid.roughness = 0.75
+		# Nền đảo trắng ngà hơi chói dưới nắng và glow (góp ý 4): hạ độ sáng chung và ngả lạnh một chút.
+		_solid.albedo_color = Color(0.8, 0.82, 0.85)
+		_solid.roughness = 0.85
 	return _solid
 
 

@@ -9,7 +9,7 @@ const PONTOON_HEIGHT: float = 0.9
 ## Mặt trên của phao, cao hơn đỉnh sóng.
 const TOP_HEIGHT: float = 0.7
 const RING_COLOR: Color = Color(1.0, 0.45, 0.1)
-const PONTOON_COLOR: Color = Color(0.93, 0.91, 0.84)
+const PONTOON_COLOR: Color = Color(0.74, 0.72, 0.66)
 const GLOW_MIN: float = 0.3
 const GLOW_MAX: float = 1.6
 const GLOW_SPEED: float = 3.0

@@ -93,3 +93,57 @@ func test_lane_beacons_toggle() -> void:
 	island.set_lane_warning(2, false)
 	island.set_lane_warning(9, true)
 	assert_eq(island.beacons.active_count(), 0)
+
+
+func test_bob_gain_smaller_for_bigger_islands() -> void:
+	# Góp ý 4: đảo càng to càng ít dập dìu.
+	assert_almost_eq(Island.bob_gain(Island.REFERENCE_RADIUS), 1.0, 0.0001)
+	assert_lt(Island.bob_gain(LAYOUT.fortress_radius), Island.bob_gain(LAYOUT.satellite_radius))
+	assert_lt(Island.bob_gain(LAYOUT.fortress_radius), 0.35)
+	assert_lte(Island.bob_gain(0.5), 1.0)
+
+
+func test_bob_pose_is_gentle_and_scales_with_size() -> void:
+	var ocean: Ocean = add_child_autofree(Ocean.new())
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = 9
+	var max_small: float = 0.0
+	var max_big: float = 0.0
+	for i: int in 200:
+		var at: Vector3 = Vector3(rng.randf_range(-60, 60), 0, rng.randf_range(-60, 60))
+		var t: float = rng.randf_range(0, 120)
+		var small: Vector3 = Island.sample_pose(ocean, at, LAYOUT.satellite_radius, t)
+		var big: Vector3 = Island.sample_pose(ocean, at, LAYOUT.fortress_radius, t)
+		max_small = maxf(max_small, absf(small.x))
+		max_big = maxf(max_big, absf(big.x))
+		assert_lte(absf(small.y), Island.MAX_ROCK_DEGREES)
+		assert_lte(absf(small.z), Island.MAX_ROCK_DEGREES)
+	assert_gt(max_small, 0.02, "đảo nhỏ có dập dìu")
+	assert_lt(max_small, 0.25, "nhưng chỉ nhẹ")
+	assert_lt(max_big, max_small * 0.5, "đảo to dập dìu ít hơn hẳn")
+
+
+func test_island_bob_moves_satellites_and_keeps_tilt() -> void:
+	var ocean: Ocean = add_child_autofree(Ocean.new())
+	var island: Island = add_child_autofree(Island.new())
+	island.build(LAYOUT)
+	assert_eq(island.satellites.size(), LAYOUT.satellite_centers.size())
+	island.set_tilt(5.0)
+	var moved: bool = false
+	for t: float in [1.0, 3.7, 8.2, 15.5]:
+		island.bob(ocean, t)
+		for k: int in island.satellites.size():
+			if absf(island.satellites[k].position.y) > 0.001:
+				moved = true
+	assert_true(moved)
+	assert_almost_eq(island.tilt_degrees(), 5.0, 0.0001, "nghiêng theo Độ Nổi vẫn giữ")
+
+
+func test_satellite_pads_follow_their_island() -> void:
+	var island: Island = add_child_autofree(Island.new())
+	island.build(LAYOUT)
+	for pad: TowerPad in island.pads:
+		var k: int = LAYOUT.satellite_index_of_pad(pad.pad_index)
+		if k >= 0:
+			assert_eq(pad.get_parent(), island.satellites[k])
+			assert_almost_eq(pad.position.length(), 0.0, 0.01, "bệ ở tâm đảo vệ tinh")
