@@ -3,6 +3,8 @@ extends Node3D
 ## Một địch. Đi theo luồng bằng quãng đường (không dùng vật lý), nhận sát thương sau giáp,
 ## nhấp nhô theo sóng, báo bị hạ hoặc lọt qua Events. EnemyPool tạo sẵn và gọi advance() mỗi khung.
 
+const RULES: CombatRules = preload("res://data/combat_rules.tres")
+
 ## Biên độ lắc ngang theo sóng, radian.
 const ROLL_AMOUNT: float = 0.12
 
@@ -63,7 +65,7 @@ func despawn() -> void:
 
 ## Đi tiếp delta giây. Trả true nếu vừa tới cuối luồng (lọt vào đảo).
 func advance(delta: float, wave_height: float) -> bool:
-	speed_multiplier = StatusEffects.speed_factor(status.total_slow(data.is_boss))
+	speed_multiplier = status.speed_factor_now(data.is_boss)
 	status.advance(delta)
 	distance += data.speed_units() * speed_multiplier * delta
 	if distance >= lane.length():
@@ -73,13 +75,25 @@ func advance(delta: float, wave_height: float) -> bool:
 	return false
 
 
-## Nhận sát thương thô (đã nhân hệ số MEGA); trả sát thương thật sau giáp.
-func take_damage(amount: float) -> float:
+## Nhận sát thương thô (đã nhân hệ số MEGA); armor_ignore là tỉ lệ giáp bị bỏ qua (Xuyên Giáp).
+## Trả sát thương thật sau giáp.
+func take_damage(amount: float, armor_ignore: float = 0.0) -> float:
 	if not active:
 		return 0.0
-	var dealt: float = minf(damage_after_armor(amount, data.armor), health)
+	var armor: float = current_armor() * (1.0 - clampf(armor_ignore, 0.0, 1.0))
+	var dealt: float = minf(damage_after_armor(amount, armor), health)
 	health -= dealt
 	return dealt
+
+
+## Giáp đang có, sau Keo Ăn Mòn và Bóc Giáp.
+func current_armor() -> float:
+	return status.effective_armor(data.armor, RULES)
+
+
+## Bậc giáp gốc theo GDD mục 3.1.
+func armor_tier() -> int:
+	return RULES.tier_of(data.armor)
 
 
 func is_dead() -> bool:

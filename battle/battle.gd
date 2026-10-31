@@ -10,6 +10,8 @@ const LANE_SCRIPT: GDScript = preload("res://battle/map/lane.gd")
 ## Chạm cách tâm bệ trong khoảng này (tính theo bán kính bệ) vẫn tính là chạm trúng bệ.
 const PAD_PICK_TOLERANCE: float = 1.4
 const FAST_SPEED: float = 2.0
+## Trận chậm còn chừng này trong lúc chọn nhánh cấp 5 (GDD mục 7.10).
+const BRANCH_CHOICE_SPEED: float = 0.3
 ## Lớp script của từng loại lô cốt theo id trong TowerData.
 const TOWER_SCRIPTS: Dictionary[StringName, GDScript] = {
 	&"machine_gun": preload("res://towers/machine_gun.gd"),
@@ -33,6 +35,8 @@ var lanes: Array[Lane] = []
 var selected_pad: TowerPad = null
 var paused: bool = false
 var speed: float = 1.0
+## Đang mở hai thẻ chọn nhánh cấp 5.
+var choosing_branch: bool = false
 ## Cảnh thử hiệu năng: không có đợt, luôn giữ đủ MAX_ACTIVE_ENEMIES địch, đảo không chìm.
 var stress_mode: bool = false
 ## Mili giây từ lúc chạy game tới lúc trận sẵn sàng (kế hoạch mục 7: không quá 3 giây).
@@ -76,6 +80,11 @@ func _ready() -> void:
 	touch_input.zoomed.connect(close_build_ring.unbind(2))
 	economy.changed.connect(_on_steel_changed)
 	hud.build_ring.tower_chosen.connect(_on_tower_chosen)
+	hud.upgrade_ring.upgrade_requested.connect(_on_upgrade_requested)
+	hud.upgrade_ring.branch_requested.connect(_on_branch_requested)
+	hud.upgrade_ring.sell_requested.connect(_on_sell_requested)
+	hud.branch_cards.branch_chosen.connect(_on_branch_chosen)
+	hud.branch_cards.cancelled.connect(close_branch_cards)
 	spawner.spawn_requested.connect(_on_spawn_requested)
 	spawner.wave_started.connect(_on_wave_started)
 	spawner.wave_cleared.connect(_on_wave_cleared)
@@ -123,6 +132,7 @@ func start_battle() -> void:
 	enemy_pool.clear()
 	_clear_towers()
 	close_build_ring()
+	close_branch_cards()
 	buoyancy.reset(layout.starting_buoyancy)
 	economy.reset(layout.starting_steel)
 	state = State.PREPARING
@@ -189,9 +199,67 @@ func build_tower(pad: TowerPad, data: TowerData) -> Tower:
 	return tower
 
 
-## Đóng vòng chọn và bỏ chọn bệ.
+## Đóng vòng chọn, vòng nâng cấp và bỏ chọn bệ.
 func close_build_ring() -> void:
 	hud.build_ring.close()
+	hud.upgrade_ring.close()
+	select_pad(null)
+
+
+## Lô cốt đang đứng trên bệ, hoặc null.
+func tower_on(pad: TowerPad) -> Tower:
+	for tower: Tower in towers:
+		if tower.pad == pad:
+			return tower
+	return null
+
+
+## Nâng lô cốt lên một cấp thường nếu đủ Thép; trả true nếu đã nâng.
+func upgrade_tower(tower: Tower) -> bool:
+	if tower == null or not tower.can_level_up() or is_over():
+		return false
+	if not economy.spend(tower.next_level_cost()):
+		return false
+	tower.level_up()
+	Events.tower_upgraded.emit(tower)
+	return true
+
+
+## Chọn nhánh cấp 5 cho lô cốt nếu đủ Thép; trả true nếu đã chọn.
+func choose_branch(tower: Tower, chosen: TowerBranch) -> bool:
+	if tower == null or not tower.needs_branch() or is_over():
+		return false
+	if not economy.spend(chosen.steel_cost):
+		return false
+	tower.choose_branch(chosen, lanes)
+	Events.tower_upgraded.emit(tower)
+	return true
+
+
+## Bán lô cốt: hoàn 70% tổng Thép đã bỏ vào, trả bệ trống. Trả số Thép hoàn lại.
+func sell_tower(tower: Tower) -> int:
+	if tower == null or not towers.has(tower):
+		return 0
+	var refund: int = economy.refund_for(tower.invested)
+	economy.earn(refund)
+	towers.erase(tower)
+	tower.pad.occupied = false
+	Events.tower_sold.emit(tower)
+	tower.queue_free()
+	return refund
+
+
+func open_branch_cards(tower: Tower) -> void:
+	hud.upgrade_ring.close()
+	hud.branch_cards.open(tower, economy.steel)
+	choosing_branch = true
+	_apply_time_scale()
+
+
+func close_branch_cards() -> void:
+	hud.branch_cards.close()
+	choosing_branch = false
+	_apply_time_scale()
 	select_pad(null)
 
 
@@ -268,6 +336,7 @@ func _end_battle(won: bool) -> void:
 	state = State.WON if won else State.LOST
 	spawner.stop()
 	close_build_ring()
+	close_branch_cards()
 	set_paused(false)
 	set_speed(1.0)
 	Events.battle_ended.emit(won)
@@ -275,7 +344,10 @@ func _end_battle(won: bool) -> void:
 
 
 func _apply_time_scale() -> void:
-	Engine.time_scale = 0.0 if paused else speed
+	if paused:
+		Engine.time_scale = 0.0
+	else:
+		Engine.time_scale = speed * (BRANCH_CHOICE_SPEED if choosing_branch else 1.0)
 
 
 func _on_spawn_requested(enemy: EnemyData, lane_index: int) -> void:
@@ -341,8 +413,39 @@ func _on_tapped(screen_position: Vector2) -> void:
 	if pad == null or same or is_over():
 		return
 	select_pad(pad)
-	if not pad.occupied:
-		hud.build_ring.open(camera.unproject_position(pad.global_position), tower_choices, economy.steel)
+	var at: Vector2 = camera.unproject_position(pad.global_position)
+	if pad.occupied:
+		_open_upgrade_ring(tower_on(pad), at)
+	else:
+		hud.build_ring.open(at, tower_choices, economy.steel)
+
+
+func _open_upgrade_ring(tower: Tower, at: Vector2) -> void:
+	if tower != null:
+		hud.upgrade_ring.open(at, tower, economy.steel, economy.refund_for(tower.invested))
+
+
+func _on_upgrade_requested() -> void:
+	var tower: Tower = hud.upgrade_ring.tower
+	if upgrade_tower(tower):
+		# Mở lại để hiện giá kế tiếp: nâng liền nhiều cấp không phải chạm lại bệ.
+		_open_upgrade_ring(tower, camera.unproject_position(tower.pad.global_position))
+
+
+func _on_branch_requested() -> void:
+	open_branch_cards(hud.upgrade_ring.tower)
+
+
+func _on_branch_chosen(chosen: TowerBranch) -> void:
+	var tower: Tower = hud.branch_cards.tower
+	choose_branch(tower, chosen)
+	close_branch_cards()
+
+
+func _on_sell_requested() -> void:
+	var tower: Tower = hud.upgrade_ring.tower
+	close_build_ring()
+	sell_tower(tower)
 
 
 func _on_tower_chosen(data: TowerData) -> void:

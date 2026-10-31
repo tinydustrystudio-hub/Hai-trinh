@@ -1,10 +1,13 @@
 class_name Tower
 extends Node3D
-## Lô cốt chung: đọc TowerData, giữ cấp hiện tại, tìm mục tiêu 5 lần mỗi giây, xoay đầu nòng về mục tiêu.
+## Lô cốt chung: đọc TowerData, giữ cấp hiện tại (1–4, rồi nhánh 5A hoặc 5B), tìm mục tiêu 5 lần mỗi giây,
+## xoay đầu nòng về mục tiêu.
 ## Cách bắn do lớp con quyết định (fire()). Không có _process riêng: BattleController gọi tick() mỗi nhịp trận.
 
 var data: TowerData
 var level: int = 1
+## Nhánh cấp 5 đã chọn, hoặc null.
+var branch: TowerBranch = null
 var pad: TowerPad
 ## Tổng Thép đã bỏ vào lô cốt (xây và nâng), để tính hoàn lại khi bán.
 var invested: int = 0
@@ -22,13 +25,64 @@ func setup(tower_data: TowerData, on_pad: TowerPad, pool: EnemyPool, effects: No
 	pad = on_pad
 	_pool = pool
 	level = 1
+	branch = null
 	invested = tower_data.level(1).steel_cost
 	_build_visual()
 	_setup_effects(effects)
 
 
+## Số liệu đang dùng: của nhánh nếu đã chọn, không thì của cấp hiện tại.
 func stats() -> TowerLevel:
-	return data.level(level)
+	return branch if branch != null else data.level(level)
+
+
+## Còn nâng được cấp thường (1–4) không.
+func can_level_up() -> bool:
+	return branch == null and level < data.max_level()
+
+
+## Đã tới cấp 4: lần nâng kế tiếp là chọn nhánh.
+func needs_branch() -> bool:
+	return branch == null and level >= data.max_level() and not data.branches.is_empty()
+
+
+func is_max_level() -> bool:
+	return branch != null or (level >= data.max_level() and data.branches.is_empty())
+
+
+## Giá lần nâng kế tiếp (cấp thường), hoặc -1.
+func next_level_cost() -> int:
+	return data.level(level + 1).steel_cost if can_level_up() else -1
+
+
+## Lên một cấp thường; Thép do BattleController trừ trước.
+func level_up() -> void:
+	if not can_level_up():
+		return
+	level += 1
+	invested += data.level(level).steel_cost
+	_on_stats_changed()
+
+
+## Chọn nhánh cấp 5; lanes để Hồ Keo tìm chỗ đặt hồ trên luồng.
+func choose_branch(chosen: TowerBranch, lanes: Array[Lane]) -> void:
+	if not needs_branch() or not data.branches.has(chosen):
+		return
+	branch = chosen
+	level = data.max_level() + 1
+	invested += chosen.steel_cost
+	_on_branch_chosen(lanes)
+	_on_stats_changed()
+
+
+## Lớp con ghi đè: số liệu vừa đổi (nâng cấp).
+func _on_stats_changed() -> void:
+	pass
+
+
+## Lớp con ghi đè: vừa chọn nhánh.
+func _on_branch_chosen(_lanes: Array[Lane]) -> void:
+	pass
 
 
 func range_units() -> float:

@@ -32,3 +32,26 @@ LANE_SOUTH,Luồng Nam,South lane
 TOWER_MACHINE_GUN,Súng Máy,Machine Gun
 HUD_STEEL,Thép: %d,Steel: %d
 TOWER_GLUE_SPRAYER,Lô Cốt Keo,Glue Sprayer
+BRANCH_BULLET_RAIN,Mưa Đạn,Bullet Rain
+BRANCH_BULLET_RAIN_DESC,"Cụm nòng quay, bắn 3 mục tiêu cùng lúc.","Rotary barrels that fire at 3 targets at once."
+SKILL_SWEEP,Quét Ngang,Sweep
+SKILL_SWEEP_DESC,"Cứ 6 giây quét một hình quạt, trúng mọi địch phía trước.","Every 6 s, sweeps a fan that hits every enemy in front."
+BRANCH_ARMOR_PIERCER,Xuyên Giáp,Armor Piercer
+BRANCH_ARMOR_PIERCER_DESC,"Nòng dài, đạn lõi thép, bỏ qua 70% giáp.","Long barrel with steel-core rounds that ignore 70% of armor."
+SKILL_CORE_ROUND,Đạn Lõi Thép,Steel Core
+SKILL_CORE_ROUND_DESC,"Cứ phát thứ 4 gây ×3 sát thương lên địch giáp dày.","Every 4th shot deals ×3 damage to heavily armored enemies."
+BRANCH_GLUE_LAKE,Hồ Keo,Glue Lake
+BRANCH_GLUE_LAKE_DESC,"Biến một đoạn luồng thành vùng keo cố định, chậm 55%.","Turns a stretch of the lane into a permanent glue zone that slows by 55%."
+SKILL_STICKY,Dính Chặt,Stuck Fast
+SKILL_STICKY_DESC,"Cứ 10 giây giữ đứng yên 1,5 giây mọi địch trong hồ.","Every 10 s, holds every enemy in the lake still for 1.5 s."
+BRANCH_CORROSIVE,Keo Ăn Mòn,Corrosive Glue
+BRANCH_CORROSIVE_DESC,"Keo có axit: giảm 2 bậc giáp, 10 sát thương mỗi giây.","Acidic glue: lowers armor by 2 tiers and deals 10 damage per second."
+SKILL_STRIP,Bóc Giáp,Armor Strip
+SKILL_STRIP_DESC,"Trúng 3 lần phun liên tiếp thì mất toàn bộ giáp trong 3 giây.","Hit by 3 sprays in a row: loses all armor for 3 s."
+UPGRADE_LEVEL,Nâng cấp,Upgrade
+UPGRADE_BRANCH,Chọn nhánh,Pick branch
+UPGRADE_MAX,Cấp tối đa,Max level
+SELL,Bán,Sell
+TOWER_LEVEL,Cấp %d,Level %d
+BRANCH_TITLE,Chọn nhánh cấp 5,Choose a level 5 branch
+BUTTON_BACK,Quay lại,Back

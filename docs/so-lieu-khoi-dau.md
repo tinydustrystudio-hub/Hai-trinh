@@ -17,4 +17,8 @@ trong `data/*.tres` để chơi thử; khi cân bằng (bước 12) hoặc sau b
 | Lô Cốt Keo: phun mỗi 0,5 giây (tốc bắn 2) | 2 lần/giây | `data/towers/glue_sprayer.tres` | Kế hoạch mục 5.2 |
 | Lô Cốt Keo cấp 2–4: thời gian chậm 2 giây; sát thương cấp 2 = 2, cấp 4 = 4 mỗi giây | xem file | `data/towers/glue_sprayer.tres` | GDD mục 3.4 chỉ ghi ở cấp 1 và 3; lấy theo cấp liền trước |
 | Vũng keo tồn tại bằng thời gian chậm (2 giây) | 2 giây | `towers/glue_sprayer.gd` (theo `slow_duration`) | Đặt tạm |
+| Quét Ngang (Mưa Đạn): hình quạt 90°, tầm bằng tầm lô cốt, sát thương bằng một phát | 90°; ×1 | `data/towers/machine_gun.tres` | GDD mục 3.3 chỉ ghi "quét một hình quạt, trúng mọi địch phía trước" |
+| Hồ Keo: sát thương 4 mỗi giây, thời gian chậm 2 giây | 4; 2 giây | `data/towers/glue_sprayer.tres` | GDD mục 3.4 không ghi; lấy theo cấp 4 |
+| Keo Ăn Mòn: thời gian chậm 2 giây | 2 giây | `data/towers/glue_sprayer.tres` | GDD không ghi; lấy theo cấp 4 |
+| Trận chậm còn 30% khi chọn nhánh | 0,3 | `battle/battle.gd` (`BRANCH_CHOICE_SPEED`) | GDD mục 7.10 (luật giao diện, không phải số cân bằng) |
 | 5 đợt ở Bến Bắc | cả bảng | `data/waves/north_dock_waves.tres` | Kế hoạch mục 5.1, "bản đầu" |
