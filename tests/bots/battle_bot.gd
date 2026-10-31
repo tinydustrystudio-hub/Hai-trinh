@@ -2,14 +2,18 @@ class_name BattleBot
 extends RefCounted
 ## Người chơi giả để thử cân bằng (kế hoạch bước 12). Chỉ dùng trong test và công cụ đo, không vào bản xuất.
 ## - NAIVE: chỉ đặt Súng Máy theo thứ tự bệ mỗi khi đủ Thép; không nâng cấp, không MEGA.
-## - SMART: đặt lô cốt ở bệ phủ được nhiều đoạn luồng nhất của đợt sắp tới; luồng có Ca Nô Cảm Tử hoặc Cua
-##   cần thêm Súng Máy và một Lô Cốt Keo; nâng cấp lô cốt của các luồng sắp tới, chọn nhánh, kích MEGA khi
-##   có từ 3 địch trong tầm.
+## - SMART: chuẩn bị trước một đợt; đặt lô cốt ở bệ phủ được nhiều đoạn luồng nhất; luồng có Ca Nô Cảm Tử
+##   hoặc Cua cần thêm Súng Máy, một Lô Cốt Keo và Súng Máy cấp cao; nâng cấp, chọn nhánh, kích MEGA khi
+##   có từ 3 địch trong tầm (xem thứ tự ưu tiên trong _smart()).
 
 enum Strategy { NAIVE, SMART }
 
 ## Bot nghĩ lại mỗi chừng này giây (người thật không chạm liên tục).
 const THINK_INTERVAL: float = 1.0
+## Luồng có từ chừng này địch trong một đợt thì cần hai Súng Máy.
+const BUSY_LANE: int = 10
+## Súng Máy giữ luồng có Ca Nô hoặc Cua được nâng tới cấp này trước khi lo các việc khác.
+const DANGER_LEVEL: int = 3
 
 var battle: BattleController
 var strategy: Strategy
@@ -67,40 +71,84 @@ func _smart() -> void:
 	var wave: Wave = _next_wave()
 	if wave == null:
 		return
-	# 1. Mỗi luồng của đợt sắp tới cần một Súng Máy; luồng có Ca Nô hoặc Cua cần hai Súng Máy và một Keo.
-	for lane_index: int in wave.lane_indices():
-		var lane: Lane = battle.lanes[lane_index]
-		var dangerous: bool = _wave_has(wave, RAM, lane_index) or _wave_has(wave, CRAB, lane_index)
-		# Chưa đủ Thép cho lô cốt luồng cần thì để dành, không đem đi nâng cấp.
-		if _towers_covering(lane, MG).is_empty():
-			_build_near(lane, MG)
-			return
-		if dangerous and _towers_covering(lane, GLUE).is_empty():
-			_build_near(lane, GLUE)
-			return
-		if dangerous and _towers_covering(lane, MG).size() < 2:
-			_build_near(lane, MG)
-			return
-	# 2. Nâng lô cốt của các luồng sắp tới, Súng Máy trước.
+	# MEGA khi có từ 3 địch trong tầm (luôn xét trước, kể cả lúc đang để dành Thép).
+	for tower: Tower in battle.towers:
+		if tower.overload.is_ready() and _enemies_in_range(tower) >= 3:
+			battle.activate_mega(tower)
+			actions += 1
+	# Người chơi thật thấy đợt kế qua đèn báo, hoặc nhớ từ lần chơi trước, nên chuẩn bị trước một đợt.
+	# Thứ tự ưu tiên; bước nào thiếu Thép thì để dành, không làm bước sau:
+	# 1. đợt đang đánh: đủ lô cốt cho mọi luồng;
+	# 2. đợt kế: mỗi luồng ít nhất một Súng Máy;
+	# 3. Súng Máy giữ luồng có Ca Nô hoặc Cua (đợt này và đợt kế) lên tới DANGER_LEVEL;
+	# 4. đợt kế: đủ lô cốt cho mọi luồng;
+	# 5. nâng các lô cốt còn lại của đợt đang đánh, chọn nhánh;
+	# 6. thêm Súng Máy thứ ba cho luồng đông nhất.
+	var plans: Array[Wave] = _waves_to_prepare()
+	if _prepare(plans[0], true):
+		return
+	if plans.size() > 1 and _prepare(plans[1], false):
+		return
+	for planned: Wave in plans:
+		for lane_index: int in planned.lane_indices():
+			if not _dangerous(planned, lane_index):
+				continue
+			for tower: Tower in _towers_covering(battle.lanes[lane_index], MG):
+				if tower.can_level_up() and tower.level < DANGER_LEVEL:
+					if battle.upgrade_tower(tower):
+						actions += 1
+					return
+	if plans.size() > 1 and _prepare(plans[1], true):
+		return
 	for lane_index: int in wave.lane_indices():
 		for tower: Tower in _towers_covering(battle.lanes[lane_index], MG) + _towers_covering(battle.lanes[lane_index], GLUE):
-			if tower.can_level_up() and battle.upgrade_tower(tower):
-				actions += 1
+			if tower.can_level_up():
+				if battle.upgrade_tower(tower):
+					actions += 1
 				return
 			if tower.needs_branch():
 				var chosen: TowerBranch = tower.data.branches[1 if _wave_has(wave, CRAB, lane_index) else 0]
 				if battle.choose_branch(tower, chosen):
 					actions += 1
-					return
-	# 3. Thừa Thép thì thêm Súng Máy thứ hai cho luồng đông nhất.
+				return
 	var busiest: int = _busiest_lane(wave)
-	if busiest >= 0 and _towers_covering(battle.lanes[busiest], MG).size() < 2:
-		_build_near(battle.lanes[busiest], MG)
-	# 4. MEGA khi có từ 3 địch trong tầm.
-	for tower: Tower in battle.towers:
-		if tower.overload.is_ready() and _enemies_in_range(tower) >= 3:
-			battle.activate_mega(tower)
-			actions += 1
+	if busiest >= 0 and _towers_covering(battle.lanes[busiest], MG).size() < 3:
+		_build_near(battle.lanes[busiest], MG, wave)
+
+
+## Xây lô cốt còn thiếu cho các luồng của một đợt. full = false: chỉ cần mỗi luồng một Súng Máy;
+## full = true: luồng đông hoặc có Ca Nô, Cua cần hai Súng Máy, luồng có Ca Nô, Cua thêm một Keo.
+## Trả true nếu đã xây, hoặc đang thiếu Thép cho lô cốt cần xây (để dành). Hết bệ trống trong tầm thì bỏ qua.
+func _prepare(planned: Wave, full: bool) -> bool:
+	for lane_index: int in planned.lane_indices():
+		var lane: Lane = battle.lanes[lane_index]
+		var dangerous: bool = _dangerous(planned, lane_index)
+		var guns: int = 1
+		if full and (dangerous or _lane_count(planned, lane_index) >= BUSY_LANE):
+			guns = 2
+		var missing: TowerData = null
+		if _towers_covering(lane, MG).size() < guns:
+			missing = MG
+		elif full and dangerous and _towers_covering(lane, GLUE).is_empty():
+			missing = GLUE
+		if missing != null and _free_pad_near(lane, missing) != null:
+			_build_near(lane, missing, planned)
+			return true
+	return false
+
+
+func _dangerous(wave: Wave, lane_index: int) -> bool:
+	return _wave_has(wave, RAM, lane_index) or _wave_has(wave, CRAB, lane_index)
+
+
+## Đợt đang đánh (hoặc sắp tới) và đợt sau nó.
+func _waves_to_prepare() -> Array[Wave]:
+	var result: Array[Wave] = []
+	var data: WaveData = battle.wave_data
+	var index: int = battle.spawner.wave_index
+	for i: int in range(index, mini(index + 2, data.wave_count())):
+		result.append(data.waves[i])
+	return result
 
 
 func _next_wave() -> Wave:
@@ -116,6 +164,14 @@ func _wave_has(wave: Wave, enemy: EnemyData, lane_index: int) -> bool:
 		if group.enemy == enemy and group.lane_index == lane_index:
 			return true
 	return false
+
+
+func _lane_count(wave: Wave, lane_index: int) -> int:
+	var total: int = 0
+	for group: SpawnGroup in wave.groups:
+		if group.lane_index == lane_index:
+			total += group.count
+	return total
 
 
 func _busiest_lane(wave: Wave) -> int:
@@ -138,11 +194,10 @@ func _towers_covering(lane: Lane, data: TowerData) -> Array[Tower]:
 
 ## Đặt lô cốt ở bệ trống trong tầm luồng cần giữ, ưu tiên bệ phủ được nhiều đoạn luồng nhất của cả đợt
 ## sắp tới (bệ trên mỏm bến giữa hai luồng giữ được cả hai).
-func _build_near(lane: Lane, data: TowerData) -> bool:
+func _build_near(lane: Lane, data: TowerData, wave: Wave) -> bool:
 	if not battle.economy.can_afford(data.level(1).steel_cost):
 		return false
 	var reach: float = data.level(1).range_units()
-	var wave: Wave = _next_wave()
 	var best: TowerPad = null
 	var best_score: int = 0
 	for pad: TowerPad in battle.island.pads:
@@ -161,6 +216,14 @@ func _build_near(lane: Lane, data: TowerData) -> bool:
 		return false
 	actions += 1
 	return true
+
+
+func _free_pad_near(lane: Lane, data: TowerData) -> TowerPad:
+	var reach: float = data.level(1).range_units()
+	for pad: TowerPad in battle.island.pads:
+		if not pad.occupied and _coverage(pad, lane, reach) > 0:
+			return pad
+	return null
 
 
 ## Số điểm (trong 60 điểm cách đều) của luồng nằm trong tầm reach của bệ.
