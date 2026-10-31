@@ -45,3 +45,20 @@ func test_curve_passes_through_points() -> void:
 		assert_eq(curve.get_point_position(i), points[i])
 	assert_eq(curve.get_point_in(0), Vector3.ZERO)
 	assert_eq(curve.get_point_out(1), (points[2] - points[0]) * Lane.SMOOTHNESS)
+
+
+func test_reveal_strength_curve() -> void:
+	assert_almost_eq(Lane.reveal_strength(0.0), Lane.IDLE_STRENGTH, 0.0001)
+	assert_almost_eq(Lane.reveal_strength(Lane.REVEAL_SECONDS + Lane.FADE_SECONDS), 1.0, 0.0001)
+	assert_almost_eq(Lane.reveal_strength(Lane.FADE_SECONDS), 1.0, 0.0001)
+	assert_almost_eq(Lane.reveal_strength(Lane.FADE_SECONDS * 0.5), lerpf(Lane.IDLE_STRENGTH, 1.0, 0.5), 0.0001)
+
+
+func test_lane_is_faint_until_revealed_then_fades() -> void:
+	assert_almost_eq(_lane.strength(), Lane.IDLE_STRENGTH, 0.0001)
+	_lane.reveal()
+	assert_almost_eq(_lane.strength(), 1.0, 0.0001)
+	_lane._process(Lane.REVEAL_SECONDS)
+	assert_almost_eq(_lane.strength(), 1.0, 0.0001, "vẫn rõ trong lúc báo đợt")
+	_lane._process(Lane.FADE_SECONDS)
+	assert_almost_eq(_lane.strength(), Lane.IDLE_STRENGTH, 0.0001, "mờ lại sau vài giây")

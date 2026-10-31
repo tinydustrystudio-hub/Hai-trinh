@@ -16,8 +16,12 @@ const BAR_FULL_COLOR: Color = Color(0.3, 0.95, 0.35)
 const BAR_LOW_COLOR: Color = Color(1.0, 0.3, 0.2)
 const WAKE_SHADER: Shader = preload("res://enemies/wake.gdshader")
 ## Vệt bọt dài gấp chừng này lần thân tàu, rộng gấp chừng này lần.
-const WAKE_LENGTH: float = 2.6
-const WAKE_WIDTH: float = 1.6
+const WAKE_LENGTH: float = 2.8
+const WAKE_WIDTH: float = 1.7
+## Số đoạn chia theo chiều dài của mảnh vệt bọt để vertex shader uốn cong mượt.
+const WAKE_SUBDIVISIONS: int = 12
+## Độ cong nhỏ hơn mức này coi như vệt thẳng (tránh chia cho số rất nhỏ).
+const WAKE_STRAIGHT: float = 0.0001
 ## Bóng tròn rộng gấp chừng này lần thân tàu, dời theo hướng ngược nắng.
 const SHADOW_SCALE: float = 1.25
 const SHADOW_OFFSET: float = 0.5
@@ -175,12 +179,15 @@ func _update_bars() -> void:
 func _build_effects() -> void:
 	var wake_mesh: PlaneMesh = PlaneMesh.new()
 	wake_mesh.size = Vector2(1.0, 1.0)
+	wake_mesh.subdivide_depth = WAKE_SUBDIVISIONS
 	var wake_material: ShaderMaterial = ShaderMaterial.new()
 	wake_material.shader = WAKE_SHADER
 	wake_material.set_shader_parameter(&"noise_tex", Ocean.foam_noise())
 	wake_material.render_priority = -1
 	wake_mesh.material = wake_material
-	_wakes = _effect_instance("Wakes", wake_mesh)
+	_wakes = _effect_instance("Wakes", wake_mesh, POOL_SIZE, true)
+	# Shader dời đỉnh ra xa mesh gốc: đặt khung bao đủ rộng để không bị cắt nhầm.
+	_wakes.multimesh.custom_aabb = AABB(Vector3(-500, -10, -500), Vector3(1000, 20, 1000))
 	var gradient: Gradient = Gradient.new()
 	gradient.set_color(0, Color(0.0, 0.02, 0.06, 0.55))
 	gradient.set_color(1, Color(0.0, 0.02, 0.06, 0.0))
@@ -200,14 +207,15 @@ func _build_effects() -> void:
 	var shadow_mesh: PlaneMesh = PlaneMesh.new()
 	shadow_mesh.size = Vector2(1.0, 1.0)
 	shadow_mesh.material = shadow_material
-	_shadows = _effect_instance("Shadows", shadow_mesh)
+	_shadows = _effect_instance("Shadows", shadow_mesh, POOL_SIZE, false)
 
 
-func _effect_instance(node_name: String, mesh: Mesh) -> MultiMeshInstance3D:
+func _effect_instance(node_name: String, mesh: Mesh, count: int, custom_data: bool) -> MultiMeshInstance3D:
 	var multimesh: MultiMesh = MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.use_custom_data = custom_data
 	multimesh.mesh = mesh
-	multimesh.instance_count = POOL_SIZE
+	multimesh.instance_count = count
 	multimesh.visible_instance_count = 0
 	var instance: MultiMeshInstance3D = MultiMeshInstance3D.new()
 	instance.name = node_name
@@ -221,16 +229,43 @@ func _update_effects() -> void:
 	var wakes: MultiMesh = _wakes.multimesh
 	var shadows: MultiMesh = _shadows.multimesh
 	var count: int = active.size()
+	var wake_count: int = 0
 	for i: int in count:
 		var enemy: Enemy = active[i]
 		var length: float = enemy.data.size_cells * MapLayout.UNITS_PER_CELL
-		var forward: Vector3 = enemy.lane.direction_at(enemy.distance)
+		var forward: Vector3 = enemy.forward
 		var yaw: Basis = Basis.looking_at(forward, Vector3.UP)
 		var ground: Vector3 = Vector3(enemy.position.x, EFFECT_Y, enemy.position.z)
-		var wake_length: float = length * WAKE_LENGTH
-		var wake_origin: Vector3 = ground - forward * (length * 0.45 + wake_length * 0.5)
-		wakes.set_instance_transform(i, Transform3D(yaw.scaled_local(Vector3(length * 0.5 * WAKE_WIDTH, 1.0, wake_length)), wake_origin))
+		var stern: float = length * 0.45
+		# Vệt chỉ dài bằng quãng tàu đã đi, để không vẽ ra ngoài đầu luồng.
+		var wake_length: float = minf(length * WAKE_LENGTH, enemy.distance - stern)
+		if wake_length > 0.5:
+			var back: Vector3 = enemy.lane.direction_at(enemy.distance - stern - wake_length)
+			var curvature: float = wake_curvature(yaw, back, wake_length)
+			wakes.set_instance_transform(wake_count, Transform3D(yaw, ground - forward * stern))
+			wakes.set_instance_custom_data(wake_count, Color(curvature, length * 0.5 * WAKE_WIDTH, wake_length, 0.0))
+			wake_count += 1
 		var size: float = length * SHADOW_SCALE
 		shadows.set_instance_transform(i, Transform3D(yaw.scaled_local(Vector3(size * 0.7, 1.0, size)), ground + _shadow_offset + Vector3(0.0, -0.02, 0.0)))
-	wakes.visible_instance_count = count
+	wakes.visible_instance_count = wake_count
 	shadows.visible_instance_count = count
+
+
+## Độ cong (radian mỗi đơn vị) để vệt bọt dài wake_length uốn từ hướng đuôi tàu (theo khung yaw của tàu)
+## tới hướng của đường tàu đã đi ở cuối vệt (back_forward). Khớp với wake.gdshader.
+static func wake_curvature(yaw: Basis, back_forward: Vector3, wake_length: float) -> float:
+	var behind: Vector3 = -back_forward
+	var angle: float = atan2(behind.dot(yaw.x.normalized()), behind.dot(yaw.z.normalized()))
+	return angle / maxf(wake_length, 0.001)
+
+
+## Điểm của vệt bọt trong khung của tàu (gốc ở đuôi tàu, +z về phía sau, +x sang phải):
+## cách đuôi s đơn vị theo đường vệt, lệch ngang x. Cùng công thức với vertex shader của wake.gdshader.
+static func wake_point(curvature: float, s: float, x: float) -> Vector3:
+	var theta: float = curvature * s
+	var center: Vector3
+	if absf(curvature) < WAKE_STRAIGHT:
+		center = Vector3(0.5 * curvature * s * s, 0.0, s)
+	else:
+		center = Vector3((1.0 - cos(theta)) / curvature, 0.0, sin(theta) / curvature)
+	return center + Vector3(cos(theta), 0.0, -sin(theta)) * x

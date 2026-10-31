@@ -18,6 +18,8 @@ var lateral_offset: float = 0.0
 var speed_multiplier: float = 1.0
 ## Địch do WaveSpawner sinh (tính vào việc dọn sạch đợt); địch sinh từ bảng debug thì không.
 var counts_for_wave: bool = false
+## Hướng đi hiện tại trên mặt nước (đã chuẩn hóa), cập nhật mỗi lần tàu đi.
+var forward: Vector3 = Vector3.FORWARD
 
 var _body: MeshInstance3D
 var _bob_phase: float = 0.0
@@ -89,7 +91,7 @@ static func damage_after_armor(amount: float, armor: float) -> float:
 
 
 func _place(wave_height: float) -> void:
-	var forward: Vector3 = lane.direction_at(distance)
+	forward = lane.direction_at(distance)
 	var side: Vector3 = Vector3(-forward.z, 0.0, forward.x)
 	var point: Vector3 = lane.position_at(distance) + side * lateral_offset
 	point.y = wave_height

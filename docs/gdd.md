@@ -2112,6 +2112,8 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 
 - Đảo chính nằm giữa màn hình, chiếm khoảng 1/3 chiều cao màn hình.
 - Camera nghiêng 55° nhìn vào tâm đảo, mặc định thấy toàn bộ chiến trường; chỉ kéo trượt nhẹ.
+- Thu phóng: chụm hai ngón để phóng to, thu nhỏ; trên web dùng lăn chuột. Nhỏ nhất là thấy toàn bộ chiến trường; lớn nhất là đảo chính gần đầy màn hình. Khi đã phóng to thì kéo một ngón để trượt, trong giới hạn bản đồ. Luôn giữ góc 55°, không xoay. Đang chụm thì không tính là chạm vào bệ hay địch.
+- Luồng địch bình thường chỉ hiện mờ; khi báo đợt sắp tới, luồng của đợt đó hiện rõ trong vài giây rồi mờ dần.
 - Địch đến theo 4 luồng tỏa từ các mép màn hình: Bắc, Đông, Tây, Nam.
 - Bệ xếp thành hai vòng: 6 bệ trên các mỏm bến của đảo chính, 4 bệ trên 4 đảo vệ tinh.
 
@@ -2131,8 +2133,8 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Xanh chàm đậm thay cho xanh ngọc.
 - Hai lớp normal map cuộn.
 - Phản chiếu bầu trời theo góc nhìn.
-- Điểm lấp lánh của nắng.
-- Bọt trắng quanh đảo chính, quanh đảo vệ tinh và sau đuôi tàu.
+- Vệt sáng của nước tách khỏi hướng nắng chiếu công trình: một vệt sáng mềm, rộng, nằm phía sau đảo chính theo hướng nhìn của camera; lấp lánh nhẹ rải đều khắp mặt nước. Nắng chiếu công trình giữ nguyên hướng.
+- Bọt trắng quanh đảo chính, quanh đảo vệ tinh và sau đuôi tàu; vệt bọt đuôi tàu uốn mềm theo đường tàu đi, kể cả lúc đổi hướng.
 - Sóng nhẹ.
 - Giữ hai mức chất lượng.
 

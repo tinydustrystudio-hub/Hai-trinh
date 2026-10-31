@@ -1,7 +1,8 @@
 class_name Ocean
 extends MeshInstance3D
 ## Mặt nước: một mặt phẳng chia ô chạy water.gdshader (nước bản 2, GDD mục 8.6). Hai mức chất lượng:
-## cao = 128×128 ô, 3 lớp sóng, hai lớp normal map và lấp lánh; thấp = 64×64 ô, 2 lớp sóng, một lớp normal map.
+## cao = 128×128 ô, 3 lớp sóng, hai lớp normal map và lấp lánh; thấp = 64×64 ô, 2 lớp sóng, một lớp normal map
+## (vẫn giữ vệt sáng mềm sau đảo).
 ## height_at() tính lại sóng trên CPU (cùng công thức với shader) để tàu nổi theo sóng.
 
 enum Quality { LOW, HIGH }
@@ -12,6 +13,10 @@ const WAVE_COUNTS: Dictionary[Quality, int] = { Quality.LOW: 2, Quality.HIGH: 3 
 const WATER_SHADER: Shader = preload("res://battle/ocean/water.gdshader")
 const GRAVITY: float = 9.8
 const NORMAL_MAP_SIZE: int = 256
+## Vệt sáng của nước, tính theo bán kính đảo chính: cách tâm đảo, bề ngang, bề sâu.
+const HIGHLIGHT_DISTANCE: float = 2.4
+const HIGHLIGHT_WIDTH: float = 2.2
+const HIGHLIGHT_DEPTH: float = 1.3
 
 ## Mỗi sóng: x, y = hướng; z = độ dốc; w = bước sóng (đơn vị Godot). Sóng nhẹ: cao nhất khoảng 0,25.
 @export var waves: Array[Vector4] = [
@@ -44,13 +49,23 @@ func _ready() -> void:
 	Settings.water_quality_changed.connect(set_quality)
 
 
-## Hướng nắng, màu nắng và vùng nước sáng quanh đảo chính, lấy từ bản đồ và đèn trời của trận.
-func configure(sun_direction: Vector3, sun_color: Color, island_center: Vector3, island_radius: float) -> void:
+## Màu nắng, vùng nước sáng quanh đảo chính và vệt sáng phía sau đảo theo hướng nhìn của camera
+## (view_forward: hướng nhìn của camera trên mặt nước). Không dùng hướng nắng chiếu công trình.
+func configure(sun_color: Color, island_center: Vector3, island_radius: float, view_forward: Vector3) -> void:
 	if _material == null:
 		return
-	_material.set_shader_parameter(&"sun_direction", sun_direction.normalized())
 	_material.set_shader_parameter(&"sun_color", sun_color)
 	_material.set_shader_parameter(&"island_glow", Vector4(island_center.x, island_center.z, island_radius, island_radius * 0.7))
+	var center: Vector2 = highlight_center(island_center, island_radius, view_forward)
+	_material.set_shader_parameter(&"highlight_center", center)
+	_material.set_shader_parameter(&"highlight_size", Vector2(island_radius * HIGHLIGHT_WIDTH, island_radius * HIGHLIGHT_DEPTH))
+
+
+## Tâm vệt sáng của nước: sau đảo chính, theo hướng nhìn của camera.
+static func highlight_center(island_center: Vector3, island_radius: float, view_forward: Vector3) -> Vector2:
+	var forward: Vector2 = Vector2(view_forward.x, view_forward.z)
+	forward = forward.normalized() if forward.length() > 0.001 else Vector2(0.0, -1.0)
+	return Vector2(island_center.x, island_center.z) + forward * island_radius * HIGHLIGHT_DISTANCE
 
 
 func set_quality(value: Quality) -> void:
