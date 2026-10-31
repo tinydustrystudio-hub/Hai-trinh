@@ -21,6 +21,7 @@ var expanded: bool = false:
 var _panel: PanelContainer
 var _stats: Label
 var _water: Button
+var _weather: Button
 var _refresh_left: float = 0.0
 var _log_left: float = LOG_SECONDS
 var _last_usec: int = 0
@@ -60,6 +61,10 @@ func _ready() -> void:
 	_water.name = "Water"
 	_water.pressed.connect(_on_water_pressed)
 	column.add_child(_water)
+	_weather = UiStyle.primary_button(&"", Vector2(420, 120))
+	_weather.name = "Weather"
+	_weather.pressed.connect(_on_weather_pressed)
+	column.add_child(_weather)
 	expanded = expanded
 	_refresh()
 
@@ -110,6 +115,9 @@ func _refresh() -> void:
 	_stats.text = tr(&"DEBUG_STATS") % [roundi(s["fps"]), s["frame_ms"], s["process_ms"], s["enemies"],
 		s["draw_calls"], s["primitives"], s["ready_ms"]]
 	_water.text = tr(&"DEBUG_WATER_HIGH") if Settings.water_quality == Ocean.Quality.HIGH else tr(&"DEBUG_WATER_LOW")
+	var battle: BattleController = owner as BattleController
+	if battle != null and battle.is_node_ready() and battle.weather != null:
+		_weather.text = tr(&"DEBUG_WEATHER") % tr(battle.weather.data.name_key)
 
 
 func _on_burst_pressed() -> void:
@@ -126,4 +134,15 @@ func _on_steel_pressed() -> void:
 
 func _on_water_pressed() -> void:
 	Settings.water_quality = Ocean.Quality.LOW if Settings.water_quality == Ocean.Quality.HIGH else Ocean.Quality.HIGH
+	_refresh()
+
+
+## Bình thường → mưa → bão → bình thường.
+func _on_weather_pressed() -> void:
+	var battle: BattleController = owner as BattleController
+	if battle == null or battle.weather == null:
+		return
+	var order: Array[StringName] = [&"clear", &"rain", &"storm"]
+	var next: int = (order.find(battle.weather.data.id) + 1) % order.size()
+	battle.set_weather(order[next])
 	_refresh()

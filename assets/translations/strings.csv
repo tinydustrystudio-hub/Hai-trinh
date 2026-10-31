@@ -79,3 +79,7 @@ ENEMY_RAM_DRONE_TIP,"Ca Nô Cảm Tử: rất nhanh. Làm chậm rồi bắn, đ
 ENEMY_SPIKED_CRAB_TIP,"Cua Giáp Gai: trâu và chậm. Dùng nhánh Xuyên Giáp.","Spiked Crab: tough and slow. Use the Armor Piercer branch."
 BUILD_CONFIRM,Xây,Build
 BUILD_CANCEL,Hủy,Cancel
+WEATHER_CLEAR,Bình thường,Clear
+WEATHER_RAIN,Mưa,Rain
+WEATHER_STORM,Bão,Storm
+DEBUG_WEATHER,Thời tiết: %s,Weather: %s

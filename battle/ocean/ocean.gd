@@ -37,6 +37,12 @@ var shapes: Array[Vector4] = []
 ## z = tốc độ trôi của đợt sóng, w = độ sâu của đợt (sóng lúc to lúc nhỏ theo từng vùng biển).
 var motions: Array[Vector4] = []
 
+## Trạng thái biển do thời tiết đặt (góp ý 4, mục 12): nhân độ cao sóng, góc gió quay các lớp sóng, độ tối, độ gợn.
+var wave_boost: float = 1.0
+var wind_angle: float = 0.0
+var sea_dim: float = 0.0
+var chop: float = 1.0
+
 static var _normal_a: NoiseTexture2D
 static var _normal_b: NoiseTexture2D
 static var _foam_noise: NoiseTexture2D
@@ -63,10 +69,29 @@ func _ready() -> void:
 	_material.set_shader_parameter(&"normal_a", _normal_map(0))
 	_material.set_shader_parameter(&"normal_b", _normal_map(1))
 	_material.set_shader_parameter(&"cloud_tex", foam_noise())
+	_apply_sea_state()
 	material_override = _material
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	set_quality(Settings.water_quality)
 	Settings.water_quality_changed.connect(set_quality)
+
+
+## Đặt trạng thái biển (thời tiết); gọi mỗi khung khi gió đổi chiều.
+func set_sea_state(boost: float, wind: float, dim: float, chop_scale: float) -> void:
+	wave_boost = boost
+	wind_angle = wind
+	sea_dim = dim
+	chop = chop_scale
+	_apply_sea_state()
+
+
+func _apply_sea_state() -> void:
+	if _material == null:
+		return
+	_material.set_shader_parameter(&"wave_boost", wave_boost)
+	_material.set_shader_parameter(&"wind_angle", wind_angle)
+	_material.set_shader_parameter(&"sea_dim", sea_dim)
+	_material.set_shader_parameter(&"chop", chop)
 
 
 ## Màu nắng, vùng nước sáng quanh đảo chính và vệt sáng phía sau đảo theo hướng nhìn của camera
@@ -107,18 +132,18 @@ func wave_count() -> int:
 ## Độ cao mặt nước tại (x, z) ở thời điểm time (giây, cùng đồng hồ TIME của shader).
 ## Bỏ qua phần dịch ngang của sóng Gerstner: đủ chính xác cho việc nhấp nhô tàu.
 func height_at(x: float, z: float, time: float) -> float:
-	return wave_height(waves, wave_count(), x, z, time, shapes, motions)
+	return wave_height(waves, wave_count(), x, z, time, shapes, motions, wave_boost, wind_angle)
 
 
 ## Tổng độ cao các sóng. shape_list (tùy chọn) làm biên độ từng sóng nhấp nhô dọc theo ngọn sóng.
-static func wave_height(wave_list: Array[Vector4], count: int, x: float, z: float, time: float, shape_list: Array[Vector4] = [], motion_list: Array[Vector4] = []) -> float:
+static func wave_height(wave_list: Array[Vector4], count: int, x: float, z: float, time: float, shape_list: Array[Vector4] = [], motion_list: Array[Vector4] = [], boost: float = 1.0, wind: float = 0.0) -> float:
 	var h: float = 0.0
 	for i: int in mini(count, wave_list.size()):
 		var w: Vector4 = wave_list[i]
 		var k: float = TAU / w.w
 		var c: float = sqrt(GRAVITY / k)
-		var d: Vector2 = Vector2(w.x, w.y).normalized()
-		var amplitude: float = w.z / k
+		var d: Vector2 = Vector2(w.x, w.y).normalized().rotated(wind)
+		var amplitude: float = w.z / k * boost
 		if i < motion_list.size():
 			c *= motion_list[i].x
 			if i < shape_list.size():

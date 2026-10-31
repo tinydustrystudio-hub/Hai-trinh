@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeatherData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/data/weather_data.gd" id="1_weather"]
+
+[resource]
+script = ExtResource("1_weather")
+id = &"storm"
+name_key = &"WEATHER_STORM"
+wave_boost = 2.2
+wind_swing = 0.6
+wind_period = 22.0
+chop = 1.8
+rain = 1.0
+darkness = 0.5
+lightning_min_seconds = 5.0
+lightning_max_seconds = 12.0
