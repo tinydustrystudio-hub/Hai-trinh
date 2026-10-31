@@ -41,6 +41,11 @@ var _bar_basis: Basis = Basis.IDENTITY
 var _time: float = 0.0
 
 
+## Đồng hồ sóng (giây trận đã chạy), dùng chung cho mọi thứ nhấp nhô theo sóng.
+func wave_time() -> float:
+	return _time
+
+
 func _ready() -> void:
 	_rng.seed = 1
 	for i: int in POOL_SIZE:

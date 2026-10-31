@@ -42,6 +42,7 @@ func test_generated_waves_are_irregular_but_gentle() -> void:
 	var generated: Array = Ocean.make_waves(Ocean.WAVE_SEED)
 	var waves: Array[Vector4] = generated[0]
 	var shapes: Array[Vector4] = generated[1]
+	var motions: Array[Vector4] = generated[2]
 	assert_eq(waves.size(), Ocean.MAX_WAVES)
 	assert_eq(shapes.size(), Ocean.MAX_WAVES)
 	var min_angle: float = INF
@@ -60,7 +61,7 @@ func test_generated_waves_are_irregular_but_gentle() -> void:
 	rng.seed = 5
 	var highest: float = 0.0
 	for i: int in 500:
-		var h: float = Ocean.wave_height(waves, waves.size(), rng.randf_range(-150, 150), rng.randf_range(-150, 150), rng.randf_range(0, 100), shapes)
+		var h: float = Ocean.wave_height(waves, waves.size(), rng.randf_range(-150, 150), rng.randf_range(-150, 150), rng.randf_range(0, 100), shapes, motions)
 		highest = maxf(highest, absf(h))
 	assert_lte(highest, Ocean.MAX_WAVE_HEIGHT + 0.0001)
 	assert_gt(highest, Ocean.MAX_WAVE_HEIGHT * 0.3, "vẫn có sóng")
@@ -79,3 +80,32 @@ func test_crest_modulation_varies_along_crest() -> void:
 	var b: float = Ocean.crest_modulation(shape, Vector2(1, 0), k, 0.0, 20.0 / 0.3 / 4.0, 0.0)
 	assert_almost_eq(a, 1.0, 0.0001)
 	assert_almost_eq(b, 1.5, 0.0001)
+
+
+func test_waves_vary_in_height_and_speed() -> void:
+	# Góp ý 4: sóng không còn cao bằng nhau, tốc độ đều đều.
+	var generated: Array = Ocean.make_waves(Ocean.WAVE_SEED)
+	var waves: Array[Vector4] = generated[0]
+	var shapes: Array[Vector4] = generated[1]
+	var motions: Array[Vector4] = generated[2]
+	var speeds: Array[float] = []
+	for motion: Vector4 in motions:
+		speeds.append(motion.x)
+	assert_gt(speeds.max() - speeds.min(), 0.25, "mỗi lớp sóng chạy một tốc độ")
+	# Dọc một đường ngang, độ cao đỉnh sóng đổi nhiều từ chỗ này sang chỗ khác.
+	var peaks: Array[float] = []
+	for window: int in 12:
+		var top: float = 0.0
+		for i: int in 60:
+			var x: float = float(window) * 40.0 + float(i) * 0.7
+			top = maxf(top, Ocean.wave_height(waves, waves.size(), x, 0.0, 12.0, shapes, motions))
+		peaks.append(top)
+	assert_gt(peaks.max() / maxf(peaks.min(), 0.001), 1.5, "có chỗ sóng to chỗ sóng nhỏ")
+	# Cùng một chỗ, độ cao đỉnh cũng đổi theo thời gian.
+	var over_time: Array[float] = []
+	for t: int in 10:
+		var top: float = 0.0
+		for i: int in 60:
+			top = maxf(top, Ocean.wave_height(waves, waves.size(), float(i) * 0.7, 0.0, float(t) * 20.0, shapes, motions))
+		over_time.append(top)
+	assert_gt(over_time.max() / maxf(over_time.min(), 0.001), 1.2)
