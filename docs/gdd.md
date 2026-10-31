@@ -827,6 +827,21 @@ Sát thương lớn, tầm rất xa, bắn chậm. Không bắn được mục t
 - **Trọng Pháo (Siege Gun):** nòng cực dài, một phát hạ tàu lớn. Kỹ năng **Đạn Xuyên Boong**: đạn xuyên qua mục tiêu đầu, trúng mọi địch nằm sau nó trên cùng đường bay. Dành cho Thiết Giáp Hạm, Tàu Mẹ Container.
 - **Pháo Chùm (Cluster Shell):** đạn tách chùm. Kỹ năng **Mưa Pháo**: cứ 12 giây dội 3 loạt vào một vùng. Dành cho đội hình tàu đi sát nhau.
 
+### 3.13 Lô Cốt Tia Sáng (thêm 31/10, góp ý 4)
+
+Loại lô cốt thứ ba của bản chơi thử tháng 1, ngoài Súng Máy và Lô Cốt Keo. Phóng một chùm sáng hội tụ liên tục vào một địch mặt biển. Sát thương mỗi giây tăng dần khi giữ chùm trên cùng một mục tiêu (tối đa +60% ở cấp 1 tới +120% ở cấp 4, sau 3 giây) và bỏ qua 25% giáp; đổi mục tiêu thì phải hội tụ lại. Hợp với địch trâu và chậm như Cua Giáp Gai, yếu khi địch chạy nhanh hoặc đổi mục tiêu liên tục.
+
+| Cấp | Giá Thép | Sát thương/giây | Tầm (ô) | Tăng tối đa sau 3 giây |
+| --- | --- | --- | --- | --- |
+| 1 | 90 | 14 | 3,2 | +60% |
+| 2 | 80 | 20 | 3,4 | +80% |
+| 3 | 110 | 28 | 3,6 | +100% |
+| 4 | 150 | 38 | 3,8 | +120% |
+
+- **Quá tải:** đầy sau 14 giây chiếu liên tục; MEGA ×3 sát thương, tia dày và sáng trắng nóng.
+- **Nhánh cấp 5:** chưa thiết kế; ghi vào danh sách làm sau tháng 1.
+- Số liệu là số khởi đầu, nằm trong `data/towers/light_beam.tres` và `docs/so-lieu-khoi-dau.md`.
+
 ### 3.12 Cách tận dụng MEGA
 
 MEGA mạnh nhất khi địch đứng lâu và đứng sát nhau trong tầm. Vì vậy chiều sâu của cơ chế nằm ở chỗ đặt lô cốt hỗ trợ và chọn đúng giây kích, không phải ở tốc độ bấm.
