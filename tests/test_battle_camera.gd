@@ -176,3 +176,36 @@ func test_full_zoom_out_sees_whole_battlefield() -> void:
 	for lane: PackedVector3Array in layout.lane_points:
 		var start: Vector2 = camera.unproject_position(lane[0])
 		assert_true(screen.grow(screen.size.x * 0.06).has_point(start), "luồng bắt đầu sát mép %s" % lane[0])
+
+
+func test_aspect_setup_keeps_horizontal_coverage_on_narrow_screens() -> void:
+	# Người duyệt (1/11): web (laptop 4:3, 16:10) và điện thoại (20:9) phải trông giống nhau.
+	var wide: Dictionary = BattleCamera.aspect_setup(20.0 / 9.0)
+	assert_eq(wide["keep"], Camera3D.KEEP_HEIGHT)
+	assert_eq(wide["fov"], BattleCamera.FIELD_OF_VIEW)
+	var reference: Dictionary = BattleCamera.aspect_setup(16.0 / 9.0)
+	assert_eq(reference["keep"], Camera3D.KEEP_HEIGHT)
+	for aspect: float in [4.0 / 3.0, 16.0 / 10.0, 1.0]:
+		var narrow: Dictionary = BattleCamera.aspect_setup(aspect)
+		assert_eq(narrow["keep"], Camera3D.KEEP_WIDTH)
+		# Bề ngang nhìn thấy bằng bề ngang ở 16:9 với góc dọc FIELD_OF_VIEW.
+		var expected: float = 2.0 * atan(tan(deg_to_rad(BattleCamera.FIELD_OF_VIEW) * 0.5) * 16.0 / 9.0)
+		assert_almost_eq(deg_to_rad(narrow["fov"]), expected, 0.0001)
+
+
+func test_four_by_three_screen_sees_the_same_battlefield() -> void:
+	var layout: MapLayout = load("res://data/maps/north_dock_layout.tres")
+	for size: Vector2i in [Vector2i(1440, 1080), Vector2i(1920, 1200), Vector2i(2000, 896)]:
+		var viewport: SubViewport = add_child_autofree(SubViewport.new())
+		viewport.size = size
+		var camera: BattleCamera = BattleCamera.new()
+		viewport.add_child(camera)
+		camera.configure(layout)
+		camera.make_current()
+		camera.set_distance(layout.camera_distance)
+		var screen: Rect2 = Rect2(Vector2.ZERO, Vector2(size))
+		for pad: Vector3 in layout.pad_positions:
+			assert_true(screen.has_point(camera.unproject_position(pad)), "thấy bệ %s ở %s" % [pad, size])
+		# Đảo chính vẫn ở giữa theo chiều ngang trên mọi tỉ lệ.
+		var middle: Vector2 = camera.unproject_position(layout.fortress_center)
+		assert_almost_eq(middle.x, float(size.x) * 0.5, 2.0)

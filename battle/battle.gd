@@ -144,6 +144,8 @@ func step(delta: float) -> void:
 	if is_over() or delta <= 0.0:
 		return
 	weather.advance(delta, enemy_pool.wave_time())
+	if weather.rain_field != null:
+		weather.rain_field.follow(camera.focus)
 	spawner.advance(delta)
 	_update_lane_warnings()
 	if is_over():
@@ -416,10 +418,10 @@ func build_map() -> void:
 	enemy_pool.configure_effects(layout.sun_direction)
 
 
-## Dựng thời tiết: màn mưa, sét và bộ điều khiển; kiểu ban đầu lấy từ ?weather=rain|storm (hoặc --weather=…), mặc định bình thường.
+## Dựng thời tiết: mưa 3D, sét và bộ điều khiển; kiểu ban đầu lấy từ ?weather=rain|storm (hoặc --weather=…), mặc định bình thường.
 func _build_weather() -> void:
-	var rain_fx: RainOverlay = RainOverlay.new()
-	rain_fx.name = "RainOverlay"
+	var rain_fx: RainField = RainField.new()
+	rain_fx.name = "RainField"
 	add_child(rain_fx)
 	var lightning_fx: LightningOverlay = LightningOverlay.new()
 	lightning_fx.name = "LightningOverlay"

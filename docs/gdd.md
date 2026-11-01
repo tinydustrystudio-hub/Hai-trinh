@@ -636,6 +636,7 @@ Nhánh "xuyên giáp" bỏ qua một phần mức giảm đó. Đơn vị tầm 
 - **Mở khóa:** ở nhiệm vụ 4, Mảnh Lõi Cộng Hưởng Thô đánh thức MEGA. Từ đó mọi lô cốt có MEGA cơ bản: gây ×3 sát thương trong 5 giây. Lô cốt hỗ trợ (keo, ra-đa, lốc xoáy) thì tăng hiệu ứng ×1,5 thay cho sát thương.
 - **Nạp:** thanh Quá tải đầy dần khi lô cốt bắn trúng hoặc tác dụng lên địch, mất 12–20 giây bắn liên tục tùy loại. Thanh không tụt khi lô cốt ngừng bắn và giữ nguyên khi nâng cấp. Tàu Tác Chiến Điện Tử chặn nạp trong vùng của nó.
 - **Kích:** đầy 100% thì lô cốt sáng lên và hiện một nút 64dp trong khay MEGA ở góc dưới bên phải. Chạm nút hoặc chạm thẳng vào lô cốt để kích.
+  - **Thay đổi 1/11:** không dùng khay nút ở góc dưới phải nữa. Lô cốt đầy thanh thì nhấp nháy hào quang vàng bập bùng (vòng chớp, ngọn lửa quanh thân, đầu nòng phồng xẹp) ngay tại lô cốt; chạm thẳng vào lô cốt để kích MEGA.
 - **MEGA:** kéo dài 4–6 giây, hình dáng lô cốt mở rộng thành hình thái MEGA.
 - **Làm mát:** sau MEGA, lô cốt mất 6–9 giây để làm mát: bốc hơi, mở nắp tản nhiệt, chỉ bắn 20% sức. Làm mát xong, thanh về 0 và bắt đầu nạp lại. Một vòng nạp, MEGA, làm mát dài khoảng 25–35 giây, nên MEGA là một quyết định, không phải nút bấm liên tục.
 - **Kiểu MEGA riêng:** mở khi có lõi chuyên biệt rơi từ trùm, gắn ở Viện Nghiên Cứu Giếng Sâu (mục 5.2). Sáu lõi:
@@ -1695,7 +1696,7 @@ Mục đích: để bản đồ chiếm gần hết màn hình, và mọi thao t
 | Trên phải | Thép; Tạm dừng (→ Tạm dừng); nút tua nhanh ×1/×2 |
 | Giữa | Bản đồ trận. Chạm bệ trống → vòng chọn lô cốt; chạm một lô cốt trong vòng chỉ để xem trước: hiện vòng tầm bắn trên bệ cùng nút Xây (kèm giá) và Hủy ở góc dưới phải, bấm Xây mới trừ Thép và đặt. Chạm lô cốt → vòng nâng cấp, cũng hiện vòng tầm bắn. Chạm địch → mọi lô cốt trong tầm ưu tiên bắn nó |
 | Dưới trái | 2 nút tính năng phụ 64dp có vòng hồi chiêu; nút Gọi đợt sớm khi đang nghỉ giữa đợt |
-| Dưới phải | Khay MEGA: tối đa 4 nút 64dp cho các lô cốt đã đầy thanh Quá tải, xếp theo thứ tự đầy |
+| Dưới phải | Không còn khay nút MEGA (người duyệt 1/11): lô cốt đã đầy thanh Quá tải tự nhấp nháy hào quang vàng ngay tại chỗ; chạm thẳng vào lô cốt đó để kích |
 | Dưới giữa | Khung thoại một câu, không chặn chạm, tự ẩn sau 3 giây |
 
 Cửa sổ trong trận:
@@ -2170,8 +2171,8 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 | Kiểu | Sóng | Trời | Gió | Âm thanh |
 | --- | --- | --- | --- | --- |
 | Bình thường | Như hiện tại | Nắng | Không đổi | Nhạc nền |
-| Mưa | Cao hơn (×1,8), chạy chậm hơn một chút (×0,85), gợn nhiều hơn | Mưa nhẹ, vệt mảnh, rơi chậm xuống mặt biển, xiên theo gió, mặt biển nổi gợn tròn nơi giọt mưa rơi; trời tối nhẹ | Đổi chiều nhẹ | – |
-| Bão | Rất cao (×2,8), chạy chậm (×0,55) cho đỡ chóng mặt, gợn mạnh; đảo dập dìu nhiều hơn (×2,4) | Mưa vừa, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục nhưng chậm (các lớp sóng quay ±0,35 rad theo hai nhịp chồng nhau, chu kỳ 40 giây) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
+| Mưa | Cao hơn (×1,8), chạy chậm hơn một chút (×0,85), mặt nước mấp mô gấp đôi bản đầu (×2,6) | Mưa 3D: nét mưa rơi từ trời xuống mặt biển trong không gian trận (bị đảo và công trình che), xiên theo gió, mặt biển nổi gợn tròn nơi giọt mưa rơi; trời tối nhẹ | Đổi chiều nhẹ | – |
+| Bão | Rất cao (×2,8), chạy chậm (×0,55) cho đỡ chóng mặt, mặt nước mấp mô gấp đôi bản đầu (×3,6); đảo dập dìu nhiều hơn (×2,4) | Mưa vừa, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục nhưng chậm (các lớp sóng quay ±0,35 rad theo hai nhịp chồng nhau, chu kỳ 40 giây) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
 
 Chuyển kiểu mượt trong 4 giây. Tàu và đảo dập dìu theo đúng độ cao sóng đang có. Chọn kiểu thời tiết ở màn hình sau này theo từng bản đồ; bản thử tháng 1 dùng nút "Thời tiết" ở bảng debug hoặc `?weather=rain` / `?weather=storm`.
 

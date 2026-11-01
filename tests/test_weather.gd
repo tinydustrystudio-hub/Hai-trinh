@@ -33,7 +33,7 @@ func test_three_kinds_get_stronger() -> void:
 func test_starts_clear_by_default() -> void:
 	assert_eq(_battle.weather.data.id, &"clear")
 	assert_eq(_battle.ocean.wave_boost, 1.0)
-	assert_false(_battle.weather.rain_overlay.is_showing())
+	assert_false(_battle.weather.rain_field.is_showing())
 
 
 func test_transition_is_smooth() -> void:
@@ -88,14 +88,14 @@ func test_wind_rotates_wave_directions() -> void:
 	assert_almost_eq(turned, 0.0, 0.0001)
 
 
-func test_rain_overlay_shows_only_when_raining() -> void:
+func test_rain_field_shows_only_when_raining() -> void:
 	_battle.set_weather(&"rain")
 	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
-	assert_true(_battle.weather.rain_overlay.is_showing())
-	assert_almost_eq(_battle.weather.rain_overlay.rain, Weather.by_id(&"rain").rain, 0.001)
+	assert_true(_battle.weather.rain_field.is_showing())
+	assert_almost_eq(_battle.weather.rain_field.rain, Weather.by_id(&"rain").rain, 0.001)
 	_battle.set_weather(&"clear")
 	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 15.0)
-	assert_false(_battle.weather.rain_overlay.is_showing(), "hết mưa thì ẩn")
+	assert_false(_battle.weather.rain_field.is_showing(), "hết mưa thì ẩn")
 
 
 func test_sun_dims_in_storm_and_recovers() -> void:
@@ -196,3 +196,33 @@ func test_rain_reaches_the_sea_surface() -> void:
 	_battle.set_weather(&"rain")
 	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
 	assert_gt(_battle.ocean.rain_amount, 0.3, "mặt biển có gợn mưa rơi")
+
+
+func test_rain_is_3d_and_follows_the_camera() -> void:
+	# Người duyệt (1/11): mưa phải rơi xuống biển và công trình trong không gian trận, không phải lớp phủ 2D.
+	var field: RainField = _battle.weather.rain_field
+	assert_true(field is Node3D)
+	assert_eq(field.multimesh.instance_count, RainField.COUNT)
+	var area: AABB = field.multimesh.custom_aabb
+	assert_gt(area.size.y, RainField.FALL_HEIGHT, "mưa có chiều cao: rơi từ trên xuống")
+	assert_gte(area.size.x, 240.0, "phủ vùng nhìn thấy khi thu nhỏ hết cỡ")
+	_battle.camera.set_focus(Vector2(5.0, -7.0))
+	_battle.weather.advance(0.1, 1.0)
+	_battle.step(0.1)
+	assert_almost_eq(field.position.x, _battle.camera.focus.x, 0.001)
+	assert_almost_eq(field.position.z, _battle.camera.focus.y, 0.001)
+
+
+func test_rain_amount_scales_streaks_shown() -> void:
+	var field: RainField = _battle.weather.rain_field
+	field.set_rain(0.25, 0.0)
+	assert_eq(field.streaks_shown(), RainField.COUNT / 4)
+	field.set_rain(0.0, 0.0)
+	assert_false(field.is_showing())
+
+
+func test_rain_and_storm_surface_is_twice_as_choppy() -> void:
+	# Người duyệt (1/11): mưa và bão tăng độ mấp mô mặt nước gấp đôi bản đầu (1,3 và 1,8).
+	assert_almost_eq(Weather.by_id(&"rain").chop, 1.3 * 2.0, 0.001)
+	assert_almost_eq(Weather.by_id(&"storm").chop, 1.8 * 2.0, 0.001)
+	assert_eq(Weather.by_id(&"clear").chop, 1.0, "bình thường giữ nguyên")

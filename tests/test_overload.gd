@@ -235,13 +235,13 @@ func test_at_most_two_full_bursts() -> void:
 
 
 func test_mega_beacon_only_while_mega() -> void:
-	# Góp ý 3: lô cốt đang MEGA có đèn báo; nạp, sẵn sàng hay làm mát thì không.
+	# Góp ý 3 và 8: lô cốt đang MEGA hoặc sẵn sàng kích có đèn báo; đang nạp hay làm mát thì không.
 	var beacons: MegaBeacons = add_child_autofree(MegaBeacons.new())
 	var gun: Tower = _tower(MachineGun, MG, Vector3.ZERO)
 	var other: Tower = _tower(MachineGun, MG, Vector3(8, 0, 0))
 	var towers: Array[Tower] = [gun, other]
 	gun.overload.add_charge(1.0)
-	assert_eq(beacons.update_beacons(towers), 0, "sẵn sàng thôi thì chưa bật")
+	assert_eq(beacons.update_beacons(towers), 1, "sẵn sàng thì có hào quang nhấp nháy")
 	gun.activate_mega()
 	assert_eq(beacons.update_beacons(towers), 1)
 	var elapsed: float = 0.0
@@ -265,3 +265,35 @@ func test_mega_beacon_mesh_has_ring_and_beam() -> void:
 	assert_eq(ring, MegaBeacons.SEGMENTS * 6)
 	assert_eq(beam, MegaBeacons.SEGMENTS * 6)
 	assert_gt(mesh.get_aabb().end.y, MegaBeacons.BEAM_HEIGHT, "cột sáng cao hơn thanh Quá tải")
+
+
+func test_ready_tower_pulses_and_tap_fires_mega() -> void:
+	# Người duyệt (1/11): MEGA hiện tại lô cốt (nhấp nháy), chạm thẳng lô cốt để kích; không dùng khay nút góc dưới phải.
+	var battle: BattleController = add_child_autofree(BATTLE_SCENE.instantiate())
+	battle.economy.reset(1000)
+	var pad: TowerPad = battle.island.pads[4]
+	var gun: Tower = battle.build_tower(pad, MG)
+	gun.tick(0.1)
+	var rest: float = gun._turret.scale.x
+	assert_almost_eq(rest, 1.0, 0.0001, "đang nạp thì đứng yên")
+	gun.overload.add_charge(1.0)
+	var seen: Array[float] = []
+	for i: int in 12:
+		gun.tick(0.05)
+		seen.append(gun._turret.scale.x)
+	assert_gt(seen.max() - seen.min(), 0.05, "lô cốt sẵn sàng phồng xẹp nhấp nháy")
+	assert_lte(seen.max(), 1.0 + Tower.READY_PULSE + 0.001)
+	assert_gte(seen.min(), 1.0)
+	# Hào quang ở đèn báo.
+	assert_eq(battle.mega_beacons.update_beacons(battle.towers), 1)
+	# Chạm vào lô cốt (trên bệ) thì kích MEGA ngay.
+	var at: Vector2 = battle.camera.unproject_position(pad.global_position)
+	battle._on_tapped(at)
+	assert_eq(gun.overload.state, Overload.State.MEGA)
+	assert_false(battle.hud.mega_tray.visible, "khay MEGA ở góc dưới phải đã ẩn")
+
+
+func test_ready_pulse_scale_is_bounded() -> void:
+	for k: int in 100:
+		var scale: float = Tower.ready_pulse_scale(float(k) * 0.07)
+		assert_between(scale, 1.0, 1.0 + Tower.READY_PULSE + 0.0001)

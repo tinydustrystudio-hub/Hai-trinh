@@ -1,7 +1,7 @@
 class_name Weather
 extends Node
 ## Thời tiết của trận (góp ý 4, mục 12): bình thường, mưa, bão. Chuyển kiểu thời tiết mượt trong TRANSITION_SECONDS
-## giây; mỗi nhịp cập nhật biển (sóng to hơn, gió đổi chiều liên tục), ánh nắng, màn mưa và sấm sét.
+## giây; mỗi nhịp cập nhật biển (sóng to hơn, gió đổi chiều liên tục), ánh nắng, mưa 3D và sấm sét.
 ## Chỉ đổi hình ảnh và âm thanh, không đổi số liệu chiến đấu.
 
 signal changed(data: WeatherData)
@@ -36,7 +36,7 @@ var strikes: int = 0
 
 var ocean: Ocean
 var sun: DirectionalLight3D
-var rain_overlay: RainOverlay
+var rain_field: RainField
 var island: Island
 var lightning_overlay: LightningOverlay
 
@@ -54,10 +54,10 @@ func _init() -> void:
 
 
 ## Nối vào các phần của trận; sun_energy là độ sáng nắng gốc của bản đồ.
-func attach(target_ocean: Ocean, target_sun: DirectionalLight3D, rain_fx: RainOverlay, lightning_fx: LightningOverlay) -> void:
+func attach(target_ocean: Ocean, target_sun: DirectionalLight3D, rain_fx: RainField, lightning_fx: LightningOverlay) -> void:
 	ocean = target_ocean
 	sun = target_sun
-	rain_overlay = rain_fx
+	rain_field = rain_fx
 	lightning_overlay = lightning_fx
 	_sun_energy = sun.light_energy if sun != null else 1.0
 	apply(0.0)
@@ -88,7 +88,7 @@ func advance(delta: float, time: float) -> void:
 	apply(time)
 
 
-## Tính giá trị hiện tại và đẩy vào biển, nắng, màn mưa.
+## Tính giá trị hiện tại và đẩy vào biển, nắng, mưa.
 func apply(time: float) -> void:
 	var t: float = smoothstep(0.0, 1.0, _blend)
 	wave_boost = lerpf(_from.wave_boost, data.wave_boost, t)
@@ -106,8 +106,8 @@ func apply(time: float) -> void:
 		island.bob_scale = bob_scale
 	if sun != null:
 		sun.light_energy = _sun_energy * (1.0 - darkness * SUN_DIM_MAX)
-	if rain_overlay != null:
-		rain_overlay.set_rain(rain, wind)
+	if rain_field != null:
+		rain_field.set_rain(rain, wind)
 
 
 ## Góc gió (radian) tại thời điểm time: hai dao động chồng nhau nên gió đổi chiều không đều nhịp.

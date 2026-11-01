@@ -6,6 +6,9 @@ extends Node3D
 
 ## Đầu nòng phình to chừng này khi đang MEGA.
 const MEGA_TURRET_SCALE: float = 1.35
+## Đầu nòng phồng thêm tối đa chừng này khi chờ kích MEGA, với tốc độ góc READY_PULSE_SPEED (rad/giây).
+const READY_PULSE: float = 0.18
+const READY_PULSE_SPEED: float = 16.0
 
 var data: TowerData
 var level: int = 1
@@ -21,6 +24,7 @@ var overload: Overload
 var _pool: EnemyPool
 var _retarget_left: float = 0.0
 var _turret: Node3D
+var _pulse_time: float = 0.0
 
 
 ## Đặt lô cốt lên bệ. Gọi trước khi vào cây. effects là nút chứa các bộ vẽ hiệu ứng dùng chung
@@ -124,6 +128,7 @@ func _on_mega_ended() -> void:
 ## Một nhịp trận: tìm lại mục tiêu theo nhịp, xoay nòng, rồi để lớp con bắn.
 func tick(delta: float) -> void:
 	overload.advance(delta)
+	_update_ready_pulse(delta)
 	_retarget_left -= delta
 	var origin: Vector3 = global_position
 	var range_squared: float = range_units() * range_units()
@@ -172,3 +177,20 @@ func _build_visual() -> void:
 	head.material_override = TowerMeshes.material()
 	head.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_turret.add_child(head)
+
+
+## Lô cốt sẵn sàng kích MEGA thì đầu nòng phồng xẹp nhấp nháy ("siêu xay da"); đang MEGA thì phình to cố định.
+func _update_ready_pulse(delta: float) -> void:
+	if _turret == null:
+		return
+	if overload.state == Overload.State.READY:
+		_pulse_time += delta
+		_turret.scale = Vector3.ONE * ready_pulse_scale(_pulse_time)
+	elif overload.state != Overload.State.MEGA:
+		_pulse_time = 0.0
+		_turret.scale = Vector3.ONE
+
+
+## Hệ số phồng của đầu nòng sau time giây chờ kích: dao động nhanh giữa 1,0 và 1,0 + READY_PULSE.
+static func ready_pulse_scale(time: float) -> float:
+	return 1.0 + READY_PULSE * (0.5 + 0.5 * sin(time * READY_PULSE_SPEED))
