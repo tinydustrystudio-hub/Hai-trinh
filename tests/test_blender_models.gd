@@ -3,8 +3,15 @@ extends GutTest
 
 const ENEMY_PATHS: Dictionary[StringName, String] = {
 	&"raider_skiff": "res://data/enemies/raider_skiff.tres",
+	&"ram_drone": "res://data/enemies/ram_drone.tres",
+	&"spiked_crab": "res://data/enemies/spiked_crab.tres",
 }
-const MAX_ENEMY_TRIANGLES: int = 600
+## Ngân sách tam giác mỗi loại địch (tối đa 60 địch cùng lúc; Cua Giáp Gai hiếm và lớn nên được nhiều hơn).
+const MAX_ENEMY_TRIANGLES: Dictionary[StringName, int] = {
+	&"raider_skiff": 700,
+	&"ram_drone": 900,
+	&"spiked_crab": 1600,
+}
 
 
 func test_enemy_models_load_and_are_used_by_the_game() -> void:
@@ -22,12 +29,23 @@ func test_enemy_models_have_correct_size_axis_and_budget() -> void:
 		var mesh: ArrayMesh = EnemyMeshes.model_mesh(data)
 		var arrays: Array = mesh.surface_get_arrays(0)
 		var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-		assert_lte(vertices.size() / 3, MAX_ENEMY_TRIANGLES, "%s: ngân sách tam giác" % id)
+		assert_lte(vertices.size() / 3, MAX_ENEMY_TRIANGLES[id], "%s: ngân sách tam giác" % id)
 		assert_eq((arrays[Mesh.ARRAY_COLOR] as PackedColorArray).size(), vertices.size(), "%s: màu đỉnh" % id)
 		var box: AABB = mesh.get_aabb()
 		var length: float = data.size_cells * MapLayout.UNITS_PER_CELL
 		assert_between(box.size.z, length * 0.85, length * 1.25, "%s: dài đúng cỡ" % id)
-		assert_between(box.position.y, -0.3, 0.1, "%s: gốc ở mực nước" % id)
+		assert_between(box.position.y, -0.5, 0.2, "%s: đáy gần mực nước" % id)
+		if data.hull == EnemyData.Hull.CRAB:
+			# Cua: hai càng giơ ra phía trước (−z) ở hai bên, thân đối xứng trái phải.
+			var front_x: float = 0.0
+			var min_z_crab: float = INF
+			for v: Vector3 in vertices:
+				if v.z < min_z_crab:
+					min_z_crab = v.z
+					front_x = absf(v.x)
+			assert_gt(front_x, 1.0, "%s: càng ở hai bên phía trước" % id)
+			assert_almost_eq(box.position.x, -box.end.x, 0.3, "%s: đối xứng trái phải" % id)
+			continue
 		# Mũi tàu hướng −z: đỉnh nhô xa nhất về −z nằm gần trục giữa; đuôi (+z) rộng hơn mũi.
 		var bow_x: float = 0.0
 		var min_z: float = INF

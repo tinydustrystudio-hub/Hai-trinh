@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(HERE, "models"))
 
 import kit  # noqa: E402
 
-MODELS = ["enm_raider_skiff"]
+MODELS = ["enm_raider_skiff", "enm_ram_drone", "enm_spiked_crab"]
 OUT = os.path.normpath(os.path.join(HERE, "..", "..", "assets", "models"))
 
 
@@ -25,10 +25,13 @@ def main(names):
     for name in names or MODELS:
         kit.reset_scene()
         module = importlib.import_module(name)
-        objects = module.build()
-        path = os.path.join(OUT, name + ".glb")
-        kit.export_glb(path, objects)
-        print("OK", path, os.path.getsize(path), "bytes")
+        result = module.build()
+        # build() trả về danh sách đối tượng (một tệp theo tên module) hoặc từ điển {tên tệp: [đối tượng]} (nhiều tệp, ví dụ đế và đầu nòng).
+        outputs = result if isinstance(result, dict) else {name: result}
+        for out_name, objects in outputs.items():
+            path = os.path.join(OUT, out_name + ".glb")
+            kit.export_glb(path, objects)
+            print("OK", path, os.path.getsize(path), "bytes")
 
 
 if __name__ == "__main__":

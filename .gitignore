@@ -7,3 +7,7 @@ build/
 
 # Cảnh thử cục bộ (đo, chụp ảnh), không đưa lên repo
 .bench/
+
+# Python
+__pycache__/
+*.pyc
