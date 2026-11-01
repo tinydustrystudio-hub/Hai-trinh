@@ -7,10 +7,6 @@ static var _cache: Dictionary[EnemyData, ArrayMesh] = {}
 static var _material: StandardMaterial3D
 
 
-## Thư mục mô hình dựng bằng Blender (tools/blender); tên tệp là "enm_" + id địch, ví dụ enm_raider_skiff.glb.
-const MODEL_DIR: String = "res://assets/models/"
-
-
 static func mesh_for(data: EnemyData) -> ArrayMesh:
 	if not _cache.has(data):
 		var model: ArrayMesh = model_mesh(data)
@@ -18,29 +14,9 @@ static func mesh_for(data: EnemyData) -> ArrayMesh:
 	return _cache[data]
 
 
-## Mesh lấy từ tệp .glb của loại địch này (màu đỉnh đã nướng sẵn), hoặc null nếu chưa có mô hình.
+## Mesh lấy từ assets/models/enm_<id>.glb (dựng bằng Blender, màu đỉnh đã nướng sẵn), hoặc null nếu chưa có mô hình.
 static func model_mesh(data: EnemyData) -> ArrayMesh:
-	var path: String = "%senm_%s.glb" % [MODEL_DIR, String(data.id)]
-	if not ResourceLoader.exists(path):
-		return null
-	var scene: PackedScene = load(path) as PackedScene
-	if scene == null:
-		return null
-	var root: Node = scene.instantiate()
-	var found: MeshInstance3D = _first_mesh(root)
-	var mesh: ArrayMesh = found.mesh as ArrayMesh if found != null else null
-	root.free()
-	return mesh
-
-
-static func _first_mesh(node: Node) -> MeshInstance3D:
-	if node is MeshInstance3D:
-		return node as MeshInstance3D
-	for child: Node in node.get_children():
-		var found: MeshInstance3D = _first_mesh(child)
-		if found != null:
-			return found
-	return null
+	return ModelMesh.load_mesh("enm_%s" % String(data.id))
 
 
 ## Vật liệu dùng chung cho mọi địch (màu lấy từ màu đỉnh).
