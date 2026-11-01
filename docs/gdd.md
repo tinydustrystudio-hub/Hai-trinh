@@ -685,7 +685,7 @@ Nhánh "xuyên giáp" bỏ qua một phần mức giảm đó. Đơn vị tầm 
 
 - Tên lửa tầm gần và tên lửa phóng loạt gộp vào Tên Lửa (Phóng Loạt thành một nhánh). Tên lửa tầm xa thành Pháo Tầm Xa. Năm loại tên lửa của v2 nhìn từ trên cao gần như giống nhau, nên gộp lại cho dễ phân biệt.
 - Lô cốt thời tiết của v2 thành Bẫy Lốc Xoáy, vì brief bắt buộc có bẫy lốc xoáy.
-- Không làm lô cốt sửa chữa: lô cốt không mất máu, còn Độ Nổi đã có Khiên Chắn Sóng và Xưởng Sửa Chữa ở Đảo Chính lo.
+- Không làm lô cốt sửa chữa: lô cốt không mất máu, còn Độ Nổi đã có Tường Chắn Sóng và Xưởng Sửa Chữa ở Đảo Chính lo.
 - Pháo ray và sonar gây nhiễu để sau ra mắt; phần lộ diện của sonar đã nằm trong nhánh Phá Nhiễu của Ra-đa.
 
 ### 3.3 Súng Máy
@@ -1225,7 +1225,7 @@ Ngoài trận, người chơi chỉ có **Xu** và **Sao**. Trong trận có th�
 | Công trình | Loại | Cấp 1 → cấp 5 | Mở từ |
 | --- | --- | --- | --- |
 | Trung Tâm Chỉ Huy (Lõi Hải Tâm) | Cốt lõi, miễn phí | Lên cấp theo hồi; mỗi cấp thêm Độ Nổi tối đa và nâng trần cấp cho các công trình khác | Đầu game |
-| Khiên Chắn Sóng | Bị động | Độ Nổi tối đa +10% → +50%; từ cấp 3 giảm 30% sát thương húc của ca nô cảm tử | Nv 2 |
+| Tường Chắn Sóng | Bị động | Độ Nổi tối đa +10% → +50%; từ cấp 3 giảm 30% sát thương húc của ca nô cảm tử | Nv 2 |
 | Xưởng Sửa Chữa | Bị động | Thép trận khởi đầu +10% → +50%; cấp 5 giảm thêm 10% giá nâng cấp trong trận | Nv 3 |
 | Trạm Năng Lượng Dòng Triều | Bị động, kinh tế | Tốc độ nạp thanh Quá tải +5% → +25%; Xu offline 20 → 100 mỗi giờ | Nv 4 |
 | Xưởng Tàu | Tính năng phụ: Tàu Tuần Tra Tiếp Viện | Gọi 1 tàu tuần tra đánh quân mặt biển trong 15 giây, hồi 60 giây; cấp cao thêm tàu và giảm thời gian hồi | Nv 6 |
@@ -1252,7 +1252,7 @@ Ngoài trận, người chơi chỉ có **Xu** và **Sao**. Trong trận có th�
 | Công trình | Vị trí trên đảo | Cấp 1 | Cấp 3 | Cấp 5 | Hoạt ảnh nhẹ |
 | --- | --- | --- | --- | --- | --- |
 | Trung Tâm Chỉ Huy | Giữa đảo | Tháp chỉ huy thấp, cột cờ | Thêm tầng kính quan sát | Tháp cao có vòng đèn hải đăng | Đèn quay |
-| Khiên Chắn Sóng | Rìa hướng ra biển | Một cột phát giảm chấn | Ba cột, vòng sóng mờ | Hàng cột bao kín mặt trước đảo | Sóng vỡ trên vòng khiên |
+| Tường Chắn Sóng | Rìa hướng ra biển | Một cột phát giảm chấn | Ba cột, vòng sóng mờ | Hàng cột bao kín mặt trước đảo | Sóng vỡ trên vòng khiên |
 | Xưởng Sửa Chữa | Gần bến | Lán thép, cẩu nhỏ | Thêm băng chuyền vật liệu | Xưởng mái vòm, cánh tay robot | Tia lửa hàn |
 | Trạm Năng Lượng Dòng Triều | Rìa nước | Một turbine | Hai turbine và khối pin | Cụm turbine, tụ điện phát sáng | Cánh quạt quay |
 | Xưởng Tàu | Bến phía nam | Ụ nổi và cẩu | Thêm thân tàu đang đóng | Hai ụ nổi, tàu tuần tra neo sẵn | Cẩu di chuyển |
@@ -1919,7 +1919,7 @@ Năm cơ chế được dạy đúng thứ tự của brief trong 10 phút: xây
 
 | Khi nào | Dạy gì |
 | --- | --- |
-| Ngay sau Bến Mũi Neo | Nâng công trình bằng Sao: chấm đỏ trên Khiên Chắn Sóng |
+| Ngay sau Bến Mũi Neo | Nâng công trình bằng Sao: chấm đỏ trên Tường Chắn Sóng |
 | Lần đầu đạt 3 sao | Thẻ nhiệm vụ báo mức Trung bình đã mở |
 | Nhiệm vụ 6 | Phòng không và địch bay |
 | Nhiệm vụ 7 | Chống ngầm và thẻ thông tin địch |
@@ -1965,7 +1965,7 @@ Không phải model: nước dùng shader ở mục 1.3. Trời dùng 2 cubemap:
 | Công trình | Cấp 1 | Cấp 3 thêm | Cấp 5 thêm | Kích thước | Tam giác mỗi cấp |
 | --- | --- | --- | --- | --- | --- |
 | Trung Tâm Chỉ Huy | Low command tower with a flag mast, sea-blue and ivory with orange trim | A glass observation deck | Tall tower crowned with a rotating lighthouse light ring | 2 | 3.000 |
-| Khiên Chắn Sóng | Single wave-damper pylon on the island edge | Three pylons linked by a faint translucent wave barrier | A row of pylons shielding the whole island front | 2 → 3 | 1.500 |
+| Tường Chắn Sóng | Single wave-damper pylon on the island edge | Three pylons linked by a faint translucent wave barrier | A row of pylons shielding the whole island front | 2 → 3 | 1.500 |
 | Xưởng Sửa Chữa | Steel shed workshop with a small crane | A conveyor belt for materials | Domed workshop with robotic arms | 1,5 | 2.500 |
 | Trạm Năng Lượng Dòng Triều | Single tidal turbine on a pontoon | A second turbine and a battery block | Turbine cluster with glowing capacitors | 1,5 | 2.000 |
 | Xưởng Tàu | Floating dry dock with a crane | A hull under construction in the dock | Two docks with a patrol boat moored | 3 × 2 | 3.000 |

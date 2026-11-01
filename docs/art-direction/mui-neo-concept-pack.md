@@ -34,7 +34,7 @@ Nhìn một giây nhận ra: lục giác trắng ngà, viền cam, tháp hải �
 
 - **Vị trí cố định theo GDD 5.3:** 1 Trung Tâm giữa; 8 ô công trình quanh trung tâm; 12 ô trang trí nhỏ; một số vị trí mô-đun trống ở vành ngoài để mở rộng.
 - **Bệ lô cốt (đã chốt):** 6 bệ trên 6 mỏm bến; thêm tối thiểu 4 đảo vệ tinh. Số đảo vệ tinh tăng dần khi người chơi mở khóa ở các màn sau, tối đa tùy màn. Mỗi hướng tấn công phải có ít nhất 4 lô cốt trong tầm. Người chơi tự đặt đảo vệ tinh đầu màn hoặc bất cứ lúc nào, đặt không tốn phí, di chuyển tốn phí.
-- **Gán 8 ô quanh trung tâm (đã chốt theo đề xuất này):** Khiên Chắn Sóng ở rìa hướng biển; Xưởng Sửa Chữa và Xưởng Tàu gần bến; Trạm Năng Lượng ở rìa nước; Radar ở điểm cao; Sân Bay ở dải bằng phía đông; Trạm Cộng Hưởng ở mỏm; Viện Giếng Sâu sau Trung Tâm.
+- **Gán 8 ô quanh trung tâm (đã chốt theo đề xuất này):** Tường Chắn Sóng ở rìa hướng biển; Xưởng Sửa Chữa và Xưởng Tàu gần bến; Trạm Năng Lượng ở rìa nước; Radar ở điểm cao; Sân Bay ở dải bằng phía đông; Trạm Cộng Hưởng ở mỏm; Viện Giếng Sâu sau Trung Tâm.
 - **Chiều cao:** sàn thấp nhất, đê chắn sóng +1 đơn vị, tầng hai +1,3, các khối công trình +1,5 đến 3, tháp chỉ huy cao nhất (khoảng 0,8 bán kính đảo). Mỗi tầng phải thấy rõ khi nhìn 55°.
 - **Kết nối module:** cầu nối tấm thép có lan can dây, khớp nối cao su vàng cam, ống cáp chạy dọc mép.
 - **Đối chiếu code (tham khảo):** pháo đài bán kính 14 đơn vị (khoảng 3,5 ô), 6 mỏm bến mang 6 bệ, 4 đảo vệ tinh bán kính 3 (1,5 ô). Concept thể hiện bản đầy đủ; bản đồ trận giữ nguyên.
@@ -55,7 +55,7 @@ Cấp 1 / 3 / 5 theo GDD 5.3 và 8.2. Phần đổi khi nâng cấp ghi sau mũi
 | BLD_TIDE_RESONANCE | Nghiên cứu thủy âm | Cột mảnh, vòng đồng tâm | Graphite, kính, vòng phát lam | Một cột thủy âm → vòng phát đồng tâm → tháp vòng phát sáng lam | Sau |
 | BLD_DEEP_WELL_LAB | Nghiên cứu Giếng Sâu | Cụm tròn thấp, mái kính | Ivory, Graphite, kính, lõi lam | Phòng thí nghiệm nhỏ → buồng cách ly → tổ hợp có lõi phát sáng giữa | Sau |
 
-- **MVP (5 công trình):** Trung Tâm, Khiên, Xưởng Sửa Chữa, Trạm Năng Lượng, Xưởng Tàu (GDD 8.2).
+- **MVP (5 công trình):** Trung Tâm, Tường Chắn Sóng, Xưởng Sửa Chữa, Trạm Năng Lượng, Xưởng Tàu (GDD 8.2).
 - **Hoạt ảnh nhẹ:** đèn quay; sóng vỡ; tia hàn; cánh quạt; cẩu di chuyển; đĩa quay; drone; vòng sóng; lõi nhấp nháy. Chỉ concept hình tĩnh ở bước này.
 - **Cấm:** vũ khí, phương tiện tấn công, hệ thống chiến đấu.
 

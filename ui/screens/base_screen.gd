@@ -11,6 +11,12 @@ const PLAY_SIZE: Vector2 = Vector2(560, 170)
 const UPGRADE_SIZE: Vector2 = Vector2(300, 130)
 const PREVIEW_SIZE: Vector2i = Vector2i(900, 760)
 ## Xoay: radian mỗi pixel kéo.
+## Khoảng nghiêng cho phép (gần như nằm ngang tới nhìn thẳng xuống) và góc mặc định.
+const MIN_PITCH: float = deg_to_rad(12.0)
+const MAX_PITCH: float = deg_to_rad(88.0)
+const DEFAULT_PITCH: float = 0.86088
+## Khoảng cách camera tới tâm đảo ở hệ số 1.
+const CAMERA_RADIUS: float = 84.38
 const ROTATE_SPEED: float = 0.008
 ## Giới hạn phóng to, thu nhỏ khung xem trước (hệ số khoảng cách camera) và bước mỗi nấc lăn chuột.
 const MIN_DISTANCE: float = 0.35
@@ -31,6 +37,8 @@ var _layout: MapLayout
 var _camera: Camera3D
 ## Góc xoay của camera quanh đảo (radian), kéo ngón tay để xoay.
 var _yaw: float = 0.0
+## Góc nghiêng của camera so với mặt nước (radian), kéo ngón tay lên xuống để nghiêng.
+var _pitch: float = DEFAULT_PITCH
 ## Hệ số khoảng cách camera (nhỏ hơn 1 là phóng to).
 var _distance: float = 1.0
 ## Vị trí các ngón đang chạm vào khung xem trước, để nhận cử chỉ chụm hai ngón.
@@ -126,6 +134,16 @@ func yaw() -> float:
 ## Xoay đảo xem trước một góc (radian), camera quay quanh tâm đảo.
 func rotate_preview(delta_yaw: float) -> void:
 	_yaw = wrapf(_yaw + delta_yaw, -PI, PI)
+	_place_camera()
+
+
+func pitch() -> float:
+	return _pitch
+
+
+## Nghiêng góc nhìn (radian, dương là nhìn cao hơn, gần thẳng xuống).
+func tilt_preview(delta_pitch: float) -> void:
+	_pitch = clampf(_pitch + delta_pitch, MIN_PITCH, MAX_PITCH)
 	_place_camera()
 
 
@@ -271,6 +289,7 @@ func _on_preview_input(event: InputEvent) -> void:
 		var motion: InputEventMouseMotion = event
 		if (motion.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
 			rotate_preview(-motion.relative.x * ROTATE_SPEED)
+			tilt_preview(motion.relative.y * ROTATE_SPEED)
 
 
 func _finger_span() -> float:
@@ -283,7 +302,7 @@ func _place_camera() -> void:
 		return
 	var center: Vector3 = _layout.fortress_center
 	var page_scale: float = ISLAND_PAGE_DISTANCE if _page == 1 else 1.0
-	var offset: Vector3 = (Vector3(0.0, 64.0, 55.0) * _distance * page_scale).rotated(Vector3.UP, _yaw)
+	var offset: Vector3 = (Vector3(0.0, sin(_pitch), cos(_pitch)) * CAMERA_RADIUS * _distance * page_scale).rotated(Vector3.UP, _yaw)
 	_camera.look_at_from_position(center + offset, center + Vector3(0.0, 2.0, 0.0))
 
 

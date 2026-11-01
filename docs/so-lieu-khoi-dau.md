@@ -62,4 +62,4 @@ Nút thắt là sát thương, không phải Thép: Súng Máy không hạ kịp
 | Tiền Vàng người chơi mới | 500 | `Profile.NEW_PLAYER_GOLD` |
 | Thưởng thắng trận | 100 | `data/economy.tres` (`victory_bonus`) |
 | Tiền kiếm được trong trận | cộng vào ví cuối trận (diệt địch và thưởng đợt; không tính vàng khởi đầu, tiền hoàn khi bán) | `Economy.earned` |
-| Hệ số giá nâng Khiên / Xưởng Sửa Chữa / Trạm Năng Lượng / Xưởng Tàu | 1,0 / 1,0 / 1,25 / 1,5 | `data/buildings/*.tres` |
+| Hệ số giá nâng Tường Chắn Sóng / Xưởng Sửa Chữa / Trạm Năng Lượng / Xưởng Tàu | 1,0 / 1,0 / 1,25 / 1,5 | `data/buildings/*.tres` |

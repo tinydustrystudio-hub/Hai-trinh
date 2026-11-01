@@ -19,10 +19,10 @@ func test_default_level_is_one() -> void:
 	assert_eq(_layout({&"shipyard": 9}).building_level(&"shipyard"), 5)
 
 
-func test_shield_posts_and_docks_grow_with_level() -> void:
-	assert_eq(FortressBuildings.shield_posts(1), 1)
-	assert_eq(FortressBuildings.shield_posts(3), 3)
-	assert_eq(FortressBuildings.shield_posts(5), 5)
+func test_wall_grows_with_level_and_docks_grow() -> void:
+	assert_almost_eq(AllianceFortress.wall_height(1), 1.1, 0.001)
+	assert_gt(AllianceFortress.wall_height(5), AllianceFortress.wall_height(3))
+	assert_gt(AllianceFortress.wall_thickness_scale(5), AllianceFortress.wall_thickness_scale(1))
 	assert_eq(FortressBuildings.shipyard_docks(3), 1)
 	assert_eq(FortressBuildings.shipyard_docks(5), 2)
 
@@ -79,3 +79,23 @@ func test_every_level_changes_every_building() -> void:
 			var current: int = _triangles(AllianceFortress.build_fortress(_layout({id: level})))
 			assert_gt(current, previous, "%s cấp %d phải thấy khác cấp %d" % [id, level, level - 1])
 			previous = current
+
+
+func test_wave_wall_upgrade_shows_on_every_side_of_the_island() -> void:
+	# Cấp 3: tháp góc cao hơn cấp 1 ở cả sáu góc quanh đảo (không chỉ một góc).
+	var layout: MapLayout = _layout({&"wave_shield": 3})
+	var mesh: ArrayMesh = AllianceFortress.build_fortress(layout)
+	var vertices: PackedVector3Array = mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var sectors: Dictionary = {}
+	for v: Vector3 in vertices:
+		var flat: Vector2 = Vector2(v.x - layout.fortress_center.x, v.z - layout.fortress_center.z)
+		if v.y > AllianceFortress.DECK_Y + 2.0 and flat.length() > layout.fortress_radius * 0.8:
+			sectors[int(floorf(fposmod(rad_to_deg(flat.angle()) + 30.0, 360.0) / 60.0))] = true
+	assert_eq(sectors.size(), 6, "tháp góc cao ở đủ sáu góc")
+	assert_gt(_triangles(mesh), _triangles(AllianceFortress.build_fortress(_layout())))
+
+
+func test_tidal_cable_lines_span_the_island() -> void:
+	var plain: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 1})))
+	var lines: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 2})))
+	assert_gt(lines - plain, 6 * 12, "ống cáp ở cả sáu cạnh")

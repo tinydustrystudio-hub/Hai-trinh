@@ -104,8 +104,8 @@ HINT_ENEMY,Địch tới từ hướng đèn đỏ đang nhấp nháy trên đ�
 HINT_MEGA,Lô cốt đang nhấp nháy vàng đã đầy Quá tải: chạm thẳng vào nó để kích MEGA!,A tower flashing gold is fully charged: tap it to unleash MEGA!
 HINT_SKIP,Bỏ qua,Skip
 RESULT_GOLD,+%d Tiền Vàng vào ví,+%d Gold added to wallet
-BUILDING_WAVE_SHIELD,Khiên Chắn Sóng,Wave Shield
-BUILDING_WAVE_SHIELD_DESC,Hàng trụ chắn sóng quanh đảo chính.,A row of pylons breaking waves around the main island.
+BUILDING_WAVE_SHIELD,Tường Chắn Sóng,Wave Wall
+BUILDING_WAVE_SHIELD_DESC,"Tường bao cả đảo, càng lên cấp càng cao.","A wall around the whole island, taller at every level."
 BUILDING_REPAIR_WORKS,Xưởng Sửa Chữa,Repair Works
 BUILDING_REPAIR_WORKS_DESC,Sửa chữa và chuẩn bị vật liệu cho đảo.,Repairs and supplies for the island.
 BUILDING_TIDAL_POWER,Trạm Năng Lượng,Tidal Power
