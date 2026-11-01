@@ -5,6 +5,8 @@ extends RefCounted
 
 const MODEL_DIR: String = "res://assets/models/"
 
+static var _cache: Dictionary[String, ArrayMesh] = {}
+
 
 static func path_for(model_name: String) -> String:
 	return "%s%s.glb" % [MODEL_DIR, model_name]
@@ -16,6 +18,8 @@ static func exists(model_name: String) -> bool:
 
 ## Mesh của mô hình tên model_name (không có .glb), hoặc null nếu chưa có tệp.
 static func load_mesh(model_name: String) -> ArrayMesh:
+	if _cache.has(model_name):
+		return _cache[model_name]
 	var path: String = path_for(model_name)
 	if not ResourceLoader.exists(path):
 		return null
@@ -26,6 +30,8 @@ static func load_mesh(model_name: String) -> ArrayMesh:
 	var found: MeshInstance3D = _first_mesh(root)
 	var mesh: ArrayMesh = found.mesh as ArrayMesh if found != null else null
 	root.free()
+	if mesh != null:
+		_cache[model_name] = mesh
 	return mesh
 
 
