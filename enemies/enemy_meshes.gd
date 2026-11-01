@@ -31,27 +31,40 @@ static func build(data: EnemyData) -> ArrayMesh:
 	var accent: Color = data.accent_color
 	match data.hull:
 		EnemyData.Hull.SKIFF:
-			# Xuồng hở: thân thấp, mạn ốp tấm sắt, buồng lái nhỏ phía sau, sọc vàng ở mũi.
-			_box(st, Vector3(0, 0.15, 0), Vector3(length * 0.42, 0.5, length), body)
-			_box(st, Vector3(0, 0.55, length * 0.25), Vector3(length * 0.3, 0.45, length * 0.25), body.lightened(0.25))
-			_box(st, Vector3(0, 0.42, -length * 0.42), Vector3(length * 0.43, 0.08, length * 0.12), accent)
+			# Xuồng cướp: thân thuyền thon, mũi nhọn có răng vàng, mạn ốp sắt, buồng lái và cờ phía sau.
+			_box(st, Vector3(0, 0.15, length * 0.1), Vector3(length * 0.46, 0.5, length * 0.8), body)
+			_box(st, Vector3(0, 0.1, -length * 0.42), Vector3(length * 0.28, 0.36, length * 0.22), body)
+			_box(st, Vector3(0, 0.05, -length * 0.55), Vector3(length * 0.12, 0.2, length * 0.14), body.darkened(0.2))
+			_box(st, Vector3(0, 0.45, -length * 0.42), Vector3(length * 0.3, 0.08, length * 0.16), accent)
+			for x: float in [-1.0, 1.0]:
+				_box(st, Vector3(x * length * 0.25, 0.48, length * 0.05), Vector3(0.1, 0.18, length * 0.55), body.lightened(0.2))
+			_box(st, Vector3(0, 0.62, length * 0.32), Vector3(length * 0.32, 0.5, length * 0.24), body.lightened(0.3))
+			_box(st, Vector3(0, 1.1, length * 0.38), Vector3(0.07, 0.9, 0.07), body.darkened(0.3))
+			_box(st, Vector3(0, 1.35, length * 0.32), Vector3(0.04, 0.35, 0.4), accent)
 		EnemyData.Hull.RAM:
-			# Ca nô cảm tử: thân hẹp và dài, bó thuốc nổ ở mũi, cột ăng-ten đèn đỏ.
-			_box(st, Vector3(0, 0.12, 0.1 * length), Vector3(length * 0.28, 0.4, length * 0.8), body)
-			_box(st, Vector3(0, 0.12, -length * 0.38), Vector3(length * 0.18, 0.3, length * 0.2), body)
-			_box(st, Vector3(0, 0.45, -length * 0.3), Vector3(length * 0.3, 0.3, length * 0.18), accent)
-			_box(st, Vector3(0, 0.75, length * 0.3), Vector3(0.08, 0.7, 0.08), accent)
+			# Ca nô cảm tử: thân hẹp dài như mũi tên, ba thùng thuốc nổ ở mũi, động cơ đuôi, ăng-ten đèn đỏ cao.
+			_box(st, Vector3(0, 0.12, length * 0.12), Vector3(length * 0.26, 0.38, length * 0.72), body)
+			_box(st, Vector3(0, 0.1, -length * 0.4), Vector3(length * 0.16, 0.3, length * 0.2), body)
+			for i: int in 3:
+				var dz: float = -length * (0.18 + 0.09 * float(i))
+				_box(st, Vector3(0, 0.55 + 0.02 * float(i), dz), Vector3(length * 0.34, 0.34, length * 0.08), accent)
+			_box(st, Vector3(0, 0.26, length * 0.5), Vector3(length * 0.3, 0.3, length * 0.12), body.darkened(0.3))
+			_box(st, Vector3(0, 0.95, length * 0.32), Vector3(0.08, 1.0, 0.08), accent)
+			_box(st, Vector3(0, 1.5, length * 0.32), Vector3(0.22, 0.22, 0.22), accent.lightened(0.3))
 		EnemyData.Hull.CRAB:
-			# Cua giáp gai: mai rộng và dẹt, gai và khớp phát sáng lam ngọc, càng hai bên.
+			# Cua giáp gai: mai rộng, hàng gai lam ngọc, 3 chân mỗi bên, hai càng to phía trước, hai mắt trên cuống.
 			var width: float = length * 1.2
-			_box(st, Vector3(0, 0.35, 0), Vector3(width * 0.8, 0.8, length * 0.8), body)
+			_box(st, Vector3(0, 0.4, 0), Vector3(width * 0.7, 0.8, length * 0.75), body)
+			_box(st, Vector3(0, 0.85, 0), Vector3(width * 0.5, 0.2, length * 0.55), body.lightened(0.15))
 			for i: int in 3:
 				var z: float = (float(i) - 1.0) * length * 0.25
-				_box(st, Vector3(0, 0.95, z), Vector3(0.35, 0.5, 0.35), accent)
-				_box(st, Vector3(-width * 0.5, 0.1, z), Vector3(width * 0.25, 0.2, 0.25), body.darkened(0.2))
-				_box(st, Vector3(width * 0.5, 0.1, z), Vector3(width * 0.25, 0.2, 0.25), body.darkened(0.2))
-			_box(st, Vector3(-width * 0.3, 0.3, -length * 0.5), Vector3(0.6, 0.4, 0.9), accent)
-			_box(st, Vector3(width * 0.3, 0.3, -length * 0.5), Vector3(0.6, 0.4, 0.9), accent)
+				_box(st, Vector3(0, 1.1, z), Vector3(0.3, 0.55, 0.3), accent)
+				for x: float in [-1.0, 1.0]:
+					_box(st, Vector3(x * width * 0.46, 0.15, z), Vector3(width * 0.3, 0.16, 0.2), body.darkened(0.25))
+			for x: float in [-1.0, 1.0]:
+				_box(st, Vector3(x * width * 0.28, 0.4, -length * 0.5), Vector3(0.28, 0.28, length * 0.28), body.darkened(0.1))
+				_box(st, Vector3(x * width * 0.32, 0.45, -length * 0.78), Vector3(width * 0.2, 0.4, length * 0.3), accent)
+				_box(st, Vector3(x * 0.2, 1.0, -length * 0.36), Vector3(0.1, 0.35, 0.1), body.darkened(0.3))
 	return st.commit()
 
 
