@@ -5,6 +5,8 @@ extends Resource
 
 ## 1 ô (đơn vị tầm trong GDD) = khoảng cách giữa hai bệ liền nhau.
 const UNITS_PER_CELL: float = 4.0
+## Số bệ lô cốt trên mỏm bến của đảo chính: luôn là 6 ở mọi màn (GDD mục 5.1).
+const MAIN_ISLAND_PADS: int = 6
 ## Khe hở tối thiểu giữa mép đảo kéo thả với luồng và với đảo khác.
 const ISLAND_GAP: float = 2.0
 ## Khe hở tối thiểu giữa mép đảo kéo thả với dải luồng.
@@ -47,6 +49,9 @@ const LANE_GAP: float = 0.5
 @export_group("Đảo vệ tinh của màn")
 ## Số đảo vệ tinh cấp sẵn đầu màn (đặt miễn phí). 0 = dùng đúng số đảo đã đặt sẵn trong satellite_centers.
 @export var satellite_free_count: int = 0
+## Giới hạn TỔNG số nhà giàn cố định và đảo vệ tinh (cấp sẵn và mua thêm) theo độ khó của màn: Dễ, Trung bình, Khó.
+## Nhà giàn và đảo cấp sẵn luôn có; giới hạn chỉ quyết định còn mua thêm được bao nhiêu đảo.
+@export var outpost_limits: PackedInt32Array = PackedInt32Array([12, 10, 8])
 ## Số đảo vệ tinh tối đa người chơi được đặt ở màn này, gồm cả đảo cấp sẵn và đảo mua thêm (GDD mục 5.4).
 @export var satellite_max_count: int = 8
 
@@ -125,9 +130,32 @@ func free_satellites() -> int:
 	return satellite_free_count if satellite_free_count > 0 else satellite_centers.size()
 
 
-## Số đảo mua thêm được ở màn này.
-func extra_satellites() -> int:
-	return maxi(satellite_max_count - free_satellites(), 0)
+## Giới hạn tổng nhà giàn và đảo vệ tinh ở độ khó level (Difficulty.Level).
+func outpost_limit(level: int = Difficulty.Level.NORMAL) -> int:
+	if outpost_limits.is_empty():
+		return fixed_outposts() + maxi(satellite_max_count - free_satellites(), 0)
+	return outpost_limits[clampi(level, 0, outpost_limits.size() - 1)]
+
+
+## Nhà giàn và đảo cấp sẵn: luôn có ở màn này.
+func fixed_outposts() -> int:
+	return platform_centers.size() + free_satellites()
+
+
+## Số đảo mua thêm được ở màn này ở độ khó level: không quá số đảo tối đa của màn và không làm tổng vượt giới hạn.
+func extra_satellites(level: int = Difficulty.Level.NORMAL) -> int:
+	var by_max: int = maxi(satellite_max_count - free_satellites(), 0)
+	var by_limit: int = maxi(outpost_limit(level) - fixed_outposts(), 0)
+	return mini(by_max, by_limit)
+
+
+## Số bệ trên mỏm bến của đảo chính.
+func pier_pad_count() -> int:
+	var count: int = 0
+	for i: int in pad_count():
+		if is_pier_pad(i):
+			count += 1
+	return count
 
 
 var _lane_curves: Array[Curve3D] = []

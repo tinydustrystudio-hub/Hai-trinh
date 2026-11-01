@@ -75,7 +75,8 @@ func test_cannot_buy_without_gold_or_beyond_max() -> void:
 	for i: int in 10:
 		Profile.buy_island()
 	assert_eq(Profile.bought_islands, Profile.max_bought_islands())
-	assert_eq(Profile.island_total(), LAYOUT.satellite_max_count)
+	assert_eq(Profile.island_total(), LAYOUT.free_satellites() + LAYOUT.extra_satellites(Profile.difficulty))
+	assert_lte(Profile.island_total(), LAYOUT.satellite_max_count)
 
 
 func test_deploy_cost_is_half_cheapest_tower() -> void:
@@ -396,3 +397,63 @@ func test_tow_sweep_never_overlaps_any_island() -> void:
 			guard += 1
 	assert_gte(worst_island, layout.satellite_radius * 2.0 - 0.05, "chồng đảo vệ tinh khác")
 	assert_gte(worst_fortress, reach + layout.satellite_radius - 0.5, "chồng mỏm bến của đảo chính")
+
+
+func test_outpost_limit_depends_on_level_and_difficulty() -> void:
+	assert_eq(LAYOUT.fixed_outposts(), 8, "4 nhà giàn + 4 đảo cấp sẵn")
+	assert_eq(LAYOUT.outpost_limit(Difficulty.Level.EASY), 12)
+	assert_eq(LAYOUT.outpost_limit(Difficulty.Level.NORMAL), 10)
+	assert_eq(LAYOUT.outpost_limit(Difficulty.Level.HARD), 8)
+	assert_eq(LAYOUT.extra_satellites(Difficulty.Level.EASY), 4)
+	assert_eq(LAYOUT.extra_satellites(Difficulty.Level.NORMAL), 2)
+	assert_eq(LAYOUT.extra_satellites(Difficulty.Level.HARD), 0)
+
+
+func test_total_outposts_never_exceed_the_limit_at_any_difficulty() -> void:
+	Profile.set_gold(1000000)
+	for level: int in 3:
+		Profile.reset_to_new()
+		Profile.set_gold(1000000)
+		Profile.difficulty = level
+		while Profile.buy_island():
+			pass
+		assert_lte(Profile.outpost_total(), maxi(LAYOUT.outpost_limit(level), LAYOUT.fixed_outposts()), "độ khó %d" % level)
+		var layout: MapLayout = Profile.battle_layout(LAYOUT)
+		assert_eq(layout.satellite_centers.size() + layout.platform_centers.size(), Profile.outpost_total())
+
+
+func test_harder_difficulty_trims_bought_islands_but_keeps_them() -> void:
+	Profile.set_gold(1000000)
+	Profile.difficulty = Difficulty.Level.EASY
+	for i: int in 4:
+		assert_true(Profile.buy_island())
+	assert_false(Profile.buy_island())
+	Profile.difficulty = Difficulty.Level.HARD
+	assert_eq(Profile.usable_bought_islands(), 0)
+	assert_eq(Profile.bought_islands, 4, "đảo đã mua không mất khi đổi độ khó")
+	assert_eq(Profile.battle_layout(LAYOUT).satellite_centers.size(), LAYOUT.free_satellites())
+	Profile.difficulty = Difficulty.Level.NORMAL
+	assert_eq(Profile.usable_bought_islands(), 2)
+
+
+func test_difficulty_is_saved_and_loaded() -> void:
+	Profile.difficulty = Difficulty.Level.HARD
+	assert_true(Profile.save(TEMP_PATH, true))
+	Profile.difficulty = Difficulty.Level.EASY
+	assert_true(Profile.load_saved(TEMP_PATH))
+	assert_eq(Profile.difficulty, Difficulty.Level.HARD)
+	assert_eq(Difficulty.from_id(&"easy"), Difficulty.Level.EASY)
+	assert_eq(Difficulty.from_id(&"xyz"), Difficulty.Level.NORMAL)
+
+
+func test_main_island_always_has_six_pads_in_every_map() -> void:
+	var dir: DirAccess = DirAccess.open("res://data/maps")
+	var checked: int = 0
+	for file: String in dir.get_files():
+		if file.ends_with(".tres"):
+			var layout: MapLayout = load("res://data/maps/" + file) as MapLayout
+			assert_eq(layout.pier_pad_count(), MapLayout.MAIN_ISLAND_PADS, "%s: đảo chính luôn 6 bệ" % file)
+			checked += 1
+	assert_gt(checked, 0)
+	var battle_layout: MapLayout = Profile.battle_layout(LAYOUT)
+	assert_eq(battle_layout.pier_pad_count(), 6)

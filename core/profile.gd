@@ -31,6 +31,8 @@ var building_levels: Dictionary[StringName, int] = {}
 var persist: bool = true
 ## Số đảo vệ tinh đã mua thêm. Đảo mua rồi có mãi, nằm cạnh đảo chính; vào trận mới kéo ra ô chọn (tốn phí kéo).
 var bought_islands: int = 0
+## Độ khó đang chơi (Difficulty.Level); quyết định còn mua thêm được bao nhiêu đảo vệ tinh.
+var difficulty: int = Difficulty.Level.NORMAL
 
 var _buildings: Array[BuildingData] = []
 var _map: MapLayout
@@ -132,14 +134,30 @@ func free_island_count() -> int:
 	return map().free_satellites()
 
 
-## Số đảo mua thêm tối đa ở màn này.
+## Số đảo mua thêm tối đa ở màn này, ở độ khó đang chơi.
 func max_bought_islands() -> int:
-	return map().extra_satellites()
+	return map().extra_satellites(difficulty)
 
 
-## Tổng số đảo vệ tinh: đảo cấp sẵn và đảo đã mua.
+## Số đảo mua thêm dùng được trong trận: không quá giới hạn của độ khó (đổi sang mức khó hơn thì bớt đảo).
+func usable_bought_islands() -> int:
+	return mini(bought_islands, max_bought_islands())
+
+
+## Tổng số đảo vệ tinh dùng được: đảo cấp sẵn và đảo đã mua.
 func island_total() -> int:
-	return free_island_count() + bought_islands
+	return free_island_count() + usable_bought_islands()
+
+
+## Tổng nhà giàn và đảo vệ tinh của trận ở độ khó đang chơi.
+func outpost_total() -> int:
+	return map().platform_centers.size() + island_total()
+
+
+func set_difficulty(level: int) -> void:
+	difficulty = clampi(level, 0, Difficulty.IDS.size() - 1)
+	islands_changed.emit()
+	save()
 
 
 func can_buy_island() -> bool:
@@ -178,7 +196,7 @@ func battle_layout(base: MapLayout) -> MapLayout:
 	for i: int in free_island_count():
 		centers.append(base.satellite_centers[i])
 		utilities.append(base.satellite_utility(i))
-	for i: int in mini(bought_islands, base.satellite_docks.size()):
+	for i: int in mini(usable_bought_islands(), base.satellite_docks.size()):
 		centers.append(base.satellite_docks[i])
 		utilities.append(base.satellite_utility(free_island_count() + i))
 	var layout: MapLayout = base.with_satellites(centers, utilities)
@@ -196,7 +214,7 @@ func to_dictionary() -> Dictionary:
 	var levels: Dictionary = {}
 	for id: StringName in building_levels:
 		levels[String(id)] = building_levels[id]
-	return {"gold": gold, "levels": levels, "bought": bought_islands}
+	return {"gold": gold, "levels": levels, "bought": bought_islands, "difficulty": String(Difficulty.id_of(difficulty))}
 
 
 func apply_dictionary(values: Dictionary) -> void:
@@ -210,6 +228,8 @@ func apply_dictionary(values: Dictionary) -> void:
 			var level: Variant = (levels as Dictionary)[key]
 			if level is int and building(StringName(str(key))) != null:
 				building_levels[StringName(str(key))] = clampi(level, 1, BuildingData.MAX_LEVEL)
+	var stored_difficulty: Variant = values.get("difficulty")
+	difficulty = Difficulty.from_id(StringName(str(stored_difficulty))) if stored_difficulty is String else Difficulty.Level.NORMAL
 	_apply_islands(values)
 	gold_changed.emit(gold)
 
@@ -261,5 +281,6 @@ func reset_levels() -> void:
 func reset_to_new() -> void:
 	gold = NEW_PLAYER_GOLD
 	building_levels.clear()
+	difficulty = Difficulty.Level.NORMAL
 	reset_islands()
 	gold_changed.emit(gold)
