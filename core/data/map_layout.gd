@@ -38,6 +38,12 @@ const UNITS_PER_CELL: float = 4.0
 ## Số đảo vệ tinh tối đa người chơi được đặt ở màn này, gồm cả đảo cấp sẵn và đảo mua thêm (GDD mục 5.4).
 @export var satellite_max_count: int = 8
 
+@export_group("Thời tiết và ánh sáng")
+## Thời tiết của cả màn theo cốt truyện: clear, rain hoặc storm; không đổi giữa chừng.
+@export var weather_id: StringName = &"clear"
+## Ánh sáng của cả màn: day, dawn hoặc dusk.
+@export var lighting_id: StringName = &"day"
+
 @export_group("Công trình và tiện ích")
 ## Cấp từng công trình trên đảo chính (1, 3 hoặc 5; thiếu = cấp 1): wave_shield, repair_works, tidal_power, shipyard.
 ## Là số tạm cho tới khi có màn Căn cứ (P5) lưu cấp thật.

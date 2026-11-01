@@ -84,6 +84,9 @@ var _enemies_met: Array[EnemyData] = []
 signal menu_requested
 
 var weather: Weather
+## Ánh sáng cố định của màn theo cốt truyện (bình minh, ban ngày, hoàng hôn) và viền tối màn hình.
+var lighting: LightingData
+var vignette: Vignette
 var tutorial: TutorialHints
 var fade: ScreenFade
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
@@ -430,6 +433,7 @@ func build_map() -> void:
 		islands_in_use = []
 		layout = _base_layout.duplicate() as MapLayout
 		layout.building_levels = Profile.building_levels.duplicate()
+	_apply_lighting(StringName(Settings.launch_value("light")) if not Settings.launch_value("light").is_empty() else layout.lighting_id)
 	island.build(layout)
 	for lane: Lane in lanes:
 		lane.queue_free()
@@ -472,13 +476,36 @@ func _build_weather() -> void:
 	add_child(weather)
 	weather.attach(ocean, sun, rain_fx, lightning_fx)
 	weather.island = island
-	var wanted: StringName = StringName(Settings.launch_value("weather"))
-	weather.set_weather(Weather.by_id(wanted), true)
+	# Thời tiết cố định suốt màn theo bản đồ (cốt truyện); ?weather= chỉ để thử.
+	var wanted: String = Settings.launch_value("weather")
+	weather.set_weather(Weather.by_id(StringName(wanted) if not wanted.is_empty() else layout.weather_id), true)
 
 
 ## Đổi thời tiết (bảng debug, thử): bình thường, mưa, bão.
 func set_weather(id: StringName) -> void:
 	weather.set_weather(Weather.by_id(id))
+
+
+## Áp ánh sáng của màn: nắng, môi trường, bảng màu biển và viền tối. Hướng nắng của bản đồ theo ánh sáng đó (bóng giả đổi theo).
+func _apply_lighting(id: StringName) -> void:
+	lighting = Lighting.by_id(id)
+	layout.sun_direction = lighting.sun_direction
+	if vignette == null:
+		vignette = Vignette.new()
+		vignette.name = "Vignette"
+		add_child(vignette)
+	Lighting.apply(lighting, world_environment.environment, sun, ocean, vignette)
+	vignette.set_enabled(Settings.water_quality == Ocean.Quality.HIGH)
+
+
+## Đổi ánh sáng (bảng debug, thử): dựng lại bóng, hướng nắng và màu.
+func set_lighting(id: StringName) -> void:
+	_apply_lighting(id)
+	_place_sun()
+	enemy_pool.configure_effects(layout.sun_direction)
+	island.build(layout)
+	if weather != null:
+		weather.rebase_sun(lighting.sun_energy)
 
 
 ## Nắng chiếu công trình từ hướng sun_direction của bản đồ. Nước dùng cùng màu nắng nhưng vệt sáng
@@ -493,6 +520,8 @@ func _place_sun() -> void:
 ## Mức chất lượng thấp tắt glow (tốn thêm lượt vẽ toàn màn hình); nước tự đổi theo Settings.
 func _apply_quality(quality: Ocean.Quality) -> void:
 	world_environment.environment.glow_enabled = quality == Ocean.Quality.HIGH
+	if vignette != null:
+		vignette.set_enabled(quality == Ocean.Quality.HIGH)
 
 
 func select_pad(pad: TowerPad) -> void:
