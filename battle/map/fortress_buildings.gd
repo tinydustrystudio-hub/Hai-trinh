@@ -1,10 +1,9 @@
 class_name FortressBuildings
 extends RefCounted
 ## Công trình hỗ trợ lên vành ngoài của pháo đài theo cấp 1 / 3 / 5 (concept pack mục C):
-## Khiên Chắn Sóng (hàng trụ nghiêng), Xưởng Sửa Chữa (thêm băng chuyền, mái vòm), Xưởng Tàu (ụ nổi chữ U),
+## Xưởng Sửa Chữa (thêm băng chuyền, mái vòm), Xưởng Tàu (ụ nổi chữ U),
 ## cùng đèn đường dọc lối vào. Tất cả thấp hơn đê chắn sóng hoặc nằm trong vành đê, không che bệ hay luồng.
 
-const SHIELD_ANGLE: float = 180.0
 const SHIPYARD_ANGLES: Array[float] = [0.0, 120.0]
 const REPAIR_ANGLE: float = 0.0
 const DECK_RADIUS_FRACTION: float = 0.8
@@ -13,15 +12,9 @@ const DECK_RADIUS_FRACTION: float = 0.8
 static func build(st: SurfaceTool, layout: MapLayout) -> void:
 	var c: Vector3 = layout.fortress_center
 	var r: float = layout.fortress_radius
-	_wave_shield(st, c, r, layout.building_level(&"wave_shield"))
 	_repair_extras(st, c, r, layout.building_level(&"repair_works"))
 	_shipyard(st, c, r, layout.building_level(&"shipyard"))
 	_lamp_posts(st, c, r)
-
-
-## Số trụ của Khiên Chắn Sóng theo cấp.
-static func shield_posts(level: int) -> int:
-	return clampi(level, 1, 5)
 
 
 ## Số ụ của Xưởng Tàu theo cấp (cấp 5 có hai ụ).
@@ -38,31 +31,6 @@ const SHIPYARD_CABIN_LEVEL: int = 4
 static func _polar(c: Vector3, radius: float, degrees: float) -> Vector3:
 	var a: float = deg_to_rad(degrees)
 	return c + Vector3(cos(a), 0.0, sin(a)) * radius
-
-
-static func _wave_shield(st: SurfaceTool, c: Vector3, r: float, level: int) -> void:
-	var count: int = shield_posts(level)
-	var y: float = AllianceFortress.DECK_Y
-	var radius: float = r * 0.8
-	var points: Array[Vector3] = []
-	for i: int in count:
-		var t: float = 0.0 if count == 1 else float(i) / float(count - 1) - 0.5
-		var p: Vector3 = _polar(c, radius, SHIELD_ANGLE + t * 32.0)
-		points.append(p)
-		var outward: Vector3 = (p - c).normalized()
-		var yaw: float = atan2(-outward.z, outward.x)
-		# Trụ xám than có đầu cao su đen, sọc ngà, hơi nghiêng ra biển bằng một khối đế vát.
-		MeshKit.box(st, Vector3(p.x, y + 1.2, p.z), Vector3(0.9, 2.4, 1.1), AllianceFortress.STEEL, yaw, AllianceFortress.DARK)
-		MeshKit.box(st, Vector3(p.x, y + 2.5, p.z) + outward * 0.3, Vector3(0.7, 0.5, 0.9), AllianceFortress.ORANGE, yaw)
-	# Từ cấp 2 có dây chắn nối các trụ; cấp 4 trở lên thêm màng sóng lam nhạt.
-	for i: int in range(1, points.size()):
-		var a: Vector3 = points[i - 1]
-		var b: Vector3 = points[i]
-		var mid: Vector3 = (a + b) * 0.5
-		var yaw: float = atan2(-(b - a).z, (b - a).x)
-		MeshKit.box(st, Vector3(mid.x, y + 1.8, mid.z), Vector3(a.distance_to(b), 0.14, 0.14), AllianceFortress.DARK, yaw)
-		if level >= 4:
-			MeshKit.box(st, Vector3(mid.x, y + 1.1, mid.z), Vector3(a.distance_to(b), 1.3, 0.06), AllianceFortress.GLASS.lightened(0.2), yaw)
 
 
 static func _repair_extras(st: SurfaceTool, c: Vector3, r: float, level: int) -> void:

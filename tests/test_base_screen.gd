@@ -144,3 +144,25 @@ func test_preview_zoom_wheel_pinch_and_limits() -> void:
 	for i: int in 80:
 		_screen.zoom_preview(0.5)
 	assert_lte(_screen.distance_factor(), BaseScreen.MAX_DISTANCE)
+
+
+func test_preview_tilts_with_vertical_drag_within_limits() -> void:
+	var before: float = _screen.pitch()
+	var drag: InputEventMouseMotion = InputEventMouseMotion.new()
+	drag.relative = Vector2(0, 60)
+	drag.button_mask = MOUSE_BUTTON_MASK_LEFT
+	_screen.get_node("Preview").gui_input.emit(drag)
+	assert_gt(_screen.pitch(), before, "kéo xuống thì nhìn cao hơn")
+	drag.relative = Vector2(0, -60)
+	_screen.get_node("Preview").gui_input.emit(drag)
+	assert_almost_eq(_screen.pitch(), before, 0.001)
+	for i: int in 200:
+		_screen.tilt_preview(0.2)
+	assert_lte(_screen.pitch(), BaseScreen.MAX_PITCH)
+	for i: int in 400:
+		_screen.tilt_preview(-0.2)
+	assert_gte(_screen.pitch(), BaseScreen.MIN_PITCH)
+
+
+func test_default_pitch_matches_old_camera_angle() -> void:
+	assert_almost_eq(BaseScreen.DEFAULT_PITCH, atan2(64.0, 55.0), 0.001)

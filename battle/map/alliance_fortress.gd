@@ -31,7 +31,8 @@ static func build_fortress(layout: MapLayout) -> ArrayMesh:
 	var st: SurfaceTool = MeshKit.begin()
 	var c: Vector3 = layout.fortress_center
 	var r: float = layout.fortress_radius
-	_base_and_wall(st, c, r)
+	_base_and_wall(st, c, r, layout.building_level(&"wave_shield"))
+	_tidal_lines(st, c, r, layout.building_level(&"tidal_power"))
 	_inner_ring(st, c, r, layout.building_level(&"tidal_power"))
 	_tower(st, c, r)
 	for i: int in layout.pad_count():
@@ -100,14 +101,27 @@ static func edge_angle(k: int) -> float:
 	return deg_to_rad(30.0 + 60.0 * float(k))
 
 
-static func _base_and_wall(st: SurfaceTool, c: Vector3, r: float) -> void:
+## Chiều cao tường chắn sóng theo cấp (cấp 1 giữ như cũ, mỗi cấp cao thêm).
+static func wall_height(level: int) -> float:
+	return 1.1 + 0.3 * float(clampi(level, 1, 5) - 1)
+
+
+## Độ dày tường theo cấp, nhân với r * 0.07.
+static func wall_thickness_scale(level: int) -> float:
+	return 1.0 + 0.15 * float(clampi(level, 1, 5) - 1)
+
+
+## Tường chắn sóng bao quanh cả đảo (cấp công trình Tường Chắn Sóng): cao và dày dần mỗi cấp; cấp 2 thêm sọc cam thứ hai,
+## cấp 3 thêm chân tường chắn sóng, cấp 4 thêm đèn trên tường và tháp góc cao hơn, cấp 5 thêm hàng kính chắn gió trên đỉnh.
+static func _base_and_wall(st: SurfaceTool, c: Vector3, r: float, wall_level: int = 1) -> void:
 	# Phao nền lục giác (đỉnh ở 0°, 60°…), sàn trắng ngà.
 	MeshKit.prism(st, c, r, BASE_BOTTOM, DECK_Y, 6, SEA_BLUE, DECK)
 	# Gờ tối sát mặt nước cho rõ đường mớn.
 	MeshKit.ring(st, c, r - 0.05, r + 0.15, -0.3, 0.25, 6, DEEP_BLUE, DEEP_BLUE)
 	var inradius: float = r * cos(PI / 6.0)
 	var gap: float = PIER_WIDTH + 0.6
-	var thickness: float = r * 0.07
+	var thickness: float = r * 0.07 * wall_thickness_scale(wall_level)
+	var height: float = wall_height(wall_level)
 	for k: int in 6:
 		var v0: Vector3 = c + Vector3(cos(deg_to_rad(60.0 * k)), 0.0, sin(deg_to_rad(60.0 * k))) * (r - thickness * 0.6)
 		var v1: Vector3 = c + Vector3(cos(deg_to_rad(60.0 * (k + 1))), 0.0, sin(deg_to_rad(60.0 * (k + 1)))) * (r - thickness * 0.6)
@@ -120,17 +134,48 @@ static func _base_and_wall(st: SurfaceTool, c: Vector3, r: float) -> void:
 			var start: Vector3 = v0 if side == 0 else v1 - along * seg_len
 			var mid: Vector3 = start + along * seg_len * 0.5
 			# Đê chắn sóng trắng ngà, sọc cam ở mặt ngoài.
-			MeshKit.box(st, Vector3(mid.x, DECK_Y + 0.55, mid.z), Vector3(seg_len, 1.1, thickness), IVORY, yaw)
+			MeshKit.box(st, Vector3(mid.x, DECK_Y + height * 0.5, mid.z), Vector3(seg_len, height, thickness), IVORY, yaw)
 			var stripe: Vector3 = mid + outward * (thickness * 0.5 + 0.03)
 			MeshKit.box(st, Vector3(stripe.x, DECK_Y + 0.6, stripe.z), Vector3(seg_len * 0.98, 0.28, 0.06), ORANGE, yaw)
+			if wall_level >= 2:
+				MeshKit.box(st, Vector3(stripe.x, DECK_Y + height - 0.25, stripe.z), Vector3(seg_len * 0.98, 0.2, 0.06), ORANGE, yaw)
+			if wall_level >= 3:
+				var foot: Vector3 = mid + outward * (thickness * 0.5 + 0.35)
+				MeshKit.box(st, Vector3(foot.x, DECK_Y + 0.2, foot.z), Vector3(seg_len, 0.45, 0.8), STEEL, yaw)
+			if wall_level >= 4:
+				MeshKit.box(st, Vector3(mid.x, DECK_Y + height + 0.35, mid.z), Vector3(0.3, 0.7, 0.3), DARK, yaw)
+				MeshKit.box(st, Vector3(mid.x, DECK_Y + height + 0.85, mid.z), Vector3(0.45, 0.25, 0.45), LAMP, yaw)
+			if wall_level >= 5:
+				MeshKit.box(st, Vector3(mid.x, DECK_Y + height + 0.4, mid.z), Vector3(seg_len * 0.96, 0.8, 0.06), GLASS.lightened(0.2), yaw)
 		# Pháo đài góc (bastion) ở mỗi đỉnh lục giác.
-		MeshKit.prism(st, v0, r * 0.1, DECK_Y - 0.4, DECK_Y + 1.6, 6, IVORY, SEA_BLUE, deg_to_rad(60.0 * k))
-		MeshKit.ring(st, v0, r * 0.1, r * 0.112, DECK_Y + 1.3, DECK_Y + 1.6, 6, ORANGE, ORANGE, deg_to_rad(60.0 * k))
+		var tower_top: float = DECK_Y + 1.6 + 0.35 * float(wall_level - 1)
+		MeshKit.prism(st, v0, r * 0.1, DECK_Y - 0.4, tower_top, 6, IVORY, SEA_BLUE, deg_to_rad(60.0 * k))
+		MeshKit.ring(st, v0, r * 0.1, r * 0.112, tower_top - 0.3, tower_top, 6, ORANGE, ORANGE, deg_to_rad(60.0 * k))
+		if wall_level >= 4:
+			MeshKit.cone(st, v0, r * 0.075, tower_top, 0.9, 6, SEA_BLUE)
 	# Lối đi trên sàn từ mỗi khe đê vào vành trong.
 	for k: int in 6:
 		var dir: Vector3 = Vector3(cos(edge_angle(k)), 0.0, sin(edge_angle(k)))
 		var p: Vector3 = c + dir * (inradius * 0.83)
 		MeshKit.box(st, Vector3(p.x, DECK_Y + 0.02, p.z), Vector3(r * 0.24, 0.04, PIER_WIDTH * 0.7), STEEL.lightened(0.3), atan2(-dir.z, dir.x))
+
+
+## Trạm Năng Lượng: từ cấp 2 có ống dẫn cáp cam chạy quanh mép sàn toàn đảo; cấp 4 thêm dải điện lam sáng bên cạnh.
+static func _tidal_lines(st: SurfaceTool, c: Vector3, r: float, level: int) -> void:
+	if level < 2:
+		return
+	var radius: float = r * 0.9
+	for k: int in 6:
+		var a0: float = deg_to_rad(60.0 * float(k) + 8.0)
+		var a1: float = deg_to_rad(60.0 * float(k) + 22.0)
+		var p0: Vector3 = c + Vector3(cos(a0), 0.0, sin(a0)) * radius
+		var p1: Vector3 = c + Vector3(cos(a1), 0.0, sin(a1)) * radius
+		var mid: Vector3 = (p0 + p1) * 0.5
+		var along: Vector3 = p1 - p0
+		var yaw: float = atan2(-along.z, along.x)
+		MeshKit.box(st, Vector3(mid.x, DECK_Y + 0.12, mid.z), Vector3(along.length(), 0.24, 0.35), ORANGE, yaw)
+		if level >= 4:
+			MeshKit.box(st, Vector3(mid.x, DECK_Y + 0.27, mid.z), Vector3(along.length(), 0.06, 0.18), GLASS.lightened(0.5), yaw)
 
 
 static func _inner_ring(st: SurfaceTool, c: Vector3, r: float, tidal_level: int = 1) -> void:
