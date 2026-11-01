@@ -28,6 +28,9 @@ const MAX_ACTIVE_ENEMIES: int = 60
 ## Ở cảnh thử, địch mới xuất hiện rải trong đoạn đầu luồng này (tỉ lệ chiều dài luồng).
 const STRESS_SPREAD: float = 0.85
 
+## Chỉ số các đảo vệ tinh (trong hồ sơ) đang dùng ở trận này.
+var islands_in_use: Array[int] = []
+var _base_layout: MapLayout
 @export var layout: MapLayout = preload("res://data/maps/north_dock_layout.tres")
 @export var wave_data: WaveData = preload("res://data/waves/north_dock_waves.tres")
 ## Các lô cốt chọn được trong vòng chọn, theo thứ tự hiện trên vòng.
@@ -88,6 +91,7 @@ var fade: ScreenFade
 
 func _ready() -> void:
 	build_map()
+	charge_island_fee()
 	_build_weather()
 	fade = ScreenFade.new()
 	fade.name = "ScreenFade"
@@ -403,14 +407,29 @@ func toggle_fast() -> void:
 	set_speed(1.0 if speed > 1.0 else FAST_SPEED)
 
 
+## Trừ phí dùng các đảo tự đặt trong trận này khỏi ví (không trừ quá số đang có).
+func charge_island_fee() -> int:
+	if stress_mode:
+		return 0
+	return Profile.charge_use_fee(islands_in_use)
+
+
 func retry() -> void:
+	charge_island_fee()
 	start_battle()
 
 
 func build_map() -> void:
-	# Cấp công trình lấy từ hồ sơ người chơi; sao chép bố cục để không sửa tài nguyên dùng chung.
-	layout = layout.duplicate() as MapLayout
-	layout.building_levels = Profile.building_levels.duplicate()
+	# Đảo vệ tinh và cấp công trình lấy từ hồ sơ người chơi; sao chép bố cục để không sửa tài nguyên dùng chung.
+	if _base_layout == null:
+		_base_layout = layout
+	if _base_layout.slot_count() > 0:
+		islands_in_use = Profile.battle_islands()
+		layout = Profile.battle_layout(_base_layout, islands_in_use)
+	else:
+		islands_in_use = []
+		layout = _base_layout.duplicate() as MapLayout
+		layout.building_levels = Profile.building_levels.duplicate()
 	island.build(layout)
 	for lane: Lane in lanes:
 		lane.queue_free()

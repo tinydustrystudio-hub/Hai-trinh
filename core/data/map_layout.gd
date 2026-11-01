@@ -28,6 +28,10 @@ const UNITS_PER_CELL: float = 4.0
 ## Hướng từ mặt nước tới mặt trời (nắng chiếu từ một hướng).
 @export var sun_direction: Vector3 = Vector3(0.45, 0.6, -0.65)
 
+## Các ô đặt đảo vệ tinh mà người chơi chọn được (tâm đảo). Bốn ô đầu là vị trí mặc định của các đảo cấp sẵn.
+## Mọi ô cách luồng đủ xa để không đè luồng và đủ gần để lô cốt trên đó với tới luồng.
+@export var satellite_slots: PackedVector3Array = PackedVector3Array()
+
 @export_group("Đảo vệ tinh của màn")
 ## Số đảo vệ tinh cấp sẵn đầu màn (đặt miễn phí). 0 = dùng đúng số đảo đã đặt sẵn trong satellite_centers.
 @export var satellite_free_count: int = 0
@@ -122,3 +126,23 @@ func satellite_utility(index: int) -> StringName:
 	if index < satellite_utilities.size():
 		return satellite_utilities[index]
 	return SatelliteUtilities.IDS[index % SatelliteUtilities.IDS.size()]
+
+
+## Bản sao của bố cục với các đảo vệ tinh đặt ở centers (đúng thứ tự), mỗi đảo mang tiện ích utilities[i] (thiếu thì theo vòng lặp).
+## Bệ trên mỏm bến giữ nguyên; bệ của đảo vệ tinh được dựng lại ở tâm từng đảo.
+func with_satellites(centers: PackedVector3Array, utilities: Array[StringName] = []) -> MapLayout:
+	var result: MapLayout = duplicate() as MapLayout
+	var pads: PackedVector3Array = PackedVector3Array()
+	for i: int in pad_positions.size():
+		if not is_satellite_pad(i):
+			pads.append(pad_positions[i])
+	for center: Vector3 in centers:
+		pads.append(center)
+	result.pad_positions = pads
+	result.satellite_centers = centers
+	result.satellite_utilities = utilities.duplicate()
+	return result
+
+
+func slot_count() -> int:
+	return satellite_slots.size()

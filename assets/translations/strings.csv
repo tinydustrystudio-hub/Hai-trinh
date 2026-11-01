@@ -121,3 +121,20 @@ BASE_MAX,Cấp tối đa,Max level
 BASE_RESET_GOLD,Đặt lại vàng,Reset gold
 BASE_RESET_LEVELS,Đặt lại cấp,Reset levels
 BASE_ADD_GOLD,+1000 vàng,+1000 gold
+BASE_TAB_BUILDINGS,Công trình,Buildings
+BASE_TAB_ISLANDS,Đảo vệ tinh,Satellites
+BASE_ISLAND_COUNT,Đảo sở hữu: %d (đã đặt %d/%d),Islands owned: %d (placed %d/%d)
+BASE_ISLAND_FEE,Phí dùng mỗi trận: %d,Use fee per battle: %d
+BASE_ISLAND_MOVE,Phí dời một đảo: %d,Move fee per island: %d
+BASE_ISLAND_BUY,Mua đảo %d,Buy island %d
+BASE_ISLAND_BUY_MAX,Đã mua đủ đảo,All islands bought
+BASE_ISLAND_STORE,Cất đảo,Store island
+BASE_ISLAND_RESET,Đặt lại đảo,Reset islands
+BASE_ISLAND_HINT,Chạm ô trống để đặt đảo (miễn phí). Chạm một đảo rồi chạm ô trống khác để dời (tốn phí).,"Tap an empty spot to place an island (free). Tap an island, then another spot to move it (costs gold)."
+BASE_MSG_PLACED,Đã đặt đảo.,Island placed.
+BASE_MSG_MOVED,Đã dời đảo (−%d vàng).,Island moved (−%d gold).
+BASE_MSG_NO_GOLD,Không đủ Tiền Vàng.,Not enough Gold.
+BASE_MSG_NO_STOCK,"Không còn đảo trong kho, hãy mua thêm.","No island in storage, buy another."
+BASE_MSG_LIMIT,Đã đặt tối đa %d đảo.,Maximum of %d islands placed.
+BASE_MSG_STORED,Đã cất đảo.,Island stored.
+BASE_MSG_BOUGHT,"Đã mua đảo, chạm ô trống để đặt.","Island bought, tap an empty spot to place it."
