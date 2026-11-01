@@ -118,3 +118,6 @@ BASE_GO,Chuẩn bị trận,Prepare battle
 BASE_LEVEL,Cấp %d/%d,Level %d/%d
 BASE_UPGRADE,Nâng cấp %d,Upgrade %d
 BASE_MAX,Cấp tối đa,Max level
+BASE_RESET_GOLD,Đặt lại vàng,Reset gold
+BASE_RESET_LEVELS,Đặt lại cấp,Reset levels
+BASE_ADD_GOLD,+1000 vàng,+1000 gold

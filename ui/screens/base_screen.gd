@@ -10,6 +10,10 @@ signal back_requested
 const PLAY_SIZE: Vector2 = Vector2(560, 170)
 const UPGRADE_SIZE: Vector2 = Vector2(300, 130)
 const PREVIEW_SIZE: Vector2i = Vector2i(900, 760)
+## Xoay: radian mỗi pixel kéo.
+const ROTATE_SPEED: float = 0.008
+## Vàng cộng thêm của nút thử nghiệm.
+const TEST_GOLD: int = 1000
 const LAYOUT_PATH: String = "res://data/maps/north_dock_layout.tres"
 
 var _wallet: Label
@@ -18,6 +22,12 @@ var _go: Button
 var _back: Button
 var _island: Island
 var _layout: MapLayout
+var _camera: Camera3D
+## Góc xoay của camera quanh đảo (radian), kéo ngón tay để xoay.
+var _yaw: float = 0.0
+var _reset_gold: Button
+var _reset_levels: Button
+var _add_gold: Button
 
 
 func _ready() -> void:
@@ -34,6 +44,7 @@ func _ready() -> void:
 	_add_wallet()
 	_add_preview()
 	_add_building_list()
+	_add_test_buttons()
 	_go = UiStyle.primary_button(&"BASE_GO", PLAY_SIZE)
 	_go.name = "Go"
 	_go.add_theme_font_size_override(&"font_size", 56)
@@ -77,6 +88,28 @@ func wallet_text() -> String:
 	return _wallet.text
 
 
+func reset_gold_button() -> Button:
+	return _reset_gold
+
+
+func reset_levels_button() -> Button:
+	return _reset_levels
+
+
+func add_gold_button() -> Button:
+	return _add_gold
+
+
+func yaw() -> float:
+	return _yaw
+
+
+## Xoay đảo xem trước một góc (radian), camera quay quanh tâm đảo.
+func rotate_preview(delta_yaw: float) -> void:
+	_yaw = wrapf(_yaw + delta_yaw, -PI, PI)
+	_place_camera()
+
+
 func island() -> Island:
 	return _island
 
@@ -100,6 +133,37 @@ func refresh() -> void:
 func _on_upgrade(id: StringName) -> void:
 	if Profile.upgrade(id):
 		refresh()
+
+
+func _add_test_buttons() -> void:
+	# Nút thử nghiệm (đặt lại, thêm vàng) để xem đảo đổi hình qua từng cấp; xếp ngang giữa Quay lại và Chuẩn bị trận.
+	var row: HBoxContainer = HBoxContainer.new()
+	row.name = "TestButtons"
+	row.add_theme_constant_override(&"separation", 16)
+	row.position = Vector2(430, 880)
+	add_child(row)
+	_reset_gold = UiStyle.secondary_button(&"BASE_RESET_GOLD", Vector2(270, 130))
+	_reset_gold.pressed.connect(func() -> void: Profile.reset_gold(); refresh())
+	_reset_levels = UiStyle.secondary_button(&"BASE_RESET_LEVELS", Vector2(270, 130))
+	_reset_levels.pressed.connect(func() -> void: Profile.reset_levels(); refresh())
+	_add_gold = UiStyle.secondary_button(&"BASE_ADD_GOLD", Vector2(270, 130))
+	_add_gold.pressed.connect(func() -> void: Profile.add_gold(TEST_GOLD); refresh())
+	for button: Button in [_reset_gold, _reset_levels, _add_gold]:
+		button.add_theme_font_size_override(&"font_size", 34)
+		row.add_child(button)
+
+
+func _on_preview_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and ((event as InputEventMouseMotion).button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
+		rotate_preview(-(event as InputEventMouseMotion).relative.x * ROTATE_SPEED)
+
+
+func _place_camera() -> void:
+	if _camera == null:
+		return
+	var center: Vector3 = _layout.fortress_center
+	var offset: Vector3 = Vector3(0.0, 64.0, 55.0).rotated(Vector3.UP, _yaw)
+	_camera.look_at_from_position(center + offset, center + Vector3(0.0, 2.0, 0.0))
 
 
 func _on_gold_changed(_value: int) -> void:
@@ -171,11 +235,11 @@ func _add_preview() -> void:
 	viewport.transparent_bg = true
 	viewport.own_world_3d = true
 	container.add_child(viewport)
-	var center: Vector3 = _layout.fortress_center
-	var camera: Camera3D = Camera3D.new()
-	camera.fov = 35.0
-	viewport.add_child(camera)
-	camera.look_at_from_position(center + Vector3(0.0, 64.0, 55.0), center + Vector3(0.0, 2.0, 0.0))
+	container.gui_input.connect(_on_preview_input)
+	_camera = Camera3D.new()
+	_camera.fov = 35.0
+	viewport.add_child(_camera)
+	_place_camera()
 	var sun: DirectionalLight3D = DirectionalLight3D.new()
 	sun.light_energy = 1.1
 	viewport.add_child(sun)

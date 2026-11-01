@@ -141,6 +141,20 @@ func load_saved(path: String = SAVE_PATH) -> bool:
 	return true
 
 
+## Đặt lại Tiền Vàng về mức người chơi mới (nút thử nghiệm ở màn Căn cứ).
+func reset_gold() -> void:
+	set_gold(NEW_PLAYER_GOLD)
+	save()
+
+
+## Đặt lại cấp mọi công trình về 1, giữ nguyên Tiền Vàng.
+func reset_levels() -> void:
+	building_levels.clear()
+	for data: BuildingData in buildings():
+		building_upgraded.emit(data.id, 1)
+	save()
+
+
 ## Ghi đè bằng hồ sơ mới (cho test).
 func reset_to_new() -> void:
 	gold = NEW_PLAYER_GOLD

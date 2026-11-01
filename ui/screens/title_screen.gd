@@ -41,19 +41,21 @@ func _ready() -> void:
 	_play.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_play.pressed.connect(play_requested.emit)
 	add_child(_play)
+	# Hai nút phụ xếp ngang ở góc dưới trái; để Container lo vị trí, không đặt tay (tránh nút bị đẩy ra khỏi màn hình).
+	var side: HBoxContainer = HBoxContainer.new()
+	side.name = "SideButtons"
+	side.add_theme_constant_override(&"separation", UiStyle.MARGIN)
+	side.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
+	side.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	add_child(side)
 	_settings = UiStyle.secondary_button(&"TITLE_SETTINGS", SETTINGS_SIZE)
 	_settings.name = "Settings"
-	_settings.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
-	_settings.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_settings.pressed.connect(settings_requested.emit)
-	add_child(_settings)
+	side.add_child(_settings)
 	_base = UiStyle.secondary_button(&"TITLE_BASE", SETTINGS_SIZE)
 	_base.name = "Base"
-	_base.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
-	_base.position.x += SETTINGS_SIZE.x + UiStyle.MARGIN
-	_base.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_base.pressed.connect(base_requested.emit)
-	add_child(_base)
+	side.add_child(_base)
 	var version: Label = UiStyle.label(26)
 	version.name = "Version"
 	var number: String = str(ProjectSettings.get_setting("application/config/version", ""))
