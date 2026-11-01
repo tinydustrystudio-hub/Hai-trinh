@@ -32,8 +32,9 @@ static func build_fortress(layout: MapLayout) -> ArrayMesh:
 	var c: Vector3 = layout.fortress_center
 	var r: float = layout.fortress_radius
 	_base_and_wall(st, c, r, layout.building_level(&"wave_shield"))
-	_tidal_lines(st, c, r, layout.building_level(&"tidal_power"))
-	_inner_ring(st, c, r, layout.building_level(&"tidal_power"))
+	if not has_building_model(&"tidal_power", layout.building_level(&"tidal_power")):
+		_tidal_lines(st, c, r, layout.building_level(&"tidal_power"))
+	_inner_ring(st, c, r, layout.building_level(&"tidal_power"), layout.building_level(&"repair_works"))
 	_tower(st, c, r)
 	for i: int in layout.pad_count():
 		if not layout.is_satellite_pad(i):
@@ -198,7 +199,7 @@ static func _tidal_lines(st: SurfaceTool, c: Vector3, r: float, level: int) -> v
 			MeshKit.box(st, Vector3(mid.x, DECK_Y + 0.27, mid.z), Vector3(along.length(), 0.06, 0.18), GLASS.lightened(0.5), yaw)
 
 
-static func _inner_ring(st: SurfaceTool, c: Vector3, r: float, tidal_level: int = 1) -> void:
+static func _inner_ring(st: SurfaceTool, c: Vector3, r: float, tidal_level: int = 1, repair_level: int = 1) -> void:
 	var ring_r: float = r * 0.66
 	var y_top: float = DECK_Y + 1.25
 	# Tầng hai: lục giác xoay 30°, thân xanh biển, viền cam, mặt sáng.
@@ -206,7 +207,14 @@ static func _inner_ring(st: SurfaceTool, c: Vector3, r: float, tidal_level: int 
 	MeshKit.ring(st, c, ring_r - 0.05, ring_r + 0.12, y_top - 0.25, y_top + 0.05, 6, ORANGE, ORANGE, deg_to_rad(30.0))
 	# Sáu khối công trình quanh vành trong.
 	var builders: Array[Callable] = [_workshop, _turbine, _radar, _containers, _turbine, _tanks]
+	# Công trình đã có mô hình Blender (assets/models/bld_<id>_l<cấp>.glb) thì bỏ bản dựng bằng code.
+	var tidal_model: bool = has_building_model(&"tidal_power", tidal_level)
+	var repair_model: bool = has_building_model(&"repair_works", repair_level)
 	for k: int in 6:
+		if k == 0 and repair_model:
+			continue
+		if (k == 1 or k == 4) and tidal_model:
+			continue
 		# Trạm Năng Lượng: cấp 1 một tua-bin; cấp 2 thêm khối pin; cấp 3 thêm tua-bin thứ hai; cấp 4 thêm pin cho nó;
 		# cấp 5 thêm vòng tụ phát sáng ở cả hai.
 		if k == 4 and tidal_level < 3:

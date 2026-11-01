@@ -41,12 +41,20 @@ func test_button_disabled_when_poor_or_max() -> void:
 
 
 func test_preview_island_follows_levels() -> void:
-	var before: int = _screen.island().get_node("Body/Fortress").mesh.surface_get_array_len(0)
+	var before: int = _body_vertices()
 	Profile.building_levels[&"shipyard"] = 5
 	Profile.building_levels[&"wave_shield"] = 5
 	_screen.refresh()
-	var after: int = _screen.island().get_node("Body/Fortress").mesh.surface_get_array_len(0)
-	assert_gt(after, before)
+	assert_gt(_body_vertices(), before)
+
+
+## Tổng số đỉnh của mọi mesh trong thân đảo xem trước (thân bằng code cộng mô hình công trình Blender).
+func _body_vertices() -> int:
+	var total: int = 0
+	for child: Node in _screen.island().get_node("Body").get_children():
+		if child is MeshInstance3D and (child as MeshInstance3D).mesh != null:
+			total += (child as MeshInstance3D).mesh.surface_get_array_len(0)
+	return total
 
 
 func test_buttons_big_enough_and_primary_bottom_right() -> void:

@@ -12,8 +12,13 @@ const DECK_RADIUS_FRACTION: float = 0.8
 static func build(st: SurfaceTool, layout: MapLayout) -> void:
 	var c: Vector3 = layout.fortress_center
 	var r: float = layout.fortress_radius
-	_repair_extras(st, c, r, layout.building_level(&"repair_works"))
-	_shipyard(st, c, r, layout.building_level(&"shipyard"))
+	# Công trình đã có mô hình Blender thì Island thêm mô hình riêng, bỏ bản dựng bằng code.
+	var repair_level: int = layout.building_level(&"repair_works")
+	if not AllianceFortress.has_building_model(&"repair_works", repair_level):
+		_repair_extras(st, c, r, repair_level)
+	var shipyard_level: int = layout.building_level(&"shipyard")
+	if not AllianceFortress.has_building_model(&"shipyard", shipyard_level):
+		_shipyard(st, c, r, shipyard_level)
 	_lamp_posts(st, c, r)
 
 

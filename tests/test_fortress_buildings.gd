@@ -14,6 +14,13 @@ func _triangles(mesh: ArrayMesh) -> int:
 	return mesh.surface_get_array_len(0) / 3
 
 
+## Số tam giác của công trình id ở cấp level: mô hình Blender nếu có, không thì cả thân đảo dựng bằng code.
+func _building_triangles(id: StringName, level: int) -> int:
+	if AllianceFortress.has_building_model(id, level):
+		return _triangles(ModelMesh.load_mesh(AllianceFortress.building_model_name(id, level)))
+	return _triangles(AllianceFortress.build_fortress(_layout({id: level})))
+
+
 func test_default_level_is_one() -> void:
 	assert_eq(_layout().building_level(&"wave_shield"), 1)
 	assert_eq(_layout({&"shipyard": 9}).building_level(&"shipyard"), 5)
@@ -28,9 +35,15 @@ func test_wall_grows_with_level_and_docks_grow() -> void:
 
 
 func test_higher_levels_add_geometry() -> void:
-	var low: int = _triangles(AllianceFortress.build_fortress(_layout()))
-	var mid: int = _triangles(AllianceFortress.build_fortress(_layout({&"wave_shield": 3, &"repair_works": 3, &"shipyard": 3})))
-	var high: int = _triangles(AllianceFortress.build_fortress(_layout({&"wave_shield": 5, &"repair_works": 5, &"shipyard": 5})))
+	var total: Callable = func(level: int) -> int:
+		var sum: int = _triangles(AllianceFortress.build_fortress(_layout({&"wave_shield": level, &"repair_works": level, &"shipyard": level})))
+		for id: StringName in [&"wave_shield", &"repair_works", &"shipyard"]:
+			if AllianceFortress.has_building_model(id, level):
+				sum += _triangles(ModelMesh.load_mesh(AllianceFortress.building_model_name(id, level)))
+		return sum
+	var low: int = total.call(1)
+	var mid: int = total.call(3)
+	var high: int = total.call(5)
 	assert_gt(mid, low)
 	assert_gt(high, mid)
 	assert_lt(high, 20000, "ngân sách tam giác của đảo chính")
@@ -65,9 +78,9 @@ func test_layout_cycles_utilities() -> void:
 
 
 func test_tidal_power_levels_add_turbine_and_battery() -> void:
-	var l1: int = _triangles(AllianceFortress.build_fortress(_layout()))
-	var l3: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 3})))
-	var l5: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 5})))
+	var l1: int = _building_triangles(&"tidal_power", 1)
+	var l3: int = _building_triangles(&"tidal_power", 3)
+	var l5: int = _building_triangles(&"tidal_power", 5)
 	assert_gt(l3, l1)
 	assert_gt(l5, l3)
 
@@ -109,6 +122,6 @@ func test_wave_wall_upgrade_shows_on_every_side_of_the_island() -> void:
 
 
 func test_tidal_cable_lines_span_the_island() -> void:
-	var plain: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 1})))
-	var lines: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 2})))
+	var plain: int = _building_triangles(&"tidal_power", 1)
+	var lines: int = _building_triangles(&"tidal_power", 2)
 	assert_gt(lines - plain, 6 * 12, "ống cáp ở cả sáu cạnh")

@@ -227,6 +227,30 @@ def _to_srgb(value):
     return value * 12.92 if value <= 0.0031308 else 1.055 * (value ** (1 / 2.4)) - 0.055
 
 
+class Frame:
+    """Hệ toạ độ địa phương đặt trên đảo: gốc (cx, cz) tại sàn, trục u hướng ra ngoài theo góc `degrees` (độ, như góc polar của đảo),
+    trục v vuông góc (ngược chiều kim đồng hồ nhìn từ trên). Dựng công trình theo hướng quay ra biển rồi đặt vào đúng chỗ."""
+
+    def __init__(self, cx, cz, degrees):
+        self.cx, self.cz = cx, cz
+        self.a = math.radians(degrees)
+        self.c, self.s = math.cos(self.a), math.sin(self.a)
+
+    def p(self, u, y, v=0.0):
+        """Điểm Godot (x, y, z) của toạ độ địa phương (u, y, v)."""
+        return (self.cx + u * self.c - v * self.s, y, self.cz + u * self.s + v * self.c)
+
+    def box(self, m, u, y, v, size, color, top_color=None, chamfer=None):
+        """Hộp có size = (dài theo u, cao, rộng theo v) tâm (u, y, v)."""
+        return m.box(self.p(u, y, v), size, color, top_color=top_color, yaw=-self.a, chamfer=chamfer)
+
+    def hull(self, m, pts, color, top_color=None):
+        return m.hull([self.p(*q) for q in pts], color, top_color)
+
+    def at_ground(self, m, u, v):
+        return self.p(u, 0.0, v)
+
+
 def reset_scene():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
