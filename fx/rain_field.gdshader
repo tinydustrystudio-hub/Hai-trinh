@@ -7,6 +7,10 @@ render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabl
 uniform float intensity : hint_range(0.0, 1.0) = 0.0;
 uniform float fall_height = 16.0;
 uniform float streak_length = 1.5;
+// Mưa cố định trong không gian trận (đứng yên khi camera trượt, như sóng và công trình); chỉ khi hạt ra khỏi khối
+// mưa quanh camera thì nó xuất hiện lại ở mép bên kia. focus: điểm camera nhìn (x, z); area: kích thước khối mưa.
+uniform vec2 focus = vec2(0.0);
+uniform vec2 area = vec2(240.0, 170.0);
 // Tốc độ rơi (đơn vị Godot mỗi giây): chậm vừa phải, nét mưa vẫn thấy rõ hướng rơi.
 uniform float fall_speed = 7.0;
 // Gió làm nét mưa xiên: dịch ngang theo độ cao, x và z.
@@ -24,7 +28,10 @@ void vertex() {
 	// along: 0 ở đầu nét (thấp nhất, sáng), 1 ở đuôi nét (cao hơn, mờ).
 	float along = clamp(VERTEX.y / streak_length, 0.0, 1.0);
 	vec3 world_offset = vec3(slant.x * y, y + along * streak_length, slant.y * y);
-	VERTEX = vec3(VERTEX.x, 0.0, 0.0) + world_offset;
+	// Vị trí gốc của hạt (từ phép biến đổi của instance), gập vào khối mưa quanh focus.
+	vec2 home = MODEL_MATRIX[3].xz;
+	vec2 wrapped = focus + mod(home - focus + area * 0.5, area) - area * 0.5;
+	VERTEX = vec3(VERTEX.x, 0.0, 0.0) + world_offset + vec3(wrapped.x - home.x, 0.0, wrapped.y - home.y);
 	float shown = step(INSTANCE_CUSTOM.b, intensity);
 	// Mờ dần gần mặt biển và gần đỉnh; đuôi nét mờ hơn đầu.
 	v_alpha = shown * smoothstep(0.0, 0.8, y) * smoothstep(fall_height, fall_height * 0.8, y) * (0.25 + 0.75 * (1.0 - along));

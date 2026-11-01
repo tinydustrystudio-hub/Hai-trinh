@@ -60,7 +60,7 @@ func test_storm_waves_are_bigger_in_height() -> void:
 		clear_top = maxf(clear_top, absf(Ocean.wave_height(waves, waves.size(), x, 3.0, 9.0, shapes, motions, 1.0, 0.0)))
 		storm_top = maxf(storm_top, absf(Ocean.wave_height(waves, waves.size(), x, 3.0, 9.0, shapes, motions, Weather.by_id(&"storm").wave_boost, 0.0)))
 	assert_almost_eq(storm_top / clear_top, Weather.by_id(&"storm").wave_boost, 0.01)
-	assert_lt(storm_top, 0.9, "vẫn thấp hơn dải luồng")
+	assert_gt(storm_top, 1.2, "sóng bão cao thật (người duyệt 1/11: chiều cao sóng phải lớn)")
 
 
 func test_wind_changes_direction_continuously() -> void:
@@ -155,7 +155,7 @@ func test_storm_waves_are_bigger_but_not_faster() -> void:
 	var clear: WeatherData = Weather.by_id(&"clear")
 	var rain: WeatherData = Weather.by_id(&"rain")
 	var storm: WeatherData = Weather.by_id(&"storm")
-	assert_gt(storm.wave_boost, 2.5)
+	assert_gt(storm.wave_boost, 4.5)
 	assert_gt(storm.wave_boost, rain.wave_boost)
 	assert_lte(storm.wave_speed, rain.wave_speed)
 	assert_lte(rain.wave_speed, clear.wave_speed)
@@ -198,7 +198,7 @@ func test_rain_reaches_the_sea_surface() -> void:
 	assert_gt(_battle.ocean.rain_amount, 0.3, "mặt biển có gợn mưa rơi")
 
 
-func test_rain_is_3d_and_follows_the_camera() -> void:
+func test_rain_is_3d_and_stays_in_world_space() -> void:
 	# Người duyệt (1/11): mưa phải rơi xuống biển và công trình trong không gian trận, không phải lớp phủ 2D.
 	var field: RainField = _battle.weather.rain_field
 	assert_true(field is Node3D)
@@ -206,11 +206,12 @@ func test_rain_is_3d_and_follows_the_camera() -> void:
 	var area: AABB = field.multimesh.custom_aabb
 	assert_gt(area.size.y, RainField.FALL_HEIGHT, "mưa có chiều cao: rơi từ trên xuống")
 	assert_gte(area.size.x, 240.0, "phủ vùng nhìn thấy khi thu nhỏ hết cỡ")
+	var before: Vector3 = field.global_position
 	_battle.camera.set_focus(Vector2(5.0, -7.0))
 	_battle.weather.advance(0.1, 1.0)
 	_battle.step(0.1)
-	assert_almost_eq(field.position.x, _battle.camera.focus.x, 0.001)
-	assert_almost_eq(field.position.z, _battle.camera.focus.y, 0.001)
+	assert_eq(field.global_position, before, "mưa đứng yên trong không gian trận khi kéo camera")
+	assert_eq(field.focus, _battle.camera.focus, "khối mưa phủ quanh camera nhìn")
 
 
 func test_rain_amount_scales_streaks_shown() -> void:
@@ -226,3 +227,44 @@ func test_rain_and_storm_surface_is_twice_as_choppy() -> void:
 	assert_almost_eq(Weather.by_id(&"rain").chop, 1.3 * 2.0, 0.001)
 	assert_almost_eq(Weather.by_id(&"storm").chop, 1.8 * 2.0, 0.001)
 	assert_eq(Weather.by_id(&"clear").chop, 1.0, "bình thường giữ nguyên")
+
+
+func test_waves_calm_down_next_to_islands() -> void:
+	# Sóng bão cao nhưng lặng dần gần đảo, để không nhấn chìm sàn đảo.
+	var ocean: Ocean = _battle.ocean
+	var layout: MapLayout = _battle.layout
+	var center: Vector3 = layout.fortress_center
+	assert_almost_eq(ocean.calm_factor(center.x, center.z), 0.0, 0.0001, "giữa pháo đài: lặng")
+	assert_eq(ocean.calm_factor(center.x + 200.0, center.z + 200.0), 1.0, "xa đảo: sóng đủ")
+	var edge: float = layout.fortress_radius + 5.0
+	assert_lt(ocean.calm_factor(center.x + edge + 2.0, center.z), 0.5)
+	assert_gt(ocean.calm_factor(center.x + edge + Ocean.CALM_MARGIN, center.z), 0.99)
+	_battle.set_weather(&"storm")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
+	var near: float = 0.0
+	var far: float = 0.0
+	for t: int in 40:
+		ocean.sea_time = float(t) * 1.7
+		near = maxf(near, absf(ocean.height_at(center.x + edge, center.z)))
+		far = maxf(far, absf(ocean.height_at(center.x + edge + 60.0, center.z + 40.0)))
+	assert_lt(near, 0.35, "sàn đảo không bị sóng bão nuốt")
+	assert_gt(far, 0.8, "xa đảo sóng bão cao")
+	assert_gt(absf(ocean.raw_height_at(center.x, center.z)) + 1.0, 0.0)
+	for center_disc: Vector3 in layout.satellite_centers:
+		assert_almost_eq(ocean.calm_factor(center_disc.x, center_disc.z), 0.0, 0.0001)
+
+
+func test_island_heave_is_limited_so_decks_stay_above_water() -> void:
+	var ocean: Ocean = _battle.ocean
+	_battle.set_weather(&"storm")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
+	var low: float = 0.0
+	var high: float = 0.0
+	for t: int in 80:
+		ocean.sea_time = float(t) * 1.3
+		var pose: Vector3 = Island.sample_pose(ocean, _battle.layout.satellite_centers[1], _battle.layout.satellite_radius, 0.0, 2.4)
+		low = minf(low, pose.x)
+		high = maxf(high, pose.x)
+	assert_gte(low, Island.HEAVE_MIN - 0.0001)
+	assert_lte(high, Island.HEAVE_MAX + 0.0001)
+	assert_gt(high - low, 0.3, "vẫn dập dìu rõ")

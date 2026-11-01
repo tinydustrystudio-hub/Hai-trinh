@@ -15,6 +15,9 @@ const WAVE_COUNTS: Dictionary[Quality, int] = { Quality.LOW: 3, Quality.HIGH: 6 
 ## Số lớp sóng tối đa (cùng cỡ mảng trong water.gdshader).
 const MAX_WAVES: int = 6
 const WAVE_SEED: int = 20261031
+## Số vùng lặng tối đa và khoảng loang ngoài mép đảo (đơn vị Godot).
+const MAX_DISCS: int = 8
+const CALM_MARGIN: float = 9.0
 ## Bước sóng gốc của từng lớp (đơn vị Godot), mỗi lớp lệch ngẫu nhiên ±15%.
 const BASE_WAVELENGTHS: Array[float] = [34.0, 23.0, 16.5, 13.0, 10.5, 9.0]
 ## Các lớp lệch hướng gió tối đa chừng này (radian).
@@ -42,6 +45,9 @@ var wave_boost: float = 1.0
 var wind_angle: float = 0.0
 var sea_dim: float = 0.0
 var chop: float = 1.0
+## Vùng nước lặng quanh đảo: mỗi phần tử (x, z, bán kính, độ loang); sóng chỉ lớn dần khi ra xa mép đảo, để sóng bão cao
+## không nhấn chìm sàn đảo.
+var island_discs: Array[Vector4] = []
 ## Tốc độ chạy của sóng (1 = bình thường) và mức mưa rơi trên mặt biển (gợn nước).
 var sea_speed: float = 1.0
 var rain_amount: float = 0.0
@@ -68,6 +74,7 @@ func _process(delta: float) -> void:
 	sea_time += delta * sea_speed
 	if _material != null:
 		_material.set_shader_parameter(&"sea_time", sea_time)
+	_apply_discs()
 
 
 func _ready() -> void:
@@ -85,6 +92,31 @@ func _ready() -> void:
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	set_quality(Settings.water_quality)
 	Settings.water_quality_changed.connect(set_quality)
+
+
+## Đặt các vùng nước lặng quanh đảo (x, z, bán kính, độ loang CALM_MARGIN).
+func set_island_discs(discs: Array[Vector4]) -> void:
+	island_discs = discs.slice(0, MAX_DISCS)
+	if _material != null:
+		_apply_discs()
+
+
+func _apply_discs() -> void:
+	var packed: PackedVector4Array = PackedVector4Array()
+	packed.resize(MAX_DISCS)
+	for i: int in island_discs.size():
+		packed[i] = island_discs[i]
+	_material.set_shader_parameter(&"island_discs", packed)
+	_material.set_shader_parameter(&"island_disc_count", island_discs.size())
+
+
+## Hệ số sóng (0–1) tại (x, z): 0 sát đảo, tăng dần tới 1 sau khoảng loang ngoài mép đảo.
+func calm_factor(x: float, z: float) -> float:
+	var factor: float = 1.0
+	for disc: Vector4 in island_discs:
+		var d: float = Vector2(x - disc.x, z - disc.y).length()
+		factor = minf(factor, smoothstep(disc.z, disc.z + disc.w, d))
+	return factor
 
 
 ## Đặt trạng thái biển (thời tiết); gọi mỗi khung khi gió đổi chiều.
@@ -148,6 +180,11 @@ func wave_count() -> int:
 ## giữ lại để các nơi gọi cũ không phải đổi.
 ## Bỏ qua phần dịch ngang của sóng Gerstner: đủ chính xác cho việc nhấp nhô tàu.
 func height_at(x: float, z: float, _time: float = 0.0) -> float:
+	return raw_height_at(x, z) * calm_factor(x, z)
+
+
+## Độ cao sóng chưa nhân vùng lặng quanh đảo: đảo dập dìu theo sóng thật dưới chân chúng.
+func raw_height_at(x: float, z: float) -> float:
 	return wave_height(waves, wave_count(), x, z, sea_time, shapes, motions, wave_boost, wind_angle)
 
 

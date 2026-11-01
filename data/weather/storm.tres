@@ -6,7 +6,7 @@
 script = ExtResource("1_weather")
 id = &"storm"
 name_key = &"WEATHER_STORM"
-wave_boost = 2.8
+wave_boost = 10.0
 wind_swing = 0.35
 wind_period = 40.0
 chop = 3.6

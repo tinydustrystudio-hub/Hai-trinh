@@ -414,6 +414,10 @@ func build_map() -> void:
 		lanes_root.add_child(lane)
 		lanes.append(lane)
 	camera.configure(layout)
+	var discs: Array[Vector4] = [Vector4(layout.fortress_center.x, layout.fortress_center.z, layout.fortress_radius + 5.0, Ocean.CALM_MARGIN)]
+	for center: Vector3 in layout.satellite_centers:
+		discs.append(Vector4(center.x, center.z, layout.satellite_radius + 2.0, Ocean.CALM_MARGIN))
+	ocean.set_island_discs(discs)
 	_place_sun()
 	enemy_pool.configure_effects(layout.sun_direction)
 
