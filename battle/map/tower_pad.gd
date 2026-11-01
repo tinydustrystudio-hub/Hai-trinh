@@ -30,6 +30,11 @@ var occupied: bool = false:
 	set(value):
 		occupied = value
 		_refresh()
+## Đảo mua thêm còn đậu cạnh đảo chính thì khoá bệ: không chọn, không xây được.
+var locked: bool = false:
+	set(value):
+		locked = value
+		_refresh()
 var selected: bool = false:
 	set(value):
 		selected = value
@@ -91,7 +96,7 @@ func range_shown() -> float:
 
 ## Bệ trống thì chọn được để xây.
 func is_selectable() -> bool:
-	return not occupied
+	return not occupied and not locked
 
 
 ## Cập nhật độ sáng nhấp nháy của mọi bệ chọn được. Gọi một lần mỗi khung từ trận.
@@ -104,6 +109,7 @@ static func animate_glow(time_seconds: float) -> void:
 func _refresh() -> void:
 	if _ring == null:
 		return
+	_ring.visible = not locked
 	if selected:
 		_ring.material_override = _ring_selected
 	elif is_selectable():

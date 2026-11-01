@@ -1263,7 +1263,7 @@ Ngoài trận, người chơi chỉ có **Xu** và **Sao**. Trong trận có th�
 
 ### 5.4 Đảo nhỏ
 
-> **Cập nhật 1/11:** đảo vệ tinh là vật phẩm, mua một lần là có mãi (đảo thứ 5 của màn 1 giá 250 Tiền Vàng, mỗi đảo sau +50). Màn 1 cấp sẵn 4 đảo, đặt được tối đa 8. Dùng đảo tự đặt tốn phí mỗi trận (đảo tự đặt thứ nhất 200, mỗi đảo sau +50); dời đảo tốn bằng một nửa giá lô cốt rẻ nhất. Bảng 300 / 400 / 550… Xu cũ bên dưới được thay bằng quy tắc này.
+> **Cập nhật 1/11 (chốt lần hai):** đảo vệ tinh là vật phẩm, mua một lần là có mãi (đảo thứ 5 của màn 1 giá 250 Tiền Vàng, mỗi đảo sau +50). Màn 1 cấp sẵn 4 đảo đặt cố định ở ô mặc định, mua thêm tối đa 4 đảo (tối đa 8). Đảo mua nằm đậu cạnh đảo chính; vào trận người chơi kéo nó ra một ô đặt bất kỳ, mỗi lần kéo (hay dời lại) tốn bằng một nửa giá lô cốt rẻ nhất (30 Tiền Vàng) trừ vào vàng trong trận. Không còn phí dùng đảo theo trận (200, 250…). Bảng 300 / 400 / 550… Xu cũ bên dưới được thay bằng quy tắc này.
 
 Mỗi đảo nhỏ có đúng 1 ô: đặt 1 lô cốt hoặc 1 tiện ích. Có hai loại đảo nhỏ:
 

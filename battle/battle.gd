@@ -28,8 +28,6 @@ const MAX_ACTIVE_ENEMIES: int = 60
 ## Ở cảnh thử, địch mới xuất hiện rải trong đoạn đầu luồng này (tỉ lệ chiều dài luồng).
 const STRESS_SPREAD: float = 0.85
 
-## Chỉ số các đảo vệ tinh (trong hồ sơ) đang dùng ở trận này.
-var islands_in_use: Array[int] = []
 var _base_layout: MapLayout
 @export var layout: MapLayout = preload("res://data/maps/north_dock_layout.tres")
 @export var wave_data: WaveData = preload("res://data/waves/north_dock_waves.tres")
@@ -87,6 +85,8 @@ var weather: Weather
 ## Ánh sáng cố định của màn theo cốt truyện (bình minh, ban ngày, hoàng hôn) và viền tối màn hình.
 var lighting: LightingData
 var vignette: Vignette
+## Kéo đảo vệ tinh mua thêm ra ô đặt trong trận.
+var deployer: IslandDeployer
 var tutorial: TutorialHints
 var fade: ScreenFade
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
@@ -94,7 +94,10 @@ var fade: ScreenFade
 
 func _ready() -> void:
 	build_map()
-	charge_island_fee()
+	deployer = IslandDeployer.new()
+	deployer.name = "IslandDeployer"
+	add_child(deployer)
+	deployer.setup(self)
 	_build_weather()
 	fade = ScreenFade.new()
 	fade.name = "ScreenFade"
@@ -104,10 +107,11 @@ func _ready() -> void:
 	enemy_pool.face_camera(camera.global_basis)
 	overload_bars.face_camera(camera.global_basis)
 	touch_input.tapped.connect(_on_tapped)
-	touch_input.drag_started.connect(camera.begin_drag)
-	touch_input.drag_moved.connect(camera.drag_to)
+	touch_input.drag_started.connect(_on_drag_started)
+	touch_input.drag_moved.connect(_on_drag_moved)
 	touch_input.drag_ended.connect(_on_drag_ended)
 	touch_input.pinch_started.connect(camera.cancel_drag)
+	touch_input.pinch_started.connect(deployer.cancel)
 	touch_input.pinch_started.connect(close_build_ring)
 	touch_input.drag_started.connect(close_build_ring.unbind(1))
 	touch_input.zoomed.connect(camera.zoom_by)
@@ -185,6 +189,8 @@ func step(delta: float) -> void:
 
 func start_battle() -> void:
 	stress_mode = false
+	if deployer != null:
+		deployer.reset()
 	enemy_pool.clear()
 	_clear_towers()
 	close_build_ring()
@@ -410,15 +416,7 @@ func toggle_fast() -> void:
 	set_speed(1.0 if speed > 1.0 else FAST_SPEED)
 
 
-## Trừ phí dùng các đảo tự đặt trong trận này khỏi ví (không trừ quá số đang có).
-func charge_island_fee() -> int:
-	if stress_mode:
-		return 0
-	return Profile.charge_use_fee(islands_in_use)
-
-
 func retry() -> void:
-	charge_island_fee()
 	start_battle()
 
 
@@ -427,10 +425,8 @@ func build_map() -> void:
 	if _base_layout == null:
 		_base_layout = layout
 	if _base_layout.slot_count() > 0:
-		islands_in_use = Profile.battle_islands()
-		layout = Profile.battle_layout(_base_layout, islands_in_use)
+		layout = Profile.battle_layout(_base_layout)
 	else:
-		islands_in_use = []
 		layout = _base_layout.duplicate() as MapLayout
 		layout.building_levels = Profile.building_levels.duplicate()
 	_apply_lighting(StringName(Settings.launch_value("light")) if not Settings.launch_value("light").is_empty() else layout.lighting_id)
@@ -445,12 +441,17 @@ func build_map() -> void:
 		lanes_root.add_child(lane)
 		lanes.append(lane)
 	camera.configure(layout)
+	update_island_discs()
+	_place_sun()
+	enemy_pool.configure_effects(layout.sun_direction)
+
+
+## Vùng nước lặng quanh đảo chính và từng đảo vệ tinh (gọi lại khi một đảo được kéo ra).
+func update_island_discs() -> void:
 	var discs: Array[Vector4] = [Vector4(layout.fortress_center.x, layout.fortress_center.z, layout.fortress_radius + 5.0, Ocean.CALM_MARGIN)]
 	for center: Vector3 in layout.satellite_centers:
 		discs.append(Vector4(center.x, center.z, layout.satellite_radius + 2.0, Ocean.CALM_MARGIN))
 	ocean.set_island_discs(discs)
-	_place_sun()
-	enemy_pool.configure_effects(layout.sun_direction)
 
 
 ## Bật hướng dẫn vài bước đầu (do màn điều phối gọi khi người chơi chưa xem).
@@ -695,8 +696,25 @@ func _on_steel_changed(value: int) -> void:
 	Events.steel_changed.emit(value)
 
 
+## Chạm kéo trúng đảo mua thêm thì kéo đảo; không thì kéo camera.
+func _on_drag_started(screen_position: Vector2) -> void:
+	if not is_over() and deployer.begin_drag(screen_position):
+		return
+	camera.begin_drag(screen_position)
+
+
+func _on_drag_moved(screen_position: Vector2) -> void:
+	if deployer.is_dragging():
+		deployer.drag_to(screen_position)
+	else:
+		camera.drag_to(screen_position)
+
+
 func _on_drag_ended(_screen_position: Vector2) -> void:
-	camera.end_drag()
+	if deployer.is_dragging():
+		deployer.end_drag()
+	else:
+		camera.end_drag()
 
 
 func _unhandled_input(event: InputEvent) -> void:

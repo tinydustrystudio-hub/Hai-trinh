@@ -147,11 +147,24 @@ static func bob_gain(radius: float) -> float:
 	return clampf(REFERENCE_RADIUS / maxf(radius, 0.1), 0.1, 1.0)
 
 
+## Dựng lại bóng và bọt theo vị trí đảo vệ tinh mới (đảo vừa được kéo ra); layout là bố cục đã dùng khi build.
+func relayout(layout: MapLayout) -> void:
+	_layout = layout
+	var shadow: MeshInstance3D = get_node_or_null("Shadow") as MeshInstance3D
+	if shadow != null:
+		shadow.mesh = build_shadow(layout)
+	var foam: MeshInstance3D = get_node_or_null("Foam") as MeshInstance3D
+	if foam != null:
+		foam.mesh = build_foam(layout)
+
+
 ## Bệ gần điểm trên mặt nước nhất, trong bán kính max_distance; không có thì trả null.
 func pad_near(point: Vector3, max_distance: float) -> TowerPad:
 	var best: TowerPad = null
 	var best_distance: float = max_distance
 	for pad: TowerPad in pads:
+		if pad.locked:
+			continue
 		var at: Vector3 = pad.global_position if pad.is_inside_tree() else pad.position
 		var d: float = Vector2(at.x - point.x, at.z - point.z).length()
 		if d <= best_distance:
