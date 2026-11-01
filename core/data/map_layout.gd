@@ -5,6 +5,10 @@ extends Resource
 
 ## 1 ô (đơn vị tầm trong GDD) = khoảng cách giữa hai bệ liền nhau.
 const UNITS_PER_CELL: float = 4.0
+## Khe hở tối thiểu giữa mép đảo kéo thả với luồng và với đảo khác.
+const ISLAND_GAP: float = 2.0
+## Khe hở tối thiểu giữa mép đảo kéo thả với dải luồng.
+const LANE_GAP: float = 0.5
 
 @export var id: StringName = &""
 ## Khóa tên bản đồ trong bảng dịch.
@@ -28,12 +32,9 @@ const UNITS_PER_CELL: float = 4.0
 ## Hướng từ mặt nước tới mặt trời (nắng chiếu từ một hướng).
 @export var sun_direction: Vector3 = Vector3(0.45, 0.6, -0.65)
 
-## Các ô đặt đảo vệ tinh mà người chơi chọn được (tâm đảo). Bốn ô đầu là vị trí mặc định của các đảo cấp sẵn.
-## Mọi ô cách luồng đủ xa để không đè luồng và đủ gần để lô cốt trên đó với tới luồng.
-@export var satellite_slots: PackedVector3Array = PackedVector3Array()
 
-## Chỗ đậu của các đảo mua thêm cạnh đảo chính: đảo mua rồi nằm đây tới khi người chơi kéo ra một ô trong trận.
-## Cách luồng và các ô đặt đảo đủ xa để không đè lên.
+## Chỗ đậu của các đảo mua thêm cạnh đảo chính: đảo mua rồi nằm đây tới khi người chơi kéo ra chỗ tuỳ ý trong trận.
+## Cách luồng đủ xa để không đè lên. Đảo cấp sẵn (satellite_centers) do từng màn tự sắp xếp.
 @export var satellite_docks: PackedVector3Array = PackedVector3Array()
 
 @export_group("Đảo vệ tinh của màn")
@@ -109,6 +110,9 @@ func extra_satellites() -> int:
 	return maxi(satellite_max_count - free_satellites(), 0)
 
 
+var _lane_curves: Array[Curve3D] = []
+
+
 func lane_count() -> int:
 	return lane_points.size()
 
@@ -154,5 +158,25 @@ func with_satellites(centers: PackedVector3Array, utilities: Array[StringName] =
 	return result
 
 
-func slot_count() -> int:
-	return satellite_slots.size()
+## Điểm point có đặt được tâm một đảo vệ tinh không (đảo kéo thả tự do): trong vùng biển chơi, cách đảo chính đủ xa,
+## không đè luồng địch, không chồng đảo vệ tinh khác (bỏ qua đảo thứ ignore_index, là chính đảo đang kéo).
+func island_spot_valid(point: Vector3, ignore_index: int = -1) -> bool:
+	var flat: Vector2 = Vector2(point.x, point.z)
+	var bounds: Rect2 = camera_zoom_bounds.grow(-satellite_radius)
+	if not bounds.has_point(flat):
+		return false
+	if flat.distance_to(Vector2(fortress_center.x, fortress_center.z)) < fortress_radius * 2.0:
+		return false
+	for k: int in satellite_centers.size():
+		if k != ignore_index and flat.distance_to(Vector2(satellite_centers[k].x, satellite_centers[k].z)) < satellite_radius * 2.0 + ISLAND_GAP:
+			return false
+	var clearance: float = satellite_radius + Lane.RIBBON_WIDTH * 0.5 + LANE_GAP
+	if _lane_curves.size() != lane_points.size():
+		_lane_curves.clear()
+		for points: PackedVector3Array in lane_points:
+			_lane_curves.append(Lane.build_curve(points))
+	for curve: Curve3D in _lane_curves:
+		var closest: Vector3 = curve.get_closest_point(point)
+		if Vector2(closest.x - point.x, closest.z - point.z).length() < clearance:
+			return false
+	return true

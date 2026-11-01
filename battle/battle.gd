@@ -430,7 +430,7 @@ func build_map() -> void:
 	# Đảo vệ tinh và cấp công trình lấy từ hồ sơ người chơi; sao chép bố cục để không sửa tài nguyên dùng chung.
 	if _base_layout == null:
 		_base_layout = layout
-	if _base_layout.slot_count() > 0:
+	if _base_layout.satellite_docks.size() > 0:
 		layout = Profile.battle_layout(_base_layout)
 	else:
 		layout = _base_layout.duplicate() as MapLayout
@@ -510,7 +510,8 @@ func set_lighting(id: StringName) -> void:
 	_apply_lighting(id)
 	_place_sun()
 	enemy_pool.configure_effects(layout.sun_direction)
-	island.build(layout)
+	# Chỉ bóng giả phụ thuộc hướng nắng; không dựng lại cả đảo (tốn bộ nhớ, làm mất bệ và lô cốt đang đặt).
+	island.relayout(layout)
 	if weather != null:
 		weather.rebase_sun(lighting.sun_energy)
 
