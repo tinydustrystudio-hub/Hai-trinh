@@ -6,6 +6,7 @@ signal retry_requested
 signal menu_requested
 
 var _title: Label
+var _gold: Label
 var _panel: PanelContainer
 var _retry: Button
 var _menu: Button
@@ -29,7 +30,15 @@ func _ready() -> void:
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_title.custom_minimum_size = Vector2(900, 220)
-	_panel.add_child(_title)
+	var column: VBoxContainer = VBoxContainer.new()
+	_panel.add_child(column)
+	column.add_child(_title)
+	_gold = UiStyle.label(UiStyle.TEXT_SIZE + 12)
+	_gold.name = "Gold"
+	_gold.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_gold.add_theme_color_override(&"font_color", UiStyle.GOLD.lightened(0.3))
+	_gold.visible = false
+	column.add_child(_gold)
 	_retry = UiStyle.primary_button(&"BUTTON_RETRY")
 	_retry.name = "Retry"
 	_retry.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
@@ -47,8 +56,10 @@ func _ready() -> void:
 	visible = false
 
 
-func show_result(won: bool) -> void:
+func show_result(won: bool, payout: int = 0) -> void:
 	_title.text = tr(&"RESULT_WIN") if won else tr(&"RESULT_LOSE")
+	_gold.text = tr(&"RESULT_GOLD") % payout if payout > 0 else ""
+	_gold.visible = payout > 0
 	# Thắng thì chữ vàng ấm, thua thì chữ ngà.
 	_title.add_theme_color_override(&"font_color", UiStyle.GOLD.lightened(0.3) if won else UiStyle.IVORY)
 	visible = true
@@ -64,6 +75,10 @@ func menu_button() -> Button:
 
 func card() -> PanelContainer:
 	return _panel
+
+
+func gold_text() -> String:
+	return _gold.text
 
 
 func title_text() -> String:

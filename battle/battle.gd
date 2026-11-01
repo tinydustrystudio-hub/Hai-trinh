@@ -298,7 +298,7 @@ func sell_tower(tower: Tower) -> int:
 	if tower == null or not towers.has(tower):
 		return 0
 	var refund: int = economy.refund_for(tower.invested)
-	economy.earn(refund)
+	economy.receive_refund(refund)
 	towers.erase(tower)
 	tower.pad.occupied = false
 	hud.mega_tray.remove(tower)
@@ -408,6 +408,9 @@ func retry() -> void:
 
 
 func build_map() -> void:
+	# Cấp công trình lấy từ hồ sơ người chơi; sao chép bố cục để không sửa tài nguyên dùng chung.
+	layout = layout.duplicate() as MapLayout
+	layout.building_levels = Profile.building_levels.duplicate()
 	island.build(layout)
 	for lane: Lane in lanes:
 		lane.queue_free()
@@ -492,7 +495,8 @@ func _end_battle(won: bool) -> void:
 	set_paused(false)
 	set_speed(1.0)
 	Events.battle_ended.emit(won)
-	hud.show_result(won)
+	var payout: int = 0 if stress_mode else Profile.settle_battle(economy.earned, won)
+	hud.show_result(won, payout)
 
 
 func _apply_time_scale() -> void:

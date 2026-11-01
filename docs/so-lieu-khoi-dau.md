@@ -54,3 +54,12 @@ nâng Súng Máy giữ các luồng đó lên cấp 3 và kích MEGA khi có t�
 
 Nút thắt là sát thương, không phải Thép: Súng Máy không hạ kịp cụm 6 Ca Nô Cảm Tử chạy 1,5 ô/giây.
 Đạo diễn chọn giữ số GDD, cân bằng lại sau buổi chơi thử trên điện thoại.
+
+## Ví Tiền Vàng và cấp công trình (P5a, số tạm)
+
+| Số | Giá trị | Nơi đặt |
+| --- | --- | --- |
+| Tiền Vàng người chơi mới | 500 | `Profile.NEW_PLAYER_GOLD` |
+| Thưởng thắng trận | 100 | `data/economy.tres` (`victory_bonus`) |
+| Tiền kiếm được trong trận | cộng vào ví cuối trận (diệt địch và thưởng đợt; không tính vàng khởi đầu, tiền hoàn khi bán) | `Economy.earned` |
+| Hệ số giá nâng Khiên / Xưởng Sửa Chữa / Trạm Năng Lượng / Xưởng Tàu | 1,0 / 1,0 / 1,25 / 1,5 | `data/buildings/*.tres` |

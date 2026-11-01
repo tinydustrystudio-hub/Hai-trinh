@@ -103,3 +103,12 @@ HINT_BUILD,"Chọn một lô cốt để xem tầm bắn, rồi chạm dấu tí
 HINT_ENEMY,Địch tới từ hướng đèn đỏ đang nhấp nháy trên đảo chính.,Enemies come from the direction of the flashing red lamp on the main island.
 HINT_MEGA,Lô cốt đang nhấp nháy vàng đã đầy Quá tải: chạm thẳng vào nó để kích MEGA!,A tower flashing gold is fully charged: tap it to unleash MEGA!
 HINT_SKIP,Bỏ qua,Skip
+RESULT_GOLD,+%d Tiền Vàng vào ví,+%d Gold added to wallet
+BUILDING_WAVE_SHIELD,Khiên Chắn Sóng,Wave Shield
+BUILDING_WAVE_SHIELD_DESC,Hàng trụ chắn sóng quanh đảo chính.,A row of pylons breaking waves around the main island.
+BUILDING_REPAIR_WORKS,Xưởng Sửa Chữa,Repair Works
+BUILDING_REPAIR_WORKS_DESC,Sửa chữa và chuẩn bị vật liệu cho đảo.,Repairs and supplies for the island.
+BUILDING_TIDAL_POWER,Trạm Năng Lượng,Tidal Power
+BUILDING_TIDAL_POWER_DESC,Tua-bin dòng triều cấp điện cho đảo.,Tidal turbines powering the island.
+BUILDING_SHIPYARD,Xưởng Tàu,Shipyard
+BUILDING_SHIPYARD_DESC,Ụ nổi đóng và bảo trì tàu.,A floating dock for building and servicing ships.
