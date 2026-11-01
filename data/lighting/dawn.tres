@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="LightingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/data/lighting_data.gd" id="1_lighting"]
+
+[resource]
+script = ExtResource("1_lighting")
+id = &"dawn"
+name_key = &"LIGHT_DAWN"
+sun_color = Color(1.0, 0.72, 0.52, 1)
+sun_energy = 1.25
+sun_direction = Vector3(0.78, 0.34, -0.52)
+ambient_color = Color(0.66, 0.64, 0.88, 1)
+ambient_energy = 0.72
+background_color = Color(0.05, 0.08, 0.22, 1)
+contrast = 1.08
+saturation = 1.12
+brightness = 1.0
+glow_intensity = 0.62
+glow_threshold = 1.0
+vignette = 0.24
+vignette_color = Color(0.12, 0.04, 0.1, 1)
+sea_deep = Color(0.03, 0.08, 0.23, 1)
+sea_crest = Color(0.12, 0.22, 0.42, 1)
+sea_shallow = Color(0.14, 0.34, 0.47, 1)
+sky_horizon = Color(0.98, 0.74, 0.62, 1)
+sky_zenith = Color(0.42, 0.5, 0.82, 1)
+cloud_color = Color(1.0, 0.82, 0.72, 1)

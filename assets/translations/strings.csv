@@ -138,3 +138,7 @@ BASE_MSG_NO_STOCK,"Không còn đảo trong kho, hãy mua thêm.","No island in 
 BASE_MSG_LIMIT,Đã đặt tối đa %d đảo.,Maximum of %d islands placed.
 BASE_MSG_STORED,Đã cất đảo.,Island stored.
 BASE_MSG_BOUGHT,"Đã mua đảo, chạm ô trống để đặt.","Island bought, tap an empty spot to place it."
+DEBUG_LIGHT,Ánh sáng: %s,Lighting: %s
+LIGHT_DAY,Ban ngày,Day
+LIGHT_DAWN,Bình minh,Dawn
+LIGHT_DUSK,Hoàng hôn,Dusk

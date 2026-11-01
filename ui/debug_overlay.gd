@@ -22,6 +22,7 @@ var _panel: PanelContainer
 var _stats: Label
 var _water: Button
 var _weather: Button
+var _light: Button
 var _refresh_left: float = 0.0
 var _log_left: float = LOG_SECONDS
 var _last_usec: int = 0
@@ -65,6 +66,10 @@ func _ready() -> void:
 	_weather.name = "Weather"
 	_weather.pressed.connect(_on_weather_pressed)
 	column.add_child(_weather)
+	_light = UiStyle.primary_button(&"", Vector2(420, 120))
+	_light.name = "Light"
+	_light.pressed.connect(_on_light_pressed)
+	column.add_child(_light)
 	expanded = expanded
 	_refresh()
 
@@ -118,6 +123,8 @@ func _refresh() -> void:
 	var battle: BattleController = owner as BattleController
 	if battle != null and battle.is_node_ready() and battle.weather != null:
 		_weather.text = tr(&"DEBUG_WEATHER") % tr(battle.weather.data.name_key)
+	if battle != null and battle.is_node_ready() and battle.lighting != null:
+		_light.text = tr(&"DEBUG_LIGHT") % tr(battle.lighting.name_key)
 
 
 func _on_burst_pressed() -> void:
@@ -138,6 +145,16 @@ func _on_water_pressed() -> void:
 
 
 ## Bình thường → mưa → bão → bình thường.
+## Ban ngày → bình minh → hoàng hôn → ban ngày.
+func _on_light_pressed() -> void:
+	var battle: BattleController = owner as BattleController
+	if battle == null or battle.lighting == null:
+		return
+	var next: int = (Lighting.ORDER.find(battle.lighting.id) + 1) % Lighting.ORDER.size()
+	battle.set_lighting(Lighting.ORDER[next])
+	_refresh()
+
+
 func _on_weather_pressed() -> void:
 	var battle: BattleController = owner as BattleController
 	if battle == null or battle.weather == null:

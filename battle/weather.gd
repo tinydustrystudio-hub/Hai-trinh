@@ -63,6 +63,12 @@ func attach(target_ocean: Ocean, target_sun: DirectionalLight3D, rain_fx: RainFi
 	apply(0.0)
 
 
+## Đổi độ sáng nắng gốc (khi ánh sáng của màn đổi) rồi áp lại thời tiết hiện tại.
+func rebase_sun(energy: float) -> void:
+	_sun_energy = energy
+	apply(0.0)
+
+
 ## Kiểu thời tiết theo id ("clear", "rain", "storm"); id lạ thì về bình thường.
 static func by_id(id: StringName) -> WeatherData:
 	return load(PATHS.get(id, PATHS[&"clear"]))

@@ -141,6 +141,19 @@ func _apply_sea_state() -> void:
 	_material.set_shader_parameter(&"sea_time", sea_time)
 
 
+## Bảng màu biển và trời của màn (P6).
+func set_palette(data: LightingData) -> void:
+	if _material == null:
+		return
+	_material.set_shader_parameter(&"deep_color", data.sea_deep)
+	_material.set_shader_parameter(&"crest_color", data.sea_crest)
+	_material.set_shader_parameter(&"shallow_color", data.sea_shallow)
+	_material.set_shader_parameter(&"sky_horizon", data.sky_horizon)
+	_material.set_shader_parameter(&"sky_zenith", data.sky_zenith)
+	_material.set_shader_parameter(&"cloud_color", data.cloud_color)
+	_material.set_shader_parameter(&"sun_color", data.sun_color)
+
+
 ## Màu nắng, vùng nước sáng quanh đảo chính và vệt sáng phía sau đảo theo hướng nhìn của camera
 ## (view_forward: hướng nhìn của camera trên mặt nước). Không dùng hướng nắng chiếu công trình.
 func configure(sun_color: Color, island_center: Vector3, island_radius: float, view_forward: Vector3) -> void:
