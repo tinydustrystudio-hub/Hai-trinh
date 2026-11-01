@@ -49,6 +49,8 @@ var choosing_branch: bool = false
 var moving_tower: Tower = null
 var move_target: TowerPad = null
 var move_confirm: MoveConfirm
+## Đang kéo lô cốt theo ngón tay (chưa thả).
+var tower_dragging: bool = false
 ## Cảnh thử hiệu năng: không có đợt, luôn giữ đủ MAX_ACTIVE_ENEMIES địch, đảo không chìm.
 var stress_mode: bool = false
 ## Mili giây từ lúc dựng trận (bấm Xuất kích, hay mở thẳng bằng ?play) tới lúc trận sẵn sàng (kế hoạch mục 7: không quá 3 giây).
@@ -122,6 +124,7 @@ func _ready() -> void:
 	touch_input.drag_ended.connect(_on_drag_ended)
 	touch_input.pinch_started.connect(camera.cancel_drag)
 	touch_input.pinch_started.connect(deployer.cancel)
+	touch_input.pinch_started.connect(func() -> void: if tower_dragging: cancel_move())
 	touch_input.pinch_started.connect(close_build_ring)
 	touch_input.drag_started.connect(close_build_ring.unbind(1))
 	touch_input.zoomed.connect(camera.zoom_by)
@@ -133,7 +136,6 @@ func _ready() -> void:
 	hud.upgrade_ring.upgrade_requested.connect(_on_upgrade_requested)
 	hud.upgrade_ring.branch_requested.connect(_on_branch_requested)
 	hud.upgrade_ring.sell_requested.connect(_on_sell_requested)
-	hud.upgrade_ring.move_requested.connect(_on_move_requested)
 	move_confirm = MoveConfirm.new()
 	move_confirm.name = "MoveConfirm"
 	hud.add_child(move_confirm)
@@ -305,40 +307,69 @@ func move_tower(tower: Tower, pad: TowerPad) -> bool:
 	return true
 
 
-## Vào chế độ dời cho lô cốt tower: chạm một bệ trống để chọn đích, rồi xác nhận.
-func begin_move(tower: Tower) -> void:
-	if tower == null or is_over():
-		return
+## Bắt đầu kéo lô cốt nếu điểm chạm trúng bệ có lô cốt: lô cốt rời bệ theo ngón tay (ngừng bắn), bệ trống hợp lệ gần nhất sáng
+## tầm bắn. Trả true nếu bắt được.
+func begin_tower_drag(screen_position: Vector2) -> bool:
+	if is_over() or moving_tower != null:
+		return false
+	var pad: TowerPad = island.pad_near(camera.ground_point(screen_position, TowerPad.TOP_HEIGHT), TowerPad.RADIUS * PAD_PICK_TOLERANCE)
+	var tower: Tower = tower_on(pad) if pad != null else null
+	if tower == null or pad.locked:
+		return false
 	close_build_ring()
 	moving_tower = tower
 	move_target = null
+	tower_dragging = true
+	tower.carried = true
+	pad.show_range(tower.range_units())
 	move_confirm.prompt(Profile.tower_move_cost())
-
-
-## Chọn bệ đích khi đang dời (hiện tầm bắn tại đó và hai nút xác nhận).
-func select_move_target(pad: TowerPad) -> bool:
-	if moving_tower == null or pad == null or not pad.is_selectable() or pad == moving_tower.pad:
-		return false
-	if move_target != null:
-		move_target.hide_range()
-	move_target = pad
-	pad.show_range(moving_tower.range_units())
-	move_confirm.place(camera.unproject_position(pad.global_position), economy.steel)
 	return true
+
+
+## Lô cốt đi theo ngón tay; gần một bệ trống thì hút vào bệ đó và hiện tầm bắn tại đó.
+func drag_tower_to(screen_position: Vector2) -> void:
+	if not tower_dragging or moving_tower == null:
+		return
+	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
+	var hover: TowerPad = island.pad_near(point, TowerPad.RADIUS * PAD_PICK_TOLERANCE)
+	if hover != null and (not hover.is_selectable() or hover == moving_tower.pad):
+		hover = null
+	if hover != move_target:
+		if move_target != null:
+			move_target.hide_range()
+		move_target = hover
+		if hover != null:
+			hover.show_range(moving_tower.range_units())
+	moving_tower.global_position = hover.global_position if hover != null else Vector3(point.x, TowerPad.TOP_HEIGHT, point.z)
+
+
+## Thả lô cốt: trên bệ trống thì chờ xác nhận (dấu tích trả phí dời), không thì lô cốt về bệ cũ.
+func end_tower_drag() -> void:
+	if not tower_dragging:
+		return
+	tower_dragging = false
+	if move_target != null:
+		move_confirm.place(camera.unproject_position(move_target.global_position), economy.steel)
+	else:
+		cancel_move()
 
 
 func confirm_move() -> bool:
 	if moving_tower == null or move_target == null:
 		return false
 	var done: bool = move_tower(moving_tower, move_target)
-	if done:
-		cancel_move()
+	cancel_move()
 	return done
 
 
 func cancel_move() -> void:
 	if move_target != null:
 		move_target.hide_range()
+	if moving_tower != null:
+		moving_tower.carried = false
+		moving_tower.position = Vector3.ZERO
+		moving_tower.pad.hide_range()
+	tower_dragging = false
 	moving_tower = null
 	move_target = null
 	if move_confirm != null:
@@ -698,9 +729,8 @@ func _on_enemy_killed(enemy: Enemy, reward: int) -> void:
 
 func _on_tapped(screen_position: Vector2) -> void:
 	if moving_tower != null:
-		var wanted: TowerPad = island.pad_near(camera.ground_point(screen_position, TowerPad.TOP_HEIGHT), TowerPad.RADIUS * PAD_PICK_TOLERANCE)
-		if not select_move_target(wanted):
-			cancel_move()
+		# Đang chờ xác nhận dời: chạm chỗ khác thì thôi.
+		cancel_move()
 		return
 	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
 	var pad: TowerPad = island.pad_near(point, TowerPad.RADIUS * PAD_PICK_TOLERANCE)
@@ -725,7 +755,7 @@ func _on_tapped(screen_position: Vector2) -> void:
 func _open_upgrade_ring(tower: Tower, at: Vector2) -> void:
 	if tower != null:
 		tower.pad.show_range(tower.range_units())
-		hud.upgrade_ring.open(at, tower, economy.steel, economy.refund_for(tower.invested), Profile.tower_move_cost())
+		hud.upgrade_ring.open(at, tower, economy.steel, economy.refund_for(tower.invested))
 
 
 func _on_upgrade_requested() -> void:
@@ -743,10 +773,6 @@ func _on_branch_chosen(chosen: TowerBranch) -> void:
 	var tower: Tower = hud.branch_cards.tower
 	choose_branch(tower, chosen)
 	close_branch_cards()
-
-
-func _on_move_requested() -> void:
-	begin_move(hud.upgrade_ring.tower)
 
 
 func _on_sell_requested() -> void:
@@ -786,20 +812,26 @@ func _on_steel_changed(value: int) -> void:
 
 ## Chạm kéo trúng đảo mua thêm thì kéo đảo; không thì kéo camera.
 func _on_drag_started(screen_position: Vector2) -> void:
+	if begin_tower_drag(screen_position):
+		return
 	if not is_over() and deployer.begin_drag(screen_position):
 		return
 	camera.begin_drag(screen_position)
 
 
 func _on_drag_moved(screen_position: Vector2) -> void:
-	if deployer.is_dragging():
+	if tower_dragging:
+		drag_tower_to(screen_position)
+	elif deployer.is_dragging():
 		deployer.drag_to(screen_position)
 	else:
 		camera.drag_to(screen_position)
 
 
 func _on_drag_ended(_screen_position: Vector2) -> void:
-	if deployer.is_dragging():
+	if tower_dragging:
+		end_tower_drag()
+	elif deployer.is_dragging():
 		deployer.end_drag()
 	else:
 		camera.end_drag()

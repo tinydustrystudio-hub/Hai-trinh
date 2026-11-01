@@ -61,35 +61,87 @@ func test_cannot_move_to_occupied_locked_or_without_gold() -> void:
 	assert_eq(battle.economy.steel, Profile.tower_move_cost() - 1)
 
 
-func test_move_flow_needs_confirmation() -> void:
+func _screen(battle: BattleController, pad: TowerPad) -> Vector2:
+	return battle.camera.unproject_position(pad.global_position)
+
+
+func test_drag_tower_to_empty_pad_needs_confirmation() -> void:
 	var battle: BattleController = await _new_battle()
-	var tower: Tower = battle.build_tower(battle.island.pads[0], MACHINE_GUN)
+	var from: TowerPad = battle.island.pads[0]
 	var target: TowerPad = battle.island.pads[2]
+	var tower: Tower = battle.build_tower(from, MACHINE_GUN)
 	var before: int = battle.economy.steel
-	battle.begin_move(tower)
-	assert_eq(battle.moving_tower, tower)
-	assert_true(battle.select_move_target(target))
+	assert_true(battle.begin_tower_drag(_screen(battle, from)))
+	assert_true(tower.carried)
+	assert_true(battle.tower_dragging)
+	battle.drag_tower_to(_screen(battle, target))
+	assert_eq(battle.move_target, target)
 	assert_gt(target.range_shown(), 0.0, "hiện tầm bắn tại bệ đích")
+	assert_almost_eq(tower.global_position.x, target.global_position.x, 0.01, "lô cốt đi theo ngón tay, hút vào bệ")
+	battle.end_tower_drag()
 	assert_true(battle.move_confirm.confirm_button().visible)
 	assert_eq(battle.economy.steel, before, "chưa xác nhận thì chưa tốn vàng")
-	assert_eq(tower.pad, battle.island.pads[0])
+	assert_eq(tower.pad, from)
 	assert_true(battle.confirm_move())
 	assert_eq(tower.pad, target)
+	assert_false(tower.carried)
+	assert_eq(tower.position, Vector3.ZERO)
 	assert_null(battle.moving_tower)
 	assert_eq(battle.economy.steel, before - Profile.tower_move_cost())
 
 
-func test_cancel_move_keeps_tower_and_gold() -> void:
+func test_drop_away_from_pads_returns_tower_free() -> void:
 	var battle: BattleController = await _new_battle()
-	var tower: Tower = battle.build_tower(battle.island.pads[0], MACHINE_GUN)
+	var from: TowerPad = battle.island.pads[0]
+	var tower: Tower = battle.build_tower(from, MACHINE_GUN)
 	var before: int = battle.economy.steel
-	battle.begin_move(tower)
-	battle.select_move_target(battle.island.pads[2])
-	battle.cancel_move()
+	battle.begin_tower_drag(_screen(battle, from))
+	battle.drag_tower_to(Vector2(40, 40))
+	assert_null(battle.move_target)
+	battle.end_tower_drag()
+	assert_false(tower.carried)
+	assert_eq(tower.pad, from)
+	assert_eq(tower.position, Vector3.ZERO, "về lại bệ cũ")
+	assert_eq(battle.economy.steel, before)
 	assert_null(battle.moving_tower)
-	assert_eq(tower.pad, battle.island.pads[0])
+
+
+func test_cancel_after_drop_keeps_tower_and_gold() -> void:
+	var battle: BattleController = await _new_battle()
+	var from: TowerPad = battle.island.pads[0]
+	var tower: Tower = battle.build_tower(from, MACHINE_GUN)
+	var before: int = battle.economy.steel
+	battle.begin_tower_drag(_screen(battle, from))
+	battle.drag_tower_to(_screen(battle, battle.island.pads[2]))
+	battle.end_tower_drag()
+	battle.cancel_move()
+	assert_eq(tower.pad, from)
+	assert_eq(tower.position, Vector3.ZERO)
 	assert_eq(battle.economy.steel, before)
 	assert_eq(battle.island.pads[2].range_shown(), 0.0)
+	assert_false(tower.carried)
+
+
+func test_cannot_drag_onto_occupied_pad_and_empty_pad_is_not_draggable() -> void:
+	var battle: BattleController = await _new_battle()
+	var a: Tower = battle.build_tower(battle.island.pads[0], MACHINE_GUN)
+	battle.build_tower(battle.island.pads[1], MACHINE_GUN)
+	assert_false(battle.begin_tower_drag(_screen(battle, battle.island.pads[3])), "bệ trống không kéo được")
+	assert_true(battle.begin_tower_drag(_screen(battle, battle.island.pads[0])))
+	battle.drag_tower_to(_screen(battle, battle.island.pads[1]))
+	assert_null(battle.move_target, "bệ có lô cốt không nhận")
+	battle.end_tower_drag()
+	assert_eq(a.pad, battle.island.pads[0])
+
+
+func test_carried_tower_does_not_fire() -> void:
+	var battle: BattleController = await _new_battle()
+	var tower: Tower = battle.build_tower(battle.island.pads[0], MACHINE_GUN)
+	battle.begin_tower_drag(_screen(battle, battle.island.pads[0]))
+	tower.tick(1.0)
+	assert_eq(tower.target, null)
+	battle.cancel_move()
+	assert_false(tower.carried)
 
 
 func test_glue_tower_relocates_its_lake() -> void:
@@ -97,18 +149,3 @@ func test_glue_tower_relocates_its_lake() -> void:
 	var tower: Tower = battle.build_tower(battle.island.pads[0], GLUE)
 	assert_true(battle.move_tower(tower, battle.island.pads[3]))
 	assert_eq(tower.pad, battle.island.pads[3])
-
-
-func test_upgrade_ring_shows_move_button_with_cost() -> void:
-	var battle: BattleController = await _new_battle()
-	var tower: Tower = battle.build_tower(battle.island.pads[0], MACHINE_GUN)
-	battle.hud.upgrade_ring.open(Vector2(900, 600), tower, battle.economy.steel, 10, Profile.tower_move_cost())
-	var button: Button = battle.hud.upgrade_ring.move_button()
-	assert_true(button.visible)
-	assert_string_contains(button.text, str(Profile.tower_move_cost()))
-	assert_false(button.disabled)
-	assert_gte(button.size.x, 120.0)
-	var requested: Array[bool] = [false]
-	battle.hud.upgrade_ring.move_requested.connect(func() -> void: requested[0] = true)
-	button.pressed.emit()
-	assert_true(requested[0])

@@ -18,6 +18,8 @@ var pad: TowerPad
 ## Tổng Thép đã bỏ vào lô cốt (xây và nâng), để tính hoàn lại khi bán.
 var invested: int = 0
 var target: Enemy = null
+## Đang bị người chơi nhấc đi dời: không tìm mục tiêu, không bắn.
+var carried: bool = false
 ## Thanh Quá tải; giữ nguyên khi nâng cấp.
 var overload: Overload
 
@@ -138,6 +140,8 @@ func _on_mega_ended() -> void:
 
 ## Một nhịp trận: tìm lại mục tiêu theo nhịp, xoay nòng, rồi để lớp con bắn.
 func tick(delta: float) -> void:
+	if carried:
+		return
 	overload.advance(delta)
 	_update_ready_pulse(delta)
 	_retarget_left -= delta
