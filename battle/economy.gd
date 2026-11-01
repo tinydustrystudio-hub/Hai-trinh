@@ -8,10 +8,13 @@ signal changed(value: int)
 @export var data: EconomyData = preload("res://data/economy.tres")
 
 var steel: int = 0
+## Tiền kiếm được trong trận (diệt địch, thưởng đợt); không tính Tiền Vàng khởi đầu hay tiền hoàn khi bán.
+var earned: int = 0
 
 
 func reset(starting: int) -> void:
 	steel = maxi(starting, 0)
+	earned = 0
 	changed.emit(steel)
 
 
@@ -29,6 +32,15 @@ func spend(cost: int) -> bool:
 
 
 func earn(amount: int) -> void:
+	if amount <= 0:
+		return
+	steel += amount
+	earned += amount
+	changed.emit(steel)
+
+
+## Tiền hoàn khi bán lô cốt: vào Tiền Vàng trong trận nhưng không tính là tiền kiếm được.
+func receive_refund(amount: int) -> void:
 	if amount <= 0:
 		return
 	steel += amount

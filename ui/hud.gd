@@ -92,11 +92,11 @@ func safe_insets() -> Vector4:
 		(window.x - safe.end.x) * scale.x, (window.y - safe.end.y) * scale.y)
 
 
-func show_result(won: bool) -> void:
+func show_result(won: bool, payout: int = 0) -> void:
 	_incoming.text = ""
 	_call_wave.visible = false
 	pause_menu.close()
-	result_panel.show_result(won)
+	result_panel.show_result(won, payout)
 
 
 func hide_result() -> void:

@@ -13,3 +13,4 @@ island_buy_base = 250
 island_buy_step = 50
 building_base_cost = 200
 building_growth = 1.6
+victory_bonus = 100

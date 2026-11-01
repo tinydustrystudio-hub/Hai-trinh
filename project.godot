@@ -22,6 +22,7 @@ config/quit_on_go_back=false
 
 Settings="*res://core/settings.gd"
 Events="*res://core/events.gd"
+Profile="*res://core/profile.gd"
 
 [display]
 

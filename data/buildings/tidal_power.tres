@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/data/building_data.gd" id="1_building"]
+
+[resource]
+script = ExtResource("1_building")
+id = &"tidal_power"
+name_key = &"BUILDING_TIDAL_POWER"
+description_key = &"BUILDING_TIDAL_POWER_DESC"
+upgrade_multiplier = 1.25

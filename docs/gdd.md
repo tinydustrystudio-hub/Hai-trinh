@@ -608,6 +608,8 @@ Chín loại lô cốt, mỗi loại 5 cấp, lên cấp 5 chọn 1 trong 2 nhá
 
 ### 3.1 Luật chung
 
+> **Cập nhật 1/11 (quyết định của người duyệt): một loại tiền duy nhất, "Tiền Vàng".** Thép (trong trận) và Xu (ngoài trận) gộp làm một. Tiền Vàng dùng cho xây, nâng và bán lô cốt trong trận, và cho nâng cấp công trình, mua và dời đảo vệ tinh ở căn cứ. Tiền kiếm được trong trận (diệt địch, thưởng đầu đợt; không tính tiền khởi đầu hay tiền hoàn khi bán) cộng vào ví cuối trận, thêm thưởng thắng. Mọi chỗ dưới đây ghi "Thép" hoặc "Xu" đọc là Tiền Vàng; các giá ghi ở đây là số khởi đầu, chỉnh sau khi chơi thử (số hiện hành nằm ở `data/*.tres` và `docs/so-lieu-khoi-dau.md`).
+
 **Nâng cấp trong trận và ngoài trận**
 
 - Trong trận: đặt và nâng lô cốt từ cấp 1 tới cấp 5 bằng Thép, giữa các đợt hoặc ngay khi đang đánh. Lên cấp 5 thì chọn 1 trong 2 nhánh; trong trận đó không đổi được, trận sau chọn lại tùy ý. Bán lô cốt được hoàn 70% Thép đã bỏ ra.
@@ -1261,6 +1263,8 @@ Ngoài trận, người chơi chỉ có **Xu** và **Sao**. Trong trận có th�
 
 ### 5.4 Đảo nhỏ
 
+> **Cập nhật 1/11:** đảo vệ tinh là vật phẩm, mua một lần là có mãi (đảo thứ 5 của màn 1 giá 250 Tiền Vàng, mỗi đảo sau +50). Màn 1 cấp sẵn 4 đảo, đặt được tối đa 8. Dùng đảo tự đặt tốn phí mỗi trận (đảo tự đặt thứ nhất 200, mỗi đảo sau +50); dời đảo tốn bằng một nửa giá lô cốt rẻ nhất. Bảng 300 / 400 / 550… Xu cũ bên dưới được thay bằng quy tắc này.
+
 Mỗi đảo nhỏ có đúng 1 ô: đặt 1 lô cốt hoặc 1 tiện ích. Có hai loại đảo nhỏ:
 
 | Loại | Lấy bằng cách nào | Số lượng | Có tác dụng ở đâu | Ô dùng cho |
@@ -1316,6 +1320,8 @@ Bản đồ thế giới là một hải đồ 2,5D trên bàn sa bàn trong ph�
 | Mắt Giếng | Điểm Neo Cổ (nv 33), Vành Đai Ngoài (nv 35), Bệ Trung Tâm (nv 39) | Tùy lối chơi | Mọi phe hội tụ |
 
 ### 5.6 Dòng chảy Xu và Sao
+
+> **Cập nhật 1/11:** ngoài trận người chơi có **Tiền Vàng** (thay Xu) và **Sao**. Trong trận Tiền Vàng dùng như Thép cũ; cuối trận số kiếm được cộng vào ví (`Profile` trong code), thắng thêm thưởng. Các dòng "Xu" trong bảng dưới là mức tham khảo cho Tiền Vàng, chờ chỉnh khi chơi thử.
 
 Mục tiêu cân bằng: chơi hết chiến dịch là đủ mua những thứ thiết yếu; muốn có tất cả thì cần chơi đều thêm một thời gian. Không có bức tường nào chỉ vượt được bằng tiền thật. Xu thưởng thắng lần đầu nhân 1,3 mỗi hồi, giống máu địch.
 

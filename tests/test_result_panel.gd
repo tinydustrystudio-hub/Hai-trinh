@@ -36,3 +36,11 @@ func test_retry_emits() -> void:
 	watch_signals(_panel)
 	_panel.retry_button().pressed.emit()
 	assert_signal_emitted(_panel, "retry_requested")
+
+
+func test_payout_line_shows_only_when_paid() -> void:
+	_panel.show_result(true, 140)
+	assert_eq(_panel.gold_text(), "+140 Tiền Vàng vào ví")
+	assert_eq(_panel.title_text(), "Chiến thắng")
+	_panel.show_result(false, 0)
+	assert_eq(_panel.gold_text(), "")

@@ -7,6 +7,9 @@ extends Resource
 ## Tỉ lệ hoàn lại khi bán lô cốt, trên tổng Thép đã bỏ vào nó.
 @export_range(0.0, 1.0) var sell_refund: float = 0.7
 
+## Thưởng Tiền Vàng vào ví khi thắng một trận (số tạm). Tiền kiếm được trong trận (diệt địch, thưởng đợt) luôn cộng vào ví.
+@export var victory_bonus: int = 100
+
 @export_group("Đảo vệ tinh")
 ## Đảo là vật phẩm: mua một lần là có mãi. Dùng đảo do người chơi tự đặt vào màn thì tốn phí: đảo tự đặt thứ nhất
 ## island_use_base, mỗi đảo tiếp theo cộng thêm island_use_step (200, 250, 300…). Đảo cấp sẵn của màn không tốn phí.
