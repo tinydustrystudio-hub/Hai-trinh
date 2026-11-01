@@ -67,9 +67,10 @@ static func build_satellite(layout: MapLayout, index: int) -> ArrayMesh:
 	var st: SurfaceTool = MeshKit.begin()
 	var center: Vector3 = layout.satellite_centers[index]
 	_satellite(st, Vector3.ZERO, layout.satellite_radius, layout.fortress_center - center)
-	var away: Vector3 = Vector3(center.x - layout.fortress_center.x, 0.0, center.z - layout.fortress_center.z).normalized()
-	var utility_dir: Vector3 = (away - Vector3(-away.z, 0.0, away.x)).normalized()
-	SatelliteUtilities.build(st, layout.satellite_utility(index), Vector3.ZERO, utility_dir)
+	var utility_dir: Vector3 = SatelliteUtilities.direction_for(layout, index)
+	# Tiện ích có mô hình Blender (sat_<id>.glb) thì Island thêm mô hình riêng; không thì dựng bằng code.
+	if not SatelliteUtilities.has_model(layout.satellite_utility(index)):
+		SatelliteUtilities.build(st, layout.satellite_utility(index), Vector3.ZERO, utility_dir)
 	SatelliteUtilities.build_props(st, Vector3.ZERO, utility_dir)
 	return MeshKit.commit(st)
 

@@ -135,3 +135,31 @@ func test_island_uses_wave_wall_model_and_skips_code_wall() -> void:
 	# Khi có mô hình, bản dựng bằng code không dựng thêm tường: thân đảo ít tam giác hơn bản không có mô hình.
 	var with_model: int = AllianceFortress.build_fortress(layout).surface_get_array_len(0)
 	assert_lt(with_model, 20000)
+
+
+func test_satellite_utility_models_fit_the_island() -> void:
+	for id: StringName in SatelliteUtilities.IDS:
+		var mesh: ArrayMesh = ModelMesh.load_mesh(SatelliteUtilities.model_name(id))
+		assert_not_null(mesh, "thiếu mô hình %s" % id)
+		var box: AABB = mesh.get_aabb()
+		# Gốc ở chỗ đặt tiện ích (cách tâm đảo OFFSET), +x ra ngoài: không đè bệ ở tâm và nằm trong đảo bán kính 4.
+		assert_gt(box.position.x + SatelliteUtilities.OFFSET, 1.3, "%s: không đè bệ lô cốt" % id)
+		assert_lt(box.end.x + SatelliteUtilities.OFFSET, 3.95, "%s: nằm trong đảo" % id)
+		assert_between(absf(box.position.z), 0.0, 1.5, "%s: lệch bên vừa phải" % id)
+		assert_between(box.end.y, 1.0, 6.0, "%s: có chiều cao nhận ra khi thu nhỏ" % id)
+		assert_lt(mesh.surface_get_array_len(0) / 3, 1500, "%s: ngân sách tam giác" % id)
+
+
+func test_island_adds_utility_model_to_each_satellite() -> void:
+	var layout: MapLayout = load("res://data/maps/north_dock_layout.tres") as MapLayout
+	var island: Island = Island.new()
+	add_child_autofree(island)
+	island.build(layout)
+	assert_eq(island.satellites.size(), 4)
+	for k: int in 4:
+		var utility: MeshInstance3D = island.satellites[k].get_node_or_null("Utility") as MeshInstance3D
+		assert_not_null(utility, "đảo %d thiếu tiện ích" % k)
+		assert_eq(utility.mesh, ModelMesh.load_mesh(SatelliteUtilities.model_name(layout.satellite_utility(k))))
+		# Mô hình quay mặt ra phía ngoài đảo chính (+x của mô hình trùng hướng tiện ích).
+		var direction: Vector3 = SatelliteUtilities.direction_for(layout, k)
+		assert_almost_eq((utility.transform.basis * Vector3.RIGHT).dot(direction), 1.0, 0.001)

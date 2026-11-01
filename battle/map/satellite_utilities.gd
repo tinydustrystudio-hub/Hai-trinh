@@ -11,6 +11,27 @@ const OFFSET: float = 2.5
 const _SURFACE_Y: float = 0.45
 
 
+## Tên mô hình Blender của tiện ích (assets/models/sat_<id>.glb); toạ độ cục bộ: gốc ở chỗ đặt trên mặt đảo, +x hướng ra ngoài.
+static func model_name(id: StringName) -> String:
+	return "sat_%s" % String(id)
+
+
+static func has_model(id: StringName) -> bool:
+	return ModelMesh.exists(model_name(id))
+
+
+## Hướng đặt tiện ích trên đảo vệ tinh thứ index: lệch khỏi hướng nhìn ra xa đảo chính về một bên, để không đè lên cột neo.
+static func direction_for(layout: MapLayout, index: int) -> Vector3:
+	var center: Vector3 = layout.satellite_centers[index]
+	var away: Vector3 = Vector3(center.x - layout.fortress_center.x, 0.0, center.z - layout.fortress_center.z).normalized()
+	return (away - _side(away)).normalized()
+
+
+## Vị trí cục bộ (trong đảo vệ tinh) và góc quay quanh trục đứng để đặt mô hình tiện ích.
+static func model_transform(direction: Vector3) -> Transform3D:
+	return Transform3D(Basis(Vector3.UP, atan2(-direction.z, direction.x)), direction * OFFSET + Vector3(0.0, _SURFACE_Y, 0.0))
+
+
 ## Dựng tiện ích id, tâm tại center (tọa độ đảo), dịch về hướng direction (đơn vị, trên mặt nước).
 static func build(st: SurfaceTool, id: StringName, center: Vector3, direction: Vector3) -> void:
 	var at: Vector3 = center + direction * OFFSET
