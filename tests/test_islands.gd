@@ -190,8 +190,13 @@ func test_deploy_island_anywhere_costs_gold_and_unlocks_pad_on_arrival() -> void
 	deployer.drag_to(battle.camera.unproject_position(spot))
 	var before: int = battle.economy.steel
 	deployer.end_drag()
+	assert_eq(deployer.pending_island(), 4, "thả ở chỗ hợp lệ thì chờ xác nhận")
+	assert_eq(battle.economy.steel, before, "chưa xác nhận thì chưa tốn vàng")
+	assert_false(deployer.is_deployed(4))
+	assert_true(deployer.confirm())
 	assert_eq(battle.economy.steel, before - Profile.island_move_cost())
 	assert_true(deployer.is_deployed(4))
+	assert_eq(deployer.pending_island(), -1)
 	assert_true(battle.island.pads[6 + 4].locked, "đang lai dắt thì bệ chưa mở")
 	_tow_until_done(deployer, battle, 4)
 	assert_eq(battle.layout.satellite_centers[4], deployer.home_of(4))
@@ -213,6 +218,7 @@ func test_invalid_spot_or_no_gold_tows_island_back_free() -> void:
 	assert_false(deployer.finger_valid(), "đè đảo chính")
 	var before: int = battle.economy.steel
 	deployer.end_drag()
+	assert_eq(deployer.pending_island(), -1, "chỗ không hợp lệ thì không hỏi xác nhận")
 	_tow_until_done(deployer, battle, 4)
 	assert_eq(battle.layout.satellite_centers[4], dock, "thả chỗ không hợp lệ thì về chỗ đậu")
 	assert_eq(battle.economy.steel, before)
@@ -221,8 +227,11 @@ func test_invalid_spot_or_no_gold_tows_island_back_free() -> void:
 	assert_true(deployer.begin_drag(screen))
 	deployer.drag_to(battle.camera.unproject_position(_open_spot(4)))
 	deployer.end_drag()
+	assert_false(deployer.confirm(), "thiếu vàng thì không xác nhận được")
+	assert_eq(deployer.pending_island(), 4)
+	deployer.decline()
 	_tow_until_done(deployer, battle, 4)
-	assert_eq(battle.layout.satellite_centers[4], dock, "thiếu vàng thì về chỗ đậu")
+	assert_eq(battle.layout.satellite_centers[4], dock, "huỷ thì về chỗ đậu")
 	assert_eq(battle.economy.steel, 5)
 	assert_true(battle.island.pads[6 + 4].locked)
 
@@ -242,6 +251,7 @@ func test_island_with_tower_cannot_be_moved_and_retry_returns_islands() -> void:
 	deployer.begin_drag(screen)
 	deployer.drag_to(battle.camera.unproject_position(_open_spot(4)))
 	deployer.end_drag()
+	deployer.confirm()
 	_tow_until_done(deployer, battle, 4)
 	var pad: TowerPad = battle.island.pads[6 + 4]
 	battle.economy.reset(1000)
@@ -275,3 +285,73 @@ func test_free_islands_follow_each_levels_own_arrangement() -> void:
 	for i: int in LAYOUT.satellite_centers.size():
 		assert_eq(layout.satellite_centers[i], shifted[i], "đảo cấp sẵn %d theo bố cục của màn" % i)
 		assert_ne(layout.satellite_centers[i], LAYOUT.satellite_centers[i])
+
+
+func test_waypoint_goes_around_an_island_in_the_way() -> void:
+	var obstacles: Array[Vector4] = [Vector4(20, 0, 5, 0)]
+	var here: Vector3 = Vector3.ZERO
+	var goal: Vector3 = Vector3(40, 0, 0)
+	var way: Vector3 = IslandDeployer.next_waypoint(here, goal, obstacles)
+	assert_ne(way, goal, "đường thẳng bị chắn thì phải vòng")
+	assert_gt(absf(way.z), 5.0, "điểm vòng nằm ngoài mép vật cản")
+	assert_eq(IslandDeployer.next_waypoint(here, Vector3(0, 0, 40), obstacles), Vector3(0, 0, 40), "đường thoáng thì đi thẳng")
+
+
+func test_towed_island_never_enters_another_island() -> void:
+	Profile.set_gold(100000)
+	Profile.buy_island()
+	var battle: BattleController = await _new_battle()
+	var deployer: IslandDeployer = battle.deployer
+	var layout: MapLayout = battle.layout
+	var screen: Vector2 = battle.camera.unproject_position(layout.satellite_centers[4])
+	assert_true(deployer.begin_drag(screen))
+	# Đích ở phía bên kia đảo chính so với chỗ đậu: đường thẳng phải xuyên qua đảo chính.
+	var spot: Vector3 = Vector3.ZERO
+	for x: int in range(-80, 81, 4):
+		for z: int in range(-80, 41, 4):
+			var point: Vector3 = Vector3(x, 0.0, z)
+			if spot == Vector3.ZERO and layout.island_spot_valid(point, 4) and _flat(point, layout.satellite_centers[4]) > 45.0 and point.z * layout.satellite_centers[4].z < 0.0:
+				spot = point
+	assert_ne(spot, Vector3.ZERO)
+	deployer.drag_to(battle.camera.unproject_position(spot))
+	var closest: float = INF
+	var guard: int = 0
+	while deployer.is_towing(4) and guard < 4000:
+		deployer.tow_step(0.1)
+		guard += 1
+		closest = minf(closest, _flat(layout.satellite_centers[4], layout.fortress_center))
+		for j: int in 4:
+			assert_gt(_flat(layout.satellite_centers[4], layout.satellite_centers[j]), layout.satellite_radius * 2.0, "xuyên đảo %d" % j)
+	assert_gt(closest, layout.fortress_radius + layout.satellite_radius, "không xuyên đảo chính")
+	assert_lt(_flat(layout.satellite_centers[4], spot), 1.5, "vẫn tới được đích")
+
+
+func test_grid_marks_reachable_blue_and_blocked_red() -> void:
+	var mesh: ArrayMesh = IslandDeployer.build_grid(LAYOUT, -1)
+	var colors: PackedColorArray = mesh.surface_get_arrays(0)[Mesh.ARRAY_COLOR]
+	var blue: int = 0
+	var red: int = 0
+	for c: Color in colors:
+		if c.b > c.r:
+			blue += 1
+		else:
+			red += 1
+	assert_gt(blue, 0)
+	assert_gt(red, 0)
+	assert_lt(colors.size() / 6, 3000, "ngân sách số ô lưới")
+
+
+func test_grid_shows_only_while_dragging_or_pending() -> void:
+	Profile.set_gold(100000)
+	Profile.buy_island()
+	var battle: BattleController = await _new_battle()
+	var deployer: IslandDeployer = battle.deployer
+	var grid: MeshInstance3D = battle.island.get_node("IslandGrid") as MeshInstance3D
+	assert_false(grid.visible)
+	deployer.begin_drag(battle.camera.unproject_position(battle.layout.satellite_centers[4]))
+	assert_true(grid.visible)
+	deployer.drag_to(battle.camera.unproject_position(_open_spot(4)))
+	deployer.end_drag()
+	assert_true(grid.visible, "chờ xác nhận vẫn hiện lưới")
+	deployer.decline()
+	assert_false(grid.visible)
