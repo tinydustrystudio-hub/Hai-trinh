@@ -32,7 +32,7 @@ static func build_fortress(layout: MapLayout) -> ArrayMesh:
 	var c: Vector3 = layout.fortress_center
 	var r: float = layout.fortress_radius
 	_base_and_wall(st, c, r)
-	_inner_ring(st, c, r)
+	_inner_ring(st, c, r, layout.building_level(&"tidal_power"))
 	_tower(st, c, r)
 	for i: int in layout.pad_count():
 		if not layout.is_satellite_pad(i):
@@ -133,7 +133,7 @@ static func _base_and_wall(st: SurfaceTool, c: Vector3, r: float) -> void:
 		MeshKit.box(st, Vector3(p.x, DECK_Y + 0.02, p.z), Vector3(r * 0.24, 0.04, PIER_WIDTH * 0.7), STEEL.lightened(0.3), atan2(-dir.z, dir.x))
 
 
-static func _inner_ring(st: SurfaceTool, c: Vector3, r: float) -> void:
+static func _inner_ring(st: SurfaceTool, c: Vector3, r: float, tidal_level: int = 1) -> void:
 	var ring_r: float = r * 0.66
 	var y_top: float = DECK_Y + 1.25
 	# Tầng hai: lục giác xoay 30°, thân xanh biển, viền cam, mặt sáng.
@@ -142,9 +142,15 @@ static func _inner_ring(st: SurfaceTool, c: Vector3, r: float) -> void:
 	# Sáu khối công trình quanh vành trong.
 	var builders: Array[Callable] = [_workshop, _turbine, _radar, _containers, _turbine, _tanks]
 	for k: int in 6:
+		# Trạm Năng Lượng: cấp 1 chỉ một tua-bin, cấp 3 thêm tua-bin thứ hai và khối pin, cấp 5 thêm vòng tụ phát sáng.
+		if k == 4 and tidal_level < 3:
+			continue
 		var a: float = deg_to_rad(60.0 * float(k))
 		var dir: Vector3 = Vector3(cos(a), 0.0, sin(a))
-		builders[k].call(st, c + dir * ring_r * 0.66 + Vector3(0, y_top, 0), r, a)
+		var at: Vector3 = c + dir * ring_r * 0.66 + Vector3(0, y_top, 0)
+		builders[k].call(st, at, r, a)
+		if (k == 1 or k == 4) and tidal_level >= 3:
+			_battery(st, at, r, a, tidal_level >= 5)
 
 
 static func _workshop(st: SurfaceTool, at: Vector3, r: float, a: float) -> void:
@@ -172,6 +178,15 @@ static func _turbine(st: SurfaceTool, at: Vector3, r: float, a: float) -> void:
 		var blade_basis: Basis = Basis(blade_dir.cross(face).normalized(), blade_dir, face)
 		_oriented_box(st, center, blade_basis, Vector3(s * 0.35, s * 3.0, s * 0.1), IVORY)
 		_oriented_box(st, hub + face * s * 0.8 + blade_dir * s * 2.9, blade_basis, Vector3(s * 0.36, s * 0.4, s * 0.11), ORANGE)
+
+
+static func _battery(st: SurfaceTool, at: Vector3, r: float, a: float, glowing: bool) -> void:
+	var s: float = r * 0.075
+	var side: Vector3 = Vector3(-sin(a), 0, cos(a))
+	MeshKit.box(st, at + side * s * 1.9 + Vector3(0, s * 0.55, 0), Vector3(s * 1.2, s * 1.1, s * 1.2), STEEL, -a, IVORY)
+	if glowing:
+		MeshKit.ring(st, at, s * 1.15, s * 1.3, at.y + s * 0.6, at.y + s * 0.8, 10, GLASS.lightened(0.3), GLASS.lightened(0.5))
+		MeshKit.box(st, at + side * s * 1.9 + Vector3(0, s * 1.3, 0), Vector3(s * 0.5, s * 0.3, s * 0.5), GLASS.lightened(0.5), -a)
 
 
 static func _radar(st: SurfaceTool, at: Vector3, r: float, a: float) -> void:
