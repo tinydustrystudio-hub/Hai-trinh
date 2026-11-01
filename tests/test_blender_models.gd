@@ -66,3 +66,38 @@ func test_enemy_models_have_correct_size_axis_and_budget() -> void:
 
 func test_models_use_the_shared_vertex_color_material() -> void:
 	assert_true(EnemyMeshes.material().vertex_color_use_as_albedo)
+
+
+const TOWER_PATHS: Dictionary[StringName, String] = {
+	&"machine_gun": "res://data/towers/machine_gun.tres",
+	&"glue_sprayer": "res://data/towers/glue_sprayer.tres",
+	&"light_beam": "res://data/towers/light_beam.tres",
+}
+const MAX_TOWER_TRIANGLES: int = 2000
+
+
+func test_tower_models_are_used_by_the_game() -> void:
+	for id: StringName in TOWER_PATHS:
+		var data: TowerData = load(TOWER_PATHS[id]) as TowerData
+		assert_true(ModelMesh.exists("twr_%s_base" % id), "thiếu đế %s" % id)
+		assert_true(ModelMesh.exists("twr_%s_turret" % id), "thiếu đầu nòng %s" % id)
+		assert_eq(TowerMeshes.base_mesh(data).get_aabb(), ModelMesh.load_mesh("twr_%s_base" % id).get_aabb(), "game dùng đế Blender")
+		assert_eq(TowerMeshes.turret_mesh(data).get_aabb(), ModelMesh.load_mesh("twr_%s_turret" % id).get_aabb(), "game dùng đầu nòng Blender")
+
+
+func test_tower_models_fit_pad_axis_and_budget() -> void:
+	for id: StringName in TOWER_PATHS:
+		var data: TowerData = load(TOWER_PATHS[id]) as TowerData
+		var base: ArrayMesh = TowerMeshes.base_mesh(data)
+		var turret: ArrayMesh = TowerMeshes.turret_mesh(data)
+		var triangles: int = (base.surface_get_array_len(0) + turret.surface_get_array_len(0)) / 3
+		assert_lte(triangles, MAX_TOWER_TRIANGLES, "%s: ngân sách tam giác" % id)
+		var base_box: AABB = base.get_aabb()
+		assert_between(base_box.size.x, 2.2, 2.8, "%s: đế vừa bệ (lục giác bán kính 1,25)" % id)
+		assert_almost_eq(base_box.position.y, TowerPad.TOP_HEIGHT, 0.05, "%s: đế đặt trên mặt bệ" % id)
+		assert_between(base_box.end.y, 1.75, 2.0, "%s: cột cao tới chỗ đầu nòng tựa" % id)
+		var head_box: AABB = turret.get_aabb()
+		# Nòng hướng −z và đầu nòng cách trục xấp xỉ BARREL_LENGTH.
+		assert_between(head_box.position.z, -TowerMeshes.BARREL_LENGTH - 0.15, -TowerMeshes.BARREL_LENGTH + 0.3, "%s: miệng nòng ở −z" % id)
+		assert_gt(head_box.end.z, 0.2, "%s: thân đầu nòng ở phía sau trục" % id)
+		assert_lt(head_box.size.x, 2.2, "%s: đầu nòng không rộng hơn đế" % id)

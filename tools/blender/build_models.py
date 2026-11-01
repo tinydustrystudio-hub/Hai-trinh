@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(HERE, "models"))
 
 import kit  # noqa: E402
 
-MODELS = ["enm_raider_skiff", "enm_ram_drone", "enm_spiked_crab"]
+MODELS = ["enm_raider_skiff", "enm_ram_drone", "enm_spiked_crab", "twr_machine_gun", "twr_glue_sprayer", "twr_light_beam"]
 OUT = os.path.normpath(os.path.join(HERE, "..", "..", "assets", "models"))
 
 
