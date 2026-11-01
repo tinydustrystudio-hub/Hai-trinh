@@ -88,6 +88,17 @@ func choose_branch(chosen: TowerBranch, lanes: Array[Lane]) -> void:
 	_on_stats_changed()
 
 
+## Dời lô cốt sang bệ mới (cùng cấp, nhánh, Quá tải). Gọi sau khi đã đưa lô cốt vào bệ mới; lanes để Hồ Keo đặt lại hồ.
+func relocate(new_pad: TowerPad, lanes: Array[Lane]) -> void:
+	pad = new_pad
+	_on_relocated(lanes)
+
+
+## Lớp con ghi đè: lô cốt vừa được dời sang bệ khác.
+func _on_relocated(_lanes: Array[Lane]) -> void:
+	pass
+
+
 ## Lớp con ghi đè: số liệu vừa đổi (nâng cấp).
 func _on_stats_changed() -> void:
 	pass

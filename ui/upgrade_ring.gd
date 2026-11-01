@@ -6,11 +6,14 @@ extends Control
 signal upgrade_requested
 signal branch_requested
 signal sell_requested
+signal move_requested
 
 var tower: Tower = null
 
 var _upgrade: Button
 var _sell: Button
+var _move: Button
+var _move_cost: int = 0
 var _level: Label
 var _steel: int = 0
 var _refund: int = 0
@@ -29,6 +32,11 @@ func _ready() -> void:
 	_sell.add_theme_font_size_override(&"font_size", 28)
 	_sell.pressed.connect(sell_requested.emit)
 	add_child(_sell)
+	_move = UiStyle.primary_button(&"", Vector2(BuildRing.BUTTON_SIZE, BuildRing.BUTTON_SIZE))
+	_move.name = "Move"
+	_move.add_theme_font_size_override(&"font_size", 28)
+	_move.pressed.connect(_on_move_pressed)
+	add_child(_move)
 	_level = UiStyle.label(30)
 	_level.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_level)
@@ -36,16 +44,19 @@ func _ready() -> void:
 
 
 ## Mở vòng quanh at cho lô cốt chosen; refund là số Thép hoàn lại nếu bán.
-func open(at: Vector2, chosen: Tower, steel: int, refund: int) -> void:
+func open(at: Vector2, chosen: Tower, steel: int, refund: int, move_cost: int = 0) -> void:
 	tower = chosen
 	_steel = steel
 	_refund = refund
+	_move_cost = move_cost
 	var screen: Vector2 = get_viewport_rect().size
 	var size: Vector2 = Vector2(BuildRing.BUTTON_SIZE, BuildRing.BUTTON_SIZE)
 	_upgrade.size = size
 	_sell.size = size
-	_upgrade.position = BuildRing.button_center(0, 2, at, screen) - size * 0.5
-	_sell.position = BuildRing.button_center(1, 2, at, screen) - size * 0.5
+	_move.size = size
+	_upgrade.position = BuildRing.button_center(0, 3, at, screen) - size * 0.5
+	_move.position = BuildRing.button_center(1, 3, at, screen) - size * 0.5
+	_sell.position = BuildRing.button_center(2, 3, at, screen) - size * 0.5
 	_level.size = Vector2(240, 40)
 	_level.position = Vector2(clampf(at.x - 120.0, 0.0, screen.x - 240.0), clampf(at.y + 40.0, 0.0, screen.y - 40.0))
 	_refresh()
@@ -75,11 +86,17 @@ func sell_button() -> Button:
 	return _sell
 
 
+func move_button() -> Button:
+	return _move
+
+
 func _refresh() -> void:
 	if tower == null:
 		return
 	_level.text = tr(&"TOWER_LEVEL") % mini(tower.level, tower.data.max_level() + 1)
 	_sell.text = "%s\n+%d" % [tr(&"SELL"), _refund]
+	_move.text = "%s\n%d" % [tr(&"MOVE"), _move_cost]
+	_set_enabled(_move, _move_cost <= _steel)
 	if tower.is_max_level():
 		_upgrade.text = tr(&"UPGRADE_MAX")
 		_set_enabled(_upgrade, false)
@@ -106,3 +123,8 @@ func _on_upgrade_pressed() -> void:
 		branch_requested.emit()
 	else:
 		upgrade_requested.emit()
+
+
+func _on_move_pressed() -> void:
+	if tower != null and not _move.disabled:
+		move_requested.emit()

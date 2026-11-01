@@ -166,6 +166,11 @@ func island_move_cost() -> int:
 	return economy_rules.island_move_cost(cheapest_tower_cost())
 
 
+## Phí dời một lô cốt sang bệ khác: bằng giá lô cốt rẻ nhất.
+func tower_move_cost() -> int:
+	return economy_rules.tower_move_cost(cheapest_tower_cost())
+
+
 ## Bố cục của trận: đảo cấp sẵn ở ô mặc định, đảo mua thêm đậu ở chỗ đậu cạnh đảo chính, công trình theo cấp.
 func battle_layout(base: MapLayout) -> MapLayout:
 	var centers: PackedVector3Array = PackedVector3Array()

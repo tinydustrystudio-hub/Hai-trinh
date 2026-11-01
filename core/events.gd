@@ -14,6 +14,7 @@ signal wave_incoming(index: int, lanes: PackedInt32Array, seconds: float)
 signal tower_built(tower: Node3D)
 signal tower_upgraded(tower: Node3D)
 signal tower_sold(tower: Node3D)
+signal tower_moved(tower: Node3D)
 ## Một phát bắn của lô cốt (để phát tiếng; phát nhiều, đừng làm việc nặng khi nghe).
 signal tower_fired(tower: Node3D)
 signal overload_ready(tower: Node3D)
