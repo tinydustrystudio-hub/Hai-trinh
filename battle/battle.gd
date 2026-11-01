@@ -77,7 +77,11 @@ var _enemies_met: Array[EnemyData] = []
 @onready var music: MusicPlayer = $Effects/Music
 @onready var hud: Hud = $HUD
 @onready var sun: DirectionalLight3D = $Sun
+## Người chơi muốn về màn Tiêu đề (từ kết quả hoặc tạm dừng).
+signal menu_requested
+
 var weather: Weather
+var tutorial: TutorialHints
 var fade: ScreenFade
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 
@@ -123,6 +127,7 @@ func _ready() -> void:
 	Events.enemy_leaked.connect(_on_enemy_leaked)
 	Events.enemy_killed.connect(_on_enemy_killed)
 	hud.retry_requested.connect(retry)
+	hud.menu_requested.connect(menu_requested.emit)
 	hud.pause_requested.connect(pause)
 	hud.resume_requested.connect(resume)
 	hud.speed_toggled.connect(toggle_fast)
@@ -420,6 +425,16 @@ func build_map() -> void:
 	ocean.set_island_discs(discs)
 	_place_sun()
 	enemy_pool.configure_effects(layout.sun_direction)
+
+
+## Bật hướng dẫn vài bước đầu (do màn điều phối gọi khi người chơi chưa xem).
+func enable_tutorial() -> void:
+	if tutorial != null:
+		return
+	tutorial = TutorialHints.new()
+	tutorial.name = "TutorialHints"
+	tutorial.build_ring = hud.build_ring
+	hud.frame.add_child(tutorial)
 
 
 ## Dựng thời tiết: mưa 3D, sét và bộ điều khiển; kiểu ban đầu lấy từ ?weather=rain|storm (hoặc --weather=…), mặc định bình thường.

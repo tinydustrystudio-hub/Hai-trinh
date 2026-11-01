@@ -7,6 +7,7 @@ extends Control
 signal resume_requested
 signal restart_requested
 signal speed_toggled
+signal menu_requested
 
 const BIG_BUTTON: Vector2 = Vector2(520, 160)
 const BUTTON: Vector2 = Vector2(360, 130)
@@ -19,6 +20,7 @@ var _music: Button
 var _speed: Button
 var _vibration: Button
 var _resume_corner: Button
+var _menu: Button
 var _objective: Label
 var _enemies: Label
 var _speed_value: float = 1.0
@@ -89,6 +91,12 @@ func _ready() -> void:
 	_resume_corner.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_resume_corner.pressed.connect(resume_requested.emit)
 	add_child(_resume_corner)
+	_menu = UiStyle.secondary_button(&"MENU_BACK", Vector2(360, 130))
+	_menu.name = "Menu"
+	_menu.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
+	_menu.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_menu.pressed.connect(menu_requested.emit)
+	add_child(_menu)
 	visible = false
 
 
@@ -118,6 +126,10 @@ func refresh(speed: float) -> void:
 
 func buttons() -> Array[Button]:
 	return [_resume_big, _restart, _sound, _music, _speed, _vibration, _resume_corner]
+
+
+func menu_button() -> Button:
+	return _menu
 
 
 func resume_corner_button() -> Button:
