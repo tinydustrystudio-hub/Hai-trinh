@@ -29,10 +29,7 @@ const NEW_PLAYER_GOLD: int = 500
 var gold: int = NEW_PLAYER_GOLD
 var building_levels: Dictionary[StringName, int] = {}
 var persist: bool = true
-## Đảo vệ tinh người chơi sở hữu, mỗi phần tử là ô đang đặt (chỉ số trong MapLayout.satellite_slots) hoặc −1 nếu đang cất.
-## Các đảo đầu tiên là đảo cấp sẵn của màn (không tốn phí dùng), các đảo sau là đảo mua thêm.
-var islands: Array[int] = []
-## Số đảo đã mua thêm.
+## Số đảo vệ tinh đã mua thêm. Đảo mua rồi có mãi, nằm cạnh đảo chính; vào trận mới kéo ra ô chọn (tốn phí kéo).
 var bought_islands: int = 0
 
 var _buildings: Array[BuildingData] = []
@@ -135,41 +132,14 @@ func free_island_count() -> int:
 	return map().free_satellites()
 
 
-## Số đảo tối đa được mua thêm ở màn này.
+## Số đảo mua thêm tối đa ở màn này.
 func max_bought_islands() -> int:
 	return map().extra_satellites()
 
 
+## Tổng số đảo vệ tinh: đảo cấp sẵn và đảo đã mua.
 func island_total() -> int:
-	return islands.size()
-
-
-## Đảo đã đặt trên bản đồ.
-func placed_count() -> int:
-	var count: int = 0
-	for slot: int in islands:
-		if slot >= 0:
-			count += 1
-	return count
-
-
-## Số đảo tối đa được đặt cùng lúc (GDD 5.4).
-func max_placed() -> int:
-	return map().satellite_max_count
-
-
-func is_self_placed(island: int) -> bool:
-	return island >= free_island_count()
-
-
-## Đảo đang đặt ở ô slot, hoặc −1 nếu ô trống.
-func island_at_slot(slot: int) -> int:
-	return islands.find(slot)
-
-
-## Đảo chưa đặt đầu tiên, hoặc −1.
-func first_stored_island() -> int:
-	return islands.find(-1)
+	return free_island_count() + bought_islands
 
 
 func can_buy_island() -> bool:
@@ -180,108 +150,40 @@ func island_buy_cost() -> int:
 	return economy_rules.island_buy_cost(bought_islands + 1)
 
 
-## Mua một đảo (vật phẩm, có mãi); đảo mới nằm trong kho, chưa đặt.
+## Mua một đảo (vật phẩm, có mãi); đảo mới nằm ở chỗ đậu cạnh đảo chính.
 func buy_island() -> bool:
 	if not can_buy_island():
 		return false
 	set_gold(gold - island_buy_cost())
 	bought_islands += 1
-	islands.append(-1)
 	islands_changed.emit()
 	save()
 	return true
 
 
-## Phí dời một đảo đang đặt sang ô khác.
+## Phí kéo một đảo ra ô trong trận (và dời tiếp): bằng ½ giá lô cốt rẻ nhất.
 func island_move_cost() -> int:
 	return economy_rules.island_move_cost(cheapest_tower_cost())
 
 
-## Đặt đảo từ kho vào ô trống: miễn phí. Còn đảo đã đặt rồi mà dời thì tốn phí dời. Trả true nếu thành công.
-func place_island(island: int, slot: int) -> bool:
-	if island < 0 or island >= islands.size() or slot < 0 or slot >= map().slot_count():
-		return false
-	if island_at_slot(slot) >= 0:
-		return false
-	var moving: bool = islands[island] >= 0
-	if not moving and placed_count() >= max_placed():
-		return false
-	if moving:
-		var fee: int = island_move_cost()
-		if gold < fee:
-			return false
-		set_gold(gold - fee)
-	islands[island] = slot
-	islands_changed.emit()
-	save()
-	return true
-
-
-## Cất đảo về kho (miễn phí).
-func store_island(island: int) -> bool:
-	if island < 0 or island >= islands.size() or islands[island] < 0:
-		return false
-	islands[island] = -1
-	islands_changed.emit()
-	save()
-	return true
-
-
-## Phí dùng đảo tự đặt trong một trận: đảo tự đặt thứ nhất island_use_base, mỗi đảo sau cộng island_use_step.
-## Chỉ tính các đảo trong danh sách chỉ số `used`.
-func use_fee(used: Array[int]) -> int:
-	var count: int = 0
-	for island: int in used:
-		if is_self_placed(island):
-			count += 1
-	return economy_rules.island_use_total(count)
-
-
-## Các đảo dùng được ở trận tới: mọi đảo đã đặt, nhưng đảo tự đặt chỉ dùng khi Tiền Vàng trong ví trả nổi phí (xét theo thứ tự).
-func battle_islands() -> Array[int]:
-	var used: Array[int] = []
-	var self_placed: int = 0
-	var budget: int = gold
-	for island: int in islands.size():
-		if islands[island] < 0:
-			continue
-		if is_self_placed(island):
-			var cost: int = economy_rules.island_use_cost(self_placed + 1)
-			if cost > budget:
-				continue
-			budget -= cost
-			self_placed += 1
-		used.append(island)
-	return used
-
-
-## Trừ phí dùng đảo khỏi ví; trả số đã trừ.
-func charge_use_fee(used: Array[int]) -> int:
-	var fee: int = mini(use_fee(used), gold)
-	if fee > 0:
-		set_gold(gold - fee)
-		save()
-	return fee
-
-
-## Bố cục của trận tới: bản đồ gốc với các đảo vệ tinh theo hồ sơ và công trình theo cấp.
-func battle_layout(base: MapLayout, used: Array[int]) -> MapLayout:
+## Bố cục của trận: đảo cấp sẵn ở ô mặc định, đảo mua thêm đậu ở chỗ đậu cạnh đảo chính, công trình theo cấp.
+func battle_layout(base: MapLayout) -> MapLayout:
 	var centers: PackedVector3Array = PackedVector3Array()
 	var utilities: Array[StringName] = []
-	for island: int in used:
-		centers.append(base.satellite_slots[islands[island]])
-		utilities.append(base.satellite_utility(island))
+	for i: int in free_island_count():
+		centers.append(base.satellite_centers[i])
+		utilities.append(base.satellite_utility(i))
+	for i: int in mini(bought_islands, base.satellite_docks.size()):
+		centers.append(base.satellite_docks[i])
+		utilities.append(base.satellite_utility(free_island_count() + i))
 	var layout: MapLayout = base.with_satellites(centers, utilities)
 	layout.building_levels = building_levels.duplicate()
 	return layout
 
 
-## Đặt lại đảo như người chơi mới: bốn đảo cấp sẵn ở ô mặc định, chưa mua thêm.
+## Đặt lại số đảo đã mua về 0 (không hoàn vàng).
 func reset_islands() -> void:
-	islands.clear()
 	bought_islands = 0
-	for i: int in free_island_count():
-		islands.append(i)
 	islands_changed.emit()
 
 
@@ -289,7 +191,7 @@ func to_dictionary() -> Dictionary:
 	var levels: Dictionary = {}
 	for id: StringName in building_levels:
 		levels[String(id)] = building_levels[id]
-	return {"gold": gold, "levels": levels, "islands": islands.duplicate(), "bought": bought_islands}
+	return {"gold": gold, "levels": levels, "bought": bought_islands}
 
 
 func apply_dictionary(values: Dictionary) -> void:
@@ -308,21 +210,10 @@ func apply_dictionary(values: Dictionary) -> void:
 
 
 func _apply_islands(values: Dictionary) -> void:
-	reset_islands()
+	bought_islands = 0
 	var bought: Variant = values.get("bought")
 	if bought is int:
-		bought_islands = clampi(bought, 0, max_bought_islands())
-		for i: int in bought_islands:
-			islands.append(-1)
-	var stored: Variant = values.get("islands")
-	if stored is Array:
-		var seen: Dictionary = {}
-		for i: int in mini((stored as Array).size(), islands.size()):
-			var slot: Variant = (stored as Array)[i]
-			if slot is int and slot >= -1 and slot < map().slot_count() and (slot == -1 or not seen.has(slot)):
-				islands[i] = slot
-				if slot >= 0:
-					seen[slot] = true
+		bought_islands = clampi(bought, 0, mini(max_bought_islands(), map().satellite_docks.size()))
 	islands_changed.emit()
 
 

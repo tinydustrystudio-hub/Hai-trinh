@@ -18,11 +18,8 @@ const MAX_DISTANCE: float = 1.3
 const WHEEL_STEP: float = 1.12
 ## Vàng cộng thêm của nút thử nghiệm.
 const TEST_GOLD: int = 1000
-## Chạm trong chừng này pixel (ở độ phân giải gốc) quanh ô thì chọn ô đó; kéo quá TAP_TRAVEL thì không tính là chạm.
-## Trang Đảo lùi camera ra xa hơn để thấy mọi ô đặt đảo quanh đảo chính.
-const ISLAND_PAGE_DISTANCE: float = 2.1
-const SLOT_PICK_RADIUS: float = 70.0
-const TAP_TRAVEL: float = 12.0
+## Trang Đảo lùi camera ra xa hơn để thấy các đảo vệ tinh cạnh đảo chính.
+const ISLAND_PAGE_DISTANCE: float = 1.5
 const LAYOUT_PATH: String = "res://data/maps/north_dock_layout.tres"
 
 var _wallet: Label
@@ -45,9 +42,6 @@ var _buildings_card: PanelContainer
 var _island_panel: IslandPanel
 var _tab_buildings: Button
 var _tab_islands: Button
-var _markers: MeshInstance3D
-## Tổng quãng kéo từ lúc nhấn chuột trái; ngắn thì là chạm (chọn ô), dài thì là xoay.
-var _press_travel: float = 0.0
 ## Trang đang mở: 0 công trình, 1 đảo vệ tinh.
 var _page: int = 0
 
@@ -163,23 +157,6 @@ func island_panel() -> IslandPanel:
 	return _island_panel
 
 
-## Vị trí trên khung xem trước (pixel) của ô đảo slot.
-func slot_screen_position(slot: int) -> Vector2:
-	return _camera.unproject_position(_layout.satellite_slots[slot])
-
-
-## Ô gần điểm chạm nhất (trong SLOT_PICK_RADIUS), hoặc −1.
-func slot_at(point: Vector2) -> int:
-	var best: int = -1
-	var best_distance: float = SLOT_PICK_RADIUS
-	for slot: int in _layout.slot_count():
-		var distance: float = slot_screen_position(slot).distance_to(point)
-		if distance < best_distance:
-			best_distance = distance
-			best = slot
-	return best
-
-
 func island() -> Island:
 	return _island
 
@@ -235,8 +212,6 @@ func _set_page(page_index: int) -> void:
 	_island_panel.visible = page_index == 1
 	_tab_buildings.modulate = Color.WHITE if page_index == 0 else Color(1, 1, 1, 0.65)
 	_tab_islands.modulate = Color.WHITE if page_index == 1 else Color(1, 1, 1, 0.65)
-	if _markers != null:
-		_markers.visible = page_index == 1
 	for node: Node in [_add_gold, _reset_gold, _reset_levels]:
 		(node as Button).visible = page_index == 0
 
@@ -283,12 +258,7 @@ func _on_preview_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		var button: InputEventMouseButton = event
 		if button.button_index == MOUSE_BUTTON_LEFT:
-			if button.pressed:
-				_press_travel = 0.0
-			elif _press_travel < TAP_TRAVEL and _fingers.size() < 2 and _page == 1:
-				var slot: int = slot_at(button.position)
-				if slot >= 0:
-					_island_panel.tap_slot(slot)
+			pass
 		elif not button.pressed:
 			pass
 		elif button.button_index == MOUSE_BUTTON_WHEEL_UP:
@@ -300,7 +270,6 @@ func _on_preview_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and _fingers.size() < 2:
 		var motion: InputEventMouseMotion = event
 		if (motion.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
-			_press_travel += motion.relative.length()
 			rotate_preview(-motion.relative.x * ROTATE_SPEED)
 
 
@@ -412,31 +381,4 @@ func _add_preview() -> void:
 func _rebuild_island() -> void:
 	if _island == null:
 		return
-	var placed: Array[int] = []
-	for index: int in Profile.islands.size():
-		if Profile.islands[index] >= 0:
-			placed.append(index)
-	var layout: MapLayout = Profile.battle_layout(_layout, placed)
-	_island.build(layout)
-	_build_markers()
-
-
-## Vòng đánh dấu các ô đặt đảo: ô trống màu lam nhạt, đảo đang chọn viền cam.
-func _build_markers() -> void:
-	if _markers == null:
-		_markers = MeshInstance3D.new()
-		_markers.name = "SlotMarkers"
-		_markers.material_override = Island.solid_material()
-		_island.get_parent().add_child(_markers)
-	var st: SurfaceTool = MeshKit.begin()
-	var selected_slot: int = Profile.islands[_island_panel.selected_island] if _island_panel != null and _island_panel.selected_island >= 0 else -1
-	for slot: int in _layout.slot_count():
-		var center: Vector3 = _layout.satellite_slots[slot]
-		var occupied: bool = Profile.island_at_slot(slot) >= 0
-		if slot == selected_slot:
-			MeshKit.ring(st, center, _layout.satellite_radius + 0.6, _layout.satellite_radius + 1.5, 0.3, 0.55, 24, UiStyle.RESCUE_ORANGE, UiStyle.RESCUE_ORANGE)
-		elif not occupied:
-			MeshKit.ring(st, center, _layout.satellite_radius - 0.9, _layout.satellite_radius, 0.3, 0.5, 24, AllianceFortress.GLASS.lightened(0.2), AllianceFortress.GLASS.lightened(0.35))
-			MeshKit.prism(st, center, 0.5, 0.3, 0.5, 8, AllianceFortress.GLASS.lightened(0.2), AllianceFortress.GLASS.lightened(0.35))
-	_markers.mesh = MeshKit.commit(st)
-	_markers.visible = _page == 1
+	_island.build(Profile.battle_layout(_layout))

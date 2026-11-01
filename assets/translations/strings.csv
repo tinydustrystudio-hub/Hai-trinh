@@ -123,14 +123,14 @@ BASE_RESET_LEVELS,Đặt lại cấp,Reset levels
 BASE_ADD_GOLD,+1000 vàng,+1000 gold
 BASE_TAB_BUILDINGS,Công trình,Buildings
 BASE_TAB_ISLANDS,Đảo vệ tinh,Satellites
-BASE_ISLAND_COUNT,Đảo sở hữu: %d (đã đặt %d/%d),Islands owned: %d (placed %d/%d)
+BASE_ISLAND_COUNT,Đảo sở hữu: %d (đã mua thêm %d/%d),Islands owned: %d (bought %d/%d)
 BASE_ISLAND_FEE,Phí dùng mỗi trận: %d,Use fee per battle: %d
-BASE_ISLAND_MOVE,Phí dời một đảo: %d,Move fee per island: %d
+BASE_ISLAND_MOVE,Phí kéo một đảo ra trong trận: %d,Cost to deploy an island in battle: %d
 BASE_ISLAND_BUY,Mua đảo %d,Buy island %d
 BASE_ISLAND_BUY_MAX,Đã mua đủ đảo,All islands bought
 BASE_ISLAND_STORE,Cất đảo,Store island
-BASE_ISLAND_RESET,Đặt lại đảo,Reset islands
-BASE_ISLAND_HINT,Chạm ô trống để đặt đảo (miễn phí). Chạm một đảo rồi chạm ô trống khác để dời (tốn phí).,"Tap an empty spot to place an island (free). Tap an island, then another spot to move it (costs gold)."
+BASE_ISLAND_RESET,Đặt lại đảo đã mua,Reset bought islands
+BASE_ISLAND_HINT,"Đảo mua rồi có mãi và đậu cạnh đảo chính. Vào trận, kéo đảo ra một ô lam để dùng.","A bought island is yours for good and docks beside the main island. In battle, drag it onto a blue spot to use it."
 BASE_MSG_PLACED,Đã đặt đảo.,Island placed.
 BASE_MSG_MOVED,Đã dời đảo (−%d vàng).,Island moved (−%d gold).
 BASE_MSG_NO_GOLD,Không đủ Tiền Vàng.,Not enough Gold.
@@ -142,3 +142,4 @@ DEBUG_LIGHT,Ánh sáng: %s,Lighting: %s
 LIGHT_DAY,Ban ngày,Day
 LIGHT_DAWN,Bình minh,Dawn
 LIGHT_DUSK,Hoàng hôn,Dusk
+ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra một ô lam (%d vàng).","Drag an orange-ringed island onto a blue spot (%d gold)."

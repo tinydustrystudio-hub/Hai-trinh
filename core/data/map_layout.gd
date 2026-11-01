@@ -32,6 +32,10 @@ const UNITS_PER_CELL: float = 4.0
 ## Mọi ô cách luồng đủ xa để không đè luồng và đủ gần để lô cốt trên đó với tới luồng.
 @export var satellite_slots: PackedVector3Array = PackedVector3Array()
 
+## Chỗ đậu của các đảo mua thêm cạnh đảo chính: đảo mua rồi nằm đây tới khi người chơi kéo ra một ô trong trận.
+## Cách luồng và các ô đặt đảo đủ xa để không đè lên.
+@export var satellite_docks: PackedVector3Array = PackedVector3Array()
+
 @export_group("Đảo vệ tinh của màn")
 ## Số đảo vệ tinh cấp sẵn đầu màn (đặt miễn phí). 0 = dùng đúng số đảo đã đặt sẵn trong satellite_centers.
 @export var satellite_free_count: int = 0

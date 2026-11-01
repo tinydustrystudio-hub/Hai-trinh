@@ -46,32 +46,40 @@ func _ready() -> void:
 	_panel.position = Vector2(UiStyle.MARGIN * 2 + UiStyle.MIN_BUTTON.x, 200)
 	add_child(_panel)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override(&"separation", 16)
+	column.add_theme_constant_override(&"separation", 12)
 	_panel.add_child(column)
 	_stats = UiStyle.label(32)
 	column.add_child(_stats)
-	var burst: Button = UiStyle.primary_button(&"DEBUG_SPAWN_60", Vector2(420, 120))
+	# Nút xếp hai cột để bảng không dài quá màn hình điện thoại.
+	var grid: GridContainer = GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override(&"h_separation", 12)
+	grid.add_theme_constant_override(&"v_separation", 12)
+	column.add_child(grid)
+	var burst: Button = _debug_button(&"DEBUG_SPAWN_60", grid)
 	burst.name = "Burst"
 	burst.pressed.connect(_on_burst_pressed)
-	column.add_child(burst)
-	var gift: Button = UiStyle.primary_button(&"DEBUG_ADD_STEEL", Vector2(420, 120))
+	var gift: Button = _debug_button(&"DEBUG_ADD_STEEL", grid)
 	gift.name = "Steel"
 	gift.pressed.connect(_on_steel_pressed)
-	column.add_child(gift)
-	_water = UiStyle.primary_button(&"", Vector2(420, 120))
+	_water = _debug_button(&"", grid)
 	_water.name = "Water"
 	_water.pressed.connect(_on_water_pressed)
-	column.add_child(_water)
-	_weather = UiStyle.primary_button(&"", Vector2(420, 120))
+	_weather = _debug_button(&"", grid)
 	_weather.name = "Weather"
 	_weather.pressed.connect(_on_weather_pressed)
-	column.add_child(_weather)
-	_light = UiStyle.primary_button(&"", Vector2(420, 120))
+	_light = _debug_button(&"", grid)
 	_light.name = "Light"
 	_light.pressed.connect(_on_light_pressed)
-	column.add_child(_light)
 	expanded = expanded
 	_refresh()
+
+
+func _debug_button(text_key: StringName, parent: Control) -> Button:
+	var button: Button = UiStyle.primary_button(text_key, Vector2(300, 120))
+	button.add_theme_font_size_override(&"font_size", 30)
+	parent.add_child(button)
+	return button
 
 
 func _process(_delta: float) -> void:
