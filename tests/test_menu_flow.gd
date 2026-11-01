@@ -215,3 +215,16 @@ func test_tutorial_can_be_skipped_and_is_not_shown_again() -> void:
 	await wait_process_frames(2)
 	var again: BattleController = _boot.show_battle()
 	assert_null(again.tutorial, "đã xem rồi thì không hiện lại")
+
+
+func test_title_side_buttons_fit_on_screen_without_overlap() -> void:
+	var title: TitleScreen = TitleScreen.new()
+	add_child_autofree(title)
+	await wait_process_frames(2)
+	var screen: Rect2 = title.get_viewport_rect()
+	var settings: Rect2 = title.settings_button().get_global_rect()
+	var base: Rect2 = title.base_button().get_global_rect()
+	assert_true(screen.encloses(settings))
+	assert_true(screen.encloses(base), "nút Căn cứ phải nằm trọn trong màn hình")
+	assert_false(settings.intersects(base))
+	assert_false(base.intersects(title.play_button().get_global_rect()))
