@@ -14,6 +14,7 @@ signal pause_requested
 signal resume_requested
 signal speed_toggled
 signal call_wave_requested
+signal menu_requested
 
 const TOP_BUTTON: Vector2 = Vector2(128, 128)
 const CALL_BUTTON: Vector2 = Vector2(320, 130)
@@ -54,6 +55,8 @@ func _ready() -> void:
 	apply_safe_area()
 	get_viewport().size_changed.connect(apply_safe_area)
 	result_panel.retry_requested.connect(retry_requested.emit)
+	result_panel.menu_requested.connect(menu_requested.emit)
+	pause_menu.menu_requested.connect(menu_requested.emit)
 	pause_menu.resume_requested.connect(resume_requested.emit)
 	pause_menu.restart_requested.connect(retry_requested.emit)
 	pause_menu.speed_toggled.connect(speed_toggled.emit)

@@ -1,12 +1,14 @@
 class_name ResultPanel
 extends Control
-## Màn kết quả đơn giản của tháng 1: "Chiến thắng" hoặc "Đảo đã chìm", nút Chơi lại ở góc dưới phải.
+## Màn kết quả đơn giản của tháng 1: "Chiến thắng" hoặc "Đảo đã chìm", nút Chơi lại ở góc dưới phải, nút Về menu ở góc dưới trái.
 
 signal retry_requested
+signal menu_requested
 
 var _title: Label
 var _panel: PanelContainer
 var _retry: Button
+var _menu: Button
 
 
 func _ready() -> void:
@@ -36,6 +38,12 @@ func _ready() -> void:
 	_retry.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_retry.pressed.connect(retry_requested.emit)
 	add_child(_retry)
+	_menu = UiStyle.secondary_button(&"MENU_BACK", Vector2(360, 140))
+	_menu.name = "Menu"
+	_menu.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
+	_menu.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_menu.pressed.connect(menu_requested.emit)
+	add_child(_menu)
 	visible = false
 
 
@@ -48,6 +56,10 @@ func show_result(won: bool) -> void:
 
 func retry_button() -> Button:
 	return _retry
+
+
+func menu_button() -> Button:
+	return _menu
 
 
 func card() -> PanelContainer:

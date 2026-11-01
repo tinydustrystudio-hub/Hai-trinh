@@ -84,3 +84,22 @@ WEATHER_CLEAR,Bình thường,Clear
 WEATHER_RAIN,Mưa,Rain
 WEATHER_STORM,Bão,Storm
 DEBUG_WEATHER,Thời tiết: %s,Weather: %s
+TITLE_PLAY,Ra khơi,Set sail
+TITLE_SETTINGS,Cài đặt,Settings
+TITLE_TAGLINE,Giữ hòn đảo nổi cuối cùng.,Hold the last floating island.
+SETTINGS_TITLE,Cài đặt,Settings
+SETTINGS_LANGUAGE_VI,Ngôn ngữ: Tiếng Việt,Language: Vietnamese
+SETTINGS_LANGUAGE_EN,Ngôn ngữ: English,Language: English
+SETTINGS_TUTORIAL_ON,Hướng dẫn: bật,Tutorial: on
+SETTINGS_TUTORIAL_OFF,Hướng dẫn: tắt,Tutorial: off
+PREP_TITLE,Chuẩn bị trận,Prepare for battle
+PREP_GO,Xuất kích,Launch
+PREP_GOLD,Tiền Vàng khởi đầu: %d,Starting gold: %d
+PREP_ENEMIES,Địch sẽ gặp,Enemies ahead
+PREP_TOWERS,Lô cốt dùng được,Towers available
+MENU_BACK,Về menu,Main menu
+HINT_PICK_PAD,Chạm vào một bệ đang sáng để xây lô cốt.,Tap a glowing pad to build a tower.
+HINT_BUILD,"Chọn một lô cốt để xem tầm bắn, rồi chạm dấu tích để xây.","Pick a tower to see its range, then tap the check mark to build."
+HINT_ENEMY,Địch tới từ hướng đèn đỏ đang nhấp nháy trên đảo chính.,Enemies come from the direction of the flashing red lamp on the main island.
+HINT_MEGA,Lô cốt đang nhấp nháy vàng đã đầy Quá tải: chạm thẳng vào nó để kích MEGA!,A tower flashing gold is fully charged: tap it to unleash MEGA!
+HINT_SKIP,Bỏ qua,Skip

@@ -7,7 +7,7 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 | GĐ | Việc | Xong khi |
 | --- | --- | --- |
 | P1 (xong) | **Nền giao diện:** bộ kiểu dùng chung theo Liên Minh Mũi Neo (khung, nút, chữ, biểu tượng vẽ bằng code), chuyển cảnh mờ dần, âm bấm nút | HUD, vòng chọn, thẻ nhánh, tạm dừng, kết quả cùng một phong cách; nút ≥ 120 px |
-| P2 | **Luồng menu cốt lõi:** màn tiêu đề, cài đặt (âm thanh, nhạc, rung, chất lượng nước, thời tiết, ngôn ngữ), chuẩn bị trận, kết quả làm lại, hướng dẫn vài bước đầu; lưu cài đặt xuống máy | Mở game → tiêu đề → chuẩn bị → trận → kết quả → quay lại, không cần bảng debug |
+| P2 (xong) | **Luồng menu cốt lõi:** màn tiêu đề, cài đặt (âm thanh, nhạc, rung, chất lượng nước, thời tiết, ngôn ngữ), chuẩn bị trận, kết quả làm lại, hướng dẫn vài bước đầu; lưu cài đặt xuống máy | Mở game → tiêu đề → chuẩn bị → trận → kết quả → quay lại, không cần bảng debug |
 | P3 | **Hình khối lô cốt và địch:** làm lại Súng Máy, Keo, Tia Sáng, ba loại địch theo concept pack; vệt đạn, nổ, MEGA rõ hình bóng khi thu nhỏ | Ảnh chụp từ camera trận nhận ra từng loại từ xa; vẫn ≤ 60 địch, dùng pool và MultiMesh |
 | P4 | **Đảo chính và công trình:** các công trình MVP (Khiên, Xưởng Sửa Chữa, Năng Lượng, Xưởng Tàu) thêm lên pháo đài theo cấp 1, 3, 5; 4 tiện ích đảo vệ tinh; đạo cụ môi trường thấp gần luồng | Pháo đài đủ tầng, vành, công trình; đạo cụ không che luồng |
 | P5 | **Căn cứ (Đảo Chính):** màn căn cứ 3D, cửa sổ nâng cấp công trình, đặt và di chuyển đảo vệ tinh theo quy tắc mới | Đặt đảo miễn phí, di chuyển tốn phí, tối thiểu 4 đảo; số Xu và phí là số đặt tạm |
@@ -28,3 +28,10 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 **Đã chốt (31/10): giá mua đảo vệ tinh:** đảo mua thêm thứ nhất 250 Tiền Vàng, mỗi đảo sau +50; mua bằng Tiền Vàng.
 
 **Giá nâng cấp công trình (người duyệt chọn dùng số tạm, 31/10):** lên cấp 2 / 3 / 4 / 5 tốn 200 / 320 / 510 / 820 Tiền Vàng (công thức 200 × 1,6^(cấp − 2)); chỉnh sau khi chơi thử. Không còn điều gì cần chốt trước P5.
+
+## Ghi chú P2 (luồng menu đã làm)
+
+- Boot điều phối: Tiêu đề → Chuẩn bị trận → Trận → Về menu; Cài đặt mở từ Tiêu đề. `?play` vào thẳng trận (thử nhanh), `?stress` vào cảnh thử 60 địch.
+- Cài đặt (âm thanh, nhạc, rung, chất lượng nước, ngôn ngữ, hướng dẫn) lưu ở `user://settings.cfg`; không ghi khi chạy không màn hình.
+- Hướng dẫn bốn bước ở trận đầu (chạm bệ, chọn và xác nhận lô cốt, đèn đỏ báo hướng, chạm lô cốt nhấp nháy để kích MEGA); bấm Bỏ qua hoặc xong là không hiện lại, bật lại trong Cài đặt.
+- Chưa có: màn Căn cứ (P5), chọn màn (chỉ một bản đồ), nhạc ở màn tiêu đề.
