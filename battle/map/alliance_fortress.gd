@@ -101,6 +101,15 @@ static func edge_angle(k: int) -> float:
 	return deg_to_rad(30.0 + 60.0 * float(k))
 
 
+## Mô hình Blender của công trình id ở cấp level (assets/models/bld_<id>_l<cấp>.glb); có thì đảo dùng nó thay cho bản dựng bằng code.
+static func building_model_name(id: StringName, level: int) -> String:
+	return "bld_%s_l%d" % [String(id), level]
+
+
+static func has_building_model(id: StringName, level: int) -> bool:
+	return ModelMesh.exists(building_model_name(id, level))
+
+
 ## Chiều cao tường chắn sóng theo cấp (cấp 1 giữ như cũ, mỗi cấp cao thêm).
 static func wall_height(level: int) -> float:
 	return 1.1 + 0.3 * float(clampi(level, 1, 5) - 1)
@@ -119,6 +128,14 @@ static func _base_and_wall(st: SurfaceTool, c: Vector3, r: float, wall_level: in
 	# Gờ tối sát mặt nước cho rõ đường mớn.
 	MeshKit.ring(st, c, r - 0.05, r + 0.15, -0.3, 0.25, 6, DEEP_BLUE, DEEP_BLUE)
 	var inradius: float = r * cos(PI / 6.0)
+	_wave_wall(st, c, r, wall_level)
+	_walkways(st, c, r, inradius)
+
+
+## Tường chắn sóng và tháp góc bằng code (khi chưa có mô hình Blender bld_wave_shield_l<cấp>).
+static func _wave_wall(st: SurfaceTool, c: Vector3, r: float, wall_level: int) -> void:
+	if has_building_model(&"wave_shield", wall_level):
+		return
 	var gap: float = PIER_WIDTH + 0.6
 	var thickness: float = r * 0.07 * wall_thickness_scale(wall_level)
 	var height: float = wall_height(wall_level)
@@ -153,7 +170,10 @@ static func _base_and_wall(st: SurfaceTool, c: Vector3, r: float, wall_level: in
 		MeshKit.ring(st, v0, r * 0.1, r * 0.112, tower_top - 0.3, tower_top, 6, ORANGE, ORANGE, deg_to_rad(60.0 * k))
 		if wall_level >= 4:
 			MeshKit.cone(st, v0, r * 0.075, tower_top, 0.9, 6, SEA_BLUE)
-	# Lối đi trên sàn từ mỗi khe đê vào vành trong.
+
+
+## Lối đi trên sàn từ mỗi khe đê vào vành trong.
+static func _walkways(st: SurfaceTool, c: Vector3, r: float, inradius: float) -> void:
 	for k: int in 6:
 		var dir: Vector3 = Vector3(cos(edge_angle(k)), 0.0, sin(edge_angle(k)))
 		var p: Vector3 = c + dir * (inradius * 0.83)

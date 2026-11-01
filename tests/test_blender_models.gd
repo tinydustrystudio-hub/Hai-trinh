@@ -101,3 +101,37 @@ func test_tower_models_fit_pad_axis_and_budget() -> void:
 		assert_between(head_box.position.z, -TowerMeshes.BARREL_LENGTH - 0.15, -TowerMeshes.BARREL_LENGTH + 0.3, "%s: miệng nòng ở −z" % id)
 		assert_gt(head_box.end.z, 0.2, "%s: thân đầu nòng ở phía sau trục" % id)
 		assert_lt(head_box.size.x, 2.2, "%s: đầu nòng không rộng hơn đế" % id)
+
+
+func test_wave_wall_models_exist_for_every_level_and_grow() -> void:
+	var previous_height: float = 0.0
+	var previous_triangles: int = 0
+	for level: int in range(1, 6):
+		var name: String = AllianceFortress.building_model_name(&"wave_shield", level)
+		var mesh: ArrayMesh = ModelMesh.load_mesh(name)
+		assert_not_null(mesh, "thiếu %s" % name)
+		var box: AABB = mesh.get_aabb()
+		# Tường bao cả đảo: cùng cỡ lục giác bán kính 14, tâm ở gốc.
+		assert_between(box.size.x, 26.0, 30.0, "%s: bao cả đảo" % name)
+		assert_almost_eq(box.position.x, -box.end.x, 0.8, "%s: đối xứng quanh tâm" % name)
+		assert_gt(box.end.y, previous_height, "%s: cao hơn cấp trước" % name)
+		var triangles: int = mesh.surface_get_array_len(0) / 3
+		assert_gt(triangles, previous_triangles, "%s: nhiều chi tiết hơn cấp trước" % name)
+		assert_lt(triangles, 6000, "%s: ngân sách tam giác" % name)
+		previous_height = box.end.y
+		previous_triangles = triangles
+
+
+func test_island_uses_wave_wall_model_and_skips_code_wall() -> void:
+	var layout: MapLayout = (load("res://data/maps/north_dock_layout.tres") as MapLayout).duplicate() as MapLayout
+	layout.building_levels = {&"wave_shield": 3}
+	var island: Island = Island.new()
+	add_child_autofree(island)
+	island.build(layout)
+	var node: MeshInstance3D = island.get_node("Body/Building_wave_shield") as MeshInstance3D
+	assert_not_null(node, "đảo thêm mô hình Tường Chắn Sóng")
+	assert_eq(node.mesh, ModelMesh.load_mesh("bld_wave_shield_l3"))
+	assert_true(AllianceFortress.has_building_model(&"wave_shield", 3))
+	# Khi có mô hình, bản dựng bằng code không dựng thêm tường: thân đảo ít tam giác hơn bản không có mô hình.
+	var with_model: int = AllianceFortress.build_fortress(layout).surface_get_array_len(0)
+	assert_lt(with_model, 20000)

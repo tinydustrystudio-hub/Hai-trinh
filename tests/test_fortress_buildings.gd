@@ -72,27 +72,40 @@ func test_tidal_power_levels_add_turbine_and_battery() -> void:
 	assert_gt(l5, l3)
 
 
+## Số tam giác của công trình id ở cấp level: mô hình Blender nếu có, không thì cả thân đảo dựng bằng code.
+func _building_triangles(id: StringName, level: int) -> int:
+	if AllianceFortress.has_building_model(id, level):
+		return _triangles(ModelMesh.load_mesh(AllianceFortress.building_model_name(id, level)))
+	return _triangles(AllianceFortress.build_fortress(_layout({id: level})))
+
+
 func test_every_level_changes_every_building() -> void:
 	for id: StringName in [&"wave_shield", &"repair_works", &"tidal_power", &"shipyard"]:
-		var previous: int = _triangles(AllianceFortress.build_fortress(_layout({id: 1})))
+		var previous: int = _building_triangles(id, 1)
 		for level: int in range(2, 6):
-			var current: int = _triangles(AllianceFortress.build_fortress(_layout({id: level})))
+			var current: int = _building_triangles(id, level)
 			assert_gt(current, previous, "%s cấp %d phải thấy khác cấp %d" % [id, level, level - 1])
 			previous = current
 
 
 func test_wave_wall_upgrade_shows_on_every_side_of_the_island() -> void:
-	# Cấp 3: tháp góc cao hơn cấp 1 ở cả sáu góc quanh đảo (không chỉ một góc).
+	# Cấp 3: tháp góc cao ở cả sáu góc quanh đảo (không chỉ một góc), dù là mô hình Blender hay bản dựng bằng code.
 	var layout: MapLayout = _layout({&"wave_shield": 3})
-	var mesh: ArrayMesh = AllianceFortress.build_fortress(layout)
+	var mesh: ArrayMesh
+	var origin: Vector3 = layout.fortress_center
+	if AllianceFortress.has_building_model(&"wave_shield", 3):
+		mesh = ModelMesh.load_mesh(AllianceFortress.building_model_name(&"wave_shield", 3))
+		origin = Vector3.ZERO
+	else:
+		mesh = AllianceFortress.build_fortress(layout)
 	var vertices: PackedVector3Array = mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var sectors: Dictionary = {}
 	for v: Vector3 in vertices:
-		var flat: Vector2 = Vector2(v.x - layout.fortress_center.x, v.z - layout.fortress_center.z)
+		var flat: Vector2 = Vector2(v.x - origin.x, v.z - origin.z)
 		if v.y > AllianceFortress.DECK_Y + 2.0 and flat.length() > layout.fortress_radius * 0.8:
 			sectors[int(floorf(fposmod(rad_to_deg(flat.angle()) + 30.0, 360.0) / 60.0))] = true
 	assert_eq(sectors.size(), 6, "tháp góc cao ở đủ sáu góc")
-	assert_gt(_triangles(mesh), _triangles(AllianceFortress.build_fortress(_layout())))
+	assert_gt(_building_triangles(&"wave_shield", 3), _building_triangles(&"wave_shield", 1))
 
 
 func test_tidal_cable_lines_span_the_island() -> void:

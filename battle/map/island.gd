@@ -7,6 +7,8 @@ extends Node3D
 const PAD_SCENE: PackedScene = preload("res://battle/map/tower_pad.tscn")
 const FOAM_SHADER: Shader = preload("res://battle/map/foam.gdshader")
 ## Độ cao dải bọt và bóng giả: ngang đỉnh sóng nhẹ.
+## Các công trình có thể thay bằng mô hình Blender theo cấp.
+const BUILDING_IDS: Array[StringName] = [&"wave_shield", &"repair_works", &"tidal_power", &"shipyard"]
 const FOAM_Y: float = 0.2
 const SHADOW_Y: float = 0.16
 const SHADOW_ALPHA: float = 0.42
@@ -61,6 +63,11 @@ func build(layout: MapLayout) -> void:
 	var fortress_offset: Transform3D = Transform3D(Basis.IDENTITY, -layout.fortress_center)
 	_add_mesh(_body, "Fortress", AllianceFortress.build_fortress(layout), solid_material(), fortress_offset)
 	_add_mesh(_body, "Lamp", AllianceFortress.build_lamp(layout), _lamp_material(), fortress_offset)
+	# Công trình dựng bằng Blender (toạ độ cục bộ của đảo chính), theo cấp trong layout.
+	for id: StringName in BUILDING_IDS:
+		var model: ArrayMesh = ModelMesh.load_mesh(AllianceFortress.building_model_name(id, layout.building_level(id)))
+		if model != null:
+			_add_mesh(_body, "Building_%s" % String(id), model, solid_material())
 	beacons = LaneBeacons.new()
 	beacons.name = "LaneBeacons"
 	_body.add_child(beacons)
