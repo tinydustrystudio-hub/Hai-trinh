@@ -112,3 +112,9 @@ BUILDING_TIDAL_POWER,Trạm Năng Lượng,Tidal Power
 BUILDING_TIDAL_POWER_DESC,Tua-bin dòng triều cấp điện cho đảo.,Tidal turbines powering the island.
 BUILDING_SHIPYARD,Xưởng Tàu,Shipyard
 BUILDING_SHIPYARD_DESC,Ụ nổi đóng và bảo trì tàu.,A floating dock for building and servicing ships.
+TITLE_BASE,Căn cứ,Base
+BASE_TITLE,Căn cứ,Base
+BASE_GO,Chuẩn bị trận,Prepare battle
+BASE_LEVEL,Cấp %d/%d,Level %d/%d
+BASE_UPGRADE,Nâng cấp %d,Upgrade %d
+BASE_MAX,Cấp tối đa,Max level

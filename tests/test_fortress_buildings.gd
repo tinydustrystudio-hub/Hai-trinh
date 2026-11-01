@@ -62,3 +62,11 @@ func test_layout_cycles_utilities() -> void:
 	assert_eq(layout.satellite_utility(5), &"steel_depot")
 	layout.satellite_utilities = [&"comms_tower"]
 	assert_eq(layout.satellite_utility(0), &"comms_tower")
+
+
+func test_tidal_power_levels_add_turbine_and_battery() -> void:
+	var l1: int = _triangles(AllianceFortress.build_fortress(_layout()))
+	var l3: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 3})))
+	var l5: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 5})))
+	assert_gt(l3, l1)
+	assert_gt(l5, l3)

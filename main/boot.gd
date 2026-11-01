@@ -1,5 +1,5 @@
 extends Node
-## Điều phối luồng màn hình (P2 kế hoạch hoàn thiện): Tiêu đề → Chuẩn bị trận → Trận → (Kết quả) → Về menu,
+## Điều phối luồng màn hình (P2 kế hoạch hoàn thiện): Tiêu đề (→ Căn cứ) → Chuẩn bị trận → Trận → (Kết quả) → Về menu,
 ## kèm Cài đặt từ màn Tiêu đề. Mỗi lần chỉ có một màn là con của Boot. `?stress` mở thẳng cảnh thử 60 địch;
 ## `?play` (hoặc `--play`) vào thẳng trận, bỏ qua menu (cho thử nhanh).
 
@@ -40,12 +40,21 @@ func show_title() -> TitleScreen:
 	var screen: TitleScreen = TitleScreen.new()
 	screen.play_requested.connect(show_prep)
 	screen.settings_requested.connect(show_settings)
+	screen.base_requested.connect(show_base)
 	_swap(screen)
 	return screen
 
 
 func show_settings() -> SettingsScreen:
 	var screen: SettingsScreen = SettingsScreen.new()
+	screen.back_requested.connect(show_title)
+	_swap(screen)
+	return screen
+
+
+func show_base() -> BaseScreen:
+	var screen: BaseScreen = BaseScreen.new()
+	screen.play_requested.connect(show_prep)
 	screen.back_requested.connect(show_title)
 	_swap(screen)
 	return screen

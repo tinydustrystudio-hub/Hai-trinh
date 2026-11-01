@@ -5,12 +5,14 @@ extends Control
 
 signal play_requested
 signal settings_requested
+signal base_requested
 
 const PLAY_SIZE: Vector2 = Vector2(480, 170)
 const SETTINGS_SIZE: Vector2 = Vector2(360, 140)
 
 var _play: Button
 var _settings: Button
+var _base: Button
 
 
 func _ready() -> void:
@@ -45,6 +47,13 @@ func _ready() -> void:
 	_settings.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_settings.pressed.connect(settings_requested.emit)
 	add_child(_settings)
+	_base = UiStyle.secondary_button(&"TITLE_BASE", SETTINGS_SIZE)
+	_base.name = "Base"
+	_base.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, UiStyle.MARGIN * 2)
+	_base.position.x += SETTINGS_SIZE.x + UiStyle.MARGIN
+	_base.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_base.pressed.connect(base_requested.emit)
+	add_child(_base)
 	var version: Label = UiStyle.label(26)
 	version.name = "Version"
 	var number: String = str(ProjectSettings.get_setting("application/config/version", ""))
@@ -61,3 +70,7 @@ func play_button() -> Button:
 
 func settings_button() -> Button:
 	return _settings
+
+
+func base_button() -> Button:
+	return _base
