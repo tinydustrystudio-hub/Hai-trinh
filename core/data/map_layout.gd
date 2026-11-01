@@ -34,6 +34,14 @@ const UNITS_PER_CELL: float = 4.0
 ## Số đảo vệ tinh tối đa người chơi được đặt ở màn này, gồm cả đảo cấp sẵn và đảo mua thêm (GDD mục 5.4).
 @export var satellite_max_count: int = 8
 
+@export_group("Công trình và tiện ích")
+## Cấp từng công trình trên đảo chính (1, 3 hoặc 5; thiếu = cấp 1): wave_shield, repair_works, tidal_power, shipyard.
+## Là số tạm cho tới khi có màn Căn cứ (P5) lưu cấp thật.
+@export var building_levels: Dictionary[StringName, int] = {}
+## Tiện ích của từng đảo vệ tinh theo thứ tự satellite_centers (radar_outpost, steel_depot, buoy_station, comms_tower).
+## Thiếu thì lặp lần lượt bốn loại.
+@export var satellite_utilities: Array[StringName] = []
+
 @export_group("Bệ và luồng")
 ## Tâm của từng bệ lô cốt.
 @export var pad_positions: PackedVector3Array = PackedVector3Array()
@@ -102,3 +110,15 @@ func is_satellite_pad(index: int) -> bool:
 		if Vector2(center.x - pad.x, center.z - pad.z).length() < satellite_radius * 0.5:
 			return true
 	return false
+
+
+## Cấp của công trình (1, 3 hoặc 5), mặc định 1.
+func building_level(building: StringName) -> int:
+	return clampi(building_levels.get(building, 1), 1, 5)
+
+
+## Tiện ích của đảo vệ tinh thứ index.
+func satellite_utility(index: int) -> StringName:
+	if index < satellite_utilities.size():
+		return satellite_utilities[index]
+	return SatelliteUtilities.IDS[index % SatelliteUtilities.IDS.size()]

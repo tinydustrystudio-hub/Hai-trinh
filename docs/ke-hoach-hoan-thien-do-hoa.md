@@ -35,3 +35,5 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 - Cài đặt (âm thanh, nhạc, rung, chất lượng nước, ngôn ngữ, hướng dẫn) lưu ở `user://settings.cfg`; không ghi khi chạy không màn hình.
 - Hướng dẫn bốn bước ở trận đầu (chạm bệ, chọn và xác nhận lô cốt, đèn đỏ báo hướng, chạm lô cốt nhấp nháy để kích MEGA); bấm Bỏ qua hoặc xong là không hiện lại, bật lại trong Cài đặt.
 - Chưa có: màn Căn cứ (P5), chọn màn (chỉ một bản đồ), nhạc ở màn tiêu đề.
+
+**P4 đã làm (1/11):** Khiên Chắn Sóng (1/3/5 trụ, dây chắn, màng sóng), Xưởng Sửa Chữa (cấp 3 băng chuyền, cấp 5 mái vòm và tay máy), Xưởng Tàu (ụ nổi chữ U, cấp 3 thân tàu, cấp 5 hai ụ), 12 đèn đường ở lối vào; bốn tiện ích đảo vệ tinh (ra-đa, kho container, trạm phao cam, tháp truyền tin) cùng đèn và cuộn dây neo. Cấp công trình lấy từ `MapLayout.building_levels` (số tạm, P5 lưu cấp thật), tiện ích từ `satellite_utilities`. Đạo cụ chỉ đặt trên sàn đảo (không đặt giữa biển để khỏi xuyên sóng và che luồng); đạo cụ ngoài biển để lại P6 nếu cần.

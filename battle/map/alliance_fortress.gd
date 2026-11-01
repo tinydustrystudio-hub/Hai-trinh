@@ -38,6 +38,7 @@ static func build_fortress(layout: MapLayout) -> ArrayMesh:
 		if not layout.is_satellite_pad(i):
 			_pier(st, c, r, layout.pad_positions[i])
 	_cranes(st, c, r)
+	FortressBuildings.build(st, layout)
 	return MeshKit.commit(st)
 
 
@@ -64,6 +65,10 @@ static func build_satellite(layout: MapLayout, index: int) -> ArrayMesh:
 	var st: SurfaceTool = MeshKit.begin()
 	var center: Vector3 = layout.satellite_centers[index]
 	_satellite(st, Vector3.ZERO, layout.satellite_radius, layout.fortress_center - center)
+	var away: Vector3 = Vector3(center.x - layout.fortress_center.x, 0.0, center.z - layout.fortress_center.z).normalized()
+	var utility_dir: Vector3 = (away - Vector3(-away.z, 0.0, away.x)).normalized()
+	SatelliteUtilities.build(st, layout.satellite_utility(index), Vector3.ZERO, utility_dir)
+	SatelliteUtilities.build_props(st, Vector3.ZERO, utility_dir)
 	return MeshKit.commit(st)
 
 
