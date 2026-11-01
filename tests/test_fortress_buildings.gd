@@ -70,3 +70,12 @@ func test_tidal_power_levels_add_turbine_and_battery() -> void:
 	var l5: int = _triangles(AllianceFortress.build_fortress(_layout({&"tidal_power": 5})))
 	assert_gt(l3, l1)
 	assert_gt(l5, l3)
+
+
+func test_every_level_changes_every_building() -> void:
+	for id: StringName in [&"wave_shield", &"repair_works", &"tidal_power", &"shipyard"]:
+		var previous: int = _triangles(AllianceFortress.build_fortress(_layout({id: 1})))
+		for level: int in range(2, 6):
+			var current: int = _triangles(AllianceFortress.build_fortress(_layout({id: level})))
+			assert_gt(current, previous, "%s cấp %d phải thấy khác cấp %d" % [id, level, level - 1])
+			previous = current

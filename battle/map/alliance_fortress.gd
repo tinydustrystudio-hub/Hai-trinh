@@ -142,14 +142,17 @@ static func _inner_ring(st: SurfaceTool, c: Vector3, r: float, tidal_level: int 
 	# Sáu khối công trình quanh vành trong.
 	var builders: Array[Callable] = [_workshop, _turbine, _radar, _containers, _turbine, _tanks]
 	for k: int in 6:
-		# Trạm Năng Lượng: cấp 1 chỉ một tua-bin, cấp 3 thêm tua-bin thứ hai và khối pin, cấp 5 thêm vòng tụ phát sáng.
+		# Trạm Năng Lượng: cấp 1 một tua-bin; cấp 2 thêm khối pin; cấp 3 thêm tua-bin thứ hai; cấp 4 thêm pin cho nó;
+		# cấp 5 thêm vòng tụ phát sáng ở cả hai.
 		if k == 4 and tidal_level < 3:
 			continue
 		var a: float = deg_to_rad(60.0 * float(k))
 		var dir: Vector3 = Vector3(cos(a), 0.0, sin(a))
 		var at: Vector3 = c + dir * ring_r * 0.66 + Vector3(0, y_top, 0)
 		builders[k].call(st, at, r, a)
-		if (k == 1 or k == 4) and tidal_level >= 3:
+		if k == 1 and tidal_level >= 2:
+			_battery(st, at, r, a, tidal_level >= 5)
+		elif k == 4 and tidal_level >= 4:
 			_battery(st, at, r, a, tidal_level >= 5)
 
 
