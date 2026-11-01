@@ -219,3 +219,10 @@ func test_rain_amount_scales_streaks_shown() -> void:
 	assert_eq(field.streaks_shown(), RainField.COUNT / 4)
 	field.set_rain(0.0, 0.0)
 	assert_false(field.is_showing())
+
+
+func test_rain_and_storm_surface_is_twice_as_choppy() -> void:
+	# Người duyệt (1/11): mưa và bão tăng độ mấp mô mặt nước gấp đôi bản đầu (1,3 và 1,8).
+	assert_almost_eq(Weather.by_id(&"rain").chop, 1.3 * 2.0, 0.001)
+	assert_almost_eq(Weather.by_id(&"storm").chop, 1.8 * 2.0, 0.001)
+	assert_eq(Weather.by_id(&"clear").chop, 1.0, "bình thường giữ nguyên")

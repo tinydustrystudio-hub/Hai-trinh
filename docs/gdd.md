@@ -2171,8 +2171,8 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 | Kiểu | Sóng | Trời | Gió | Âm thanh |
 | --- | --- | --- | --- | --- |
 | Bình thường | Như hiện tại | Nắng | Không đổi | Nhạc nền |
-| Mưa | Cao hơn (×1,8), chạy chậm hơn một chút (×0,85), gợn nhiều hơn | Mưa 3D: nét mưa rơi từ trời xuống mặt biển trong không gian trận (bị đảo và công trình che), xiên theo gió, mặt biển nổi gợn tròn nơi giọt mưa rơi; trời tối nhẹ | Đổi chiều nhẹ | – |
-| Bão | Rất cao (×2,8), chạy chậm (×0,55) cho đỡ chóng mặt, gợn mạnh; đảo dập dìu nhiều hơn (×2,4) | Mưa vừa, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục nhưng chậm (các lớp sóng quay ±0,35 rad theo hai nhịp chồng nhau, chu kỳ 40 giây) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
+| Mưa | Cao hơn (×1,8), chạy chậm hơn một chút (×0,85), mặt nước mấp mô gấp đôi bản đầu (×2,6) | Mưa 3D: nét mưa rơi từ trời xuống mặt biển trong không gian trận (bị đảo và công trình che), xiên theo gió, mặt biển nổi gợn tròn nơi giọt mưa rơi; trời tối nhẹ | Đổi chiều nhẹ | – |
+| Bão | Rất cao (×2,8), chạy chậm (×0,55) cho đỡ chóng mặt, mặt nước mấp mô gấp đôi bản đầu (×3,6); đảo dập dìu nhiều hơn (×2,4) | Mưa vừa, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục nhưng chậm (các lớp sóng quay ±0,35 rad theo hai nhịp chồng nhau, chu kỳ 40 giây) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
 
 Chuyển kiểu mượt trong 4 giây. Tàu và đảo dập dìu theo đúng độ cao sóng đang có. Chọn kiểu thời tiết ở màn hình sau này theo từng bản đồ; bản thử tháng 1 dùng nút "Thời tiết" ở bảng debug hoặc `?weather=rain` / `?weather=storm`.
 
