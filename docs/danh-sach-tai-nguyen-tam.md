@@ -135,3 +135,4 @@ Có bộ kịch bản Blender chạy không giao diện trong `tools/blender/` �
 - Dựng: `venv/bin/python tools/blender/build_models.py [tên mô hình]`.
 - Quy ước và hàm dựng khối: `tools/blender/kit.py` (toạ độ Godot, mũi và nòng hướng −z, màu đỉnh sRGB đã bù cho bộ xuất glTF).
 - Tệp `.glb` và `.png` lưu bằng Git LFS (xem `.gitattributes`).
+- Muốn tự tạo bằng Blender hay nền tảng AI 3D rồi gửi lại: xem `docs/huong-dan-tao-mo-hinh-3d.md` (prompt mẫu, quy trình gửi, cách chuẩn hoá bằng `tools/blender/prepare_model.py`).
