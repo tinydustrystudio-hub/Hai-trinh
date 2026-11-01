@@ -126,3 +126,13 @@ Mỗi tiếng bắn, nổ phát nhiều lần mỗi giây nên cần ngắn, kh�
 - Cấu trúc dữ liệu: `data/*.tres` (lô cốt, địch, đợt, thời tiết, ánh sáng, bản đồ, công trình), bảng dịch.
 - Bảng màu và tỉ lệ (đảo, bệ, ô, tầm bắn), bố cục màn hình và luồng menu.
 - Mọi logic và test.
+
+## 8. Mô hình dựng sẵn bằng Blender (thử nghiệm)
+
+Có bộ kịch bản Blender chạy không giao diện trong `tools/blender/` để dựng mô hình tạm đúng kích thước, trục và màu đỉnh, xuất `.glb` vào `assets/models/`. Họa sĩ mở lại bằng Blender (File → Import → glTF 2.0) để chỉnh tiếp, hoặc thay hẳn bằng mô hình riêng cùng tên tệp. Game tự dùng `assets/models/enm_<id địch>.glb` nếu có, không thì dựng bằng code như cũ.
+
+- Cài: `python3 -m venv venv && venv/bin/pip install -r tools/blender/requirements.txt` (module `bpy`, Python 3.13).
+- Dựng: `venv/bin/python tools/blender/build_models.py [tên mô hình]`.
+- Quy ước và hàm dựng khối: `tools/blender/kit.py` (toạ độ Godot, mũi và nòng hướng −z, màu đỉnh sRGB đã bù cho bộ xuất glTF).
+- Tệp `.glb` và `.png` lưu bằng Git LFS (xem `.gitattributes`).
+- Muốn tự tạo bằng Blender hay nền tảng AI 3D rồi gửi lại: xem `docs/huong-dan-tao-mo-hinh-3d.md` (prompt mẫu, quy trình gửi, cách chuẩn hoá bằng `tools/blender/prepare_model.py`).
