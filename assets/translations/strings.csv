@@ -125,6 +125,11 @@ BASE_RESET_LEVELS,Đặt lại cấp,Reset levels
 BASE_ADD_GOLD,+1000 vàng,+1000 gold
 BASE_TAB_BUILDINGS,Công trình,Buildings
 BASE_TAB_ISLANDS,Đảo vệ tinh,Satellites
+BASE_OUTPOST_LIMIT,"Nhà giàn và đảo vệ tinh: %d/%d (độ khó %s)","Platforms and satellite islands: %d/%d (%s difficulty)"
+DIFFICULTY_EASY,Dễ,Easy
+DIFFICULTY_NORMAL,Trung bình,Normal
+DIFFICULTY_HARD,Khó,Hard
+DEBUG_DIFFICULTY,Độ khó: %s,Difficulty: %s
 BASE_ISLAND_COUNT,Đảo sở hữu: %d (đã mua thêm %d/%d),Islands owned: %d (bought %d/%d)
 BASE_ISLAND_FEE,Phí dùng mỗi trận: %d,Use fee per battle: %d
 BASE_ISLAND_MOVE,Phí kéo một đảo ra trong trận: %d,Cost to deploy an island in battle: %d

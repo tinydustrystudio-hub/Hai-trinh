@@ -17,6 +17,7 @@ platform_kinds = Array[StringName]([&"old_oil_rig", &"old_oil_rig", &"old_oil_ri
 platform_radius = 5.0
 satellite_radius = 4.0
 satellite_free_count = 4
+outpost_limits = PackedInt32Array(12, 10, 8)
 satellite_max_count = 8
 sun_direction = Vector3(0.45, 0.6, -0.65)
 weather_id = &"clear"

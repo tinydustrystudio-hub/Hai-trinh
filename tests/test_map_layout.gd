@@ -132,7 +132,8 @@ func test_satellite_counts_follow_level_rules() -> void:
 	# GDD mục 5.4: màn 1 cấp sẵn 4 đảo, đặt tối đa 8; các đảo cấp sẵn nằm trong bố cục.
 	assert_eq(LAYOUT.free_satellites(), 4)
 	assert_eq(LAYOUT.satellite_max_count, 8)
-	assert_eq(LAYOUT.extra_satellites(), 4)
+	assert_eq(LAYOUT.extra_satellites(Difficulty.Level.EASY), 4)
+	assert_eq(LAYOUT.extra_satellites(), 2, "mặc định là Trung bình")
 	assert_gte(LAYOUT.satellite_centers.size(), LAYOUT.free_satellites())
 	assert_lte(LAYOUT.free_satellites(), LAYOUT.satellite_max_count)
 	var open_layout: MapLayout = MapLayout.new()

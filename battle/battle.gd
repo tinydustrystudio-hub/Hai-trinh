@@ -549,6 +549,9 @@ func build_map() -> void:
 	# Đảo vệ tinh và cấp công trình lấy từ hồ sơ người chơi; sao chép bố cục để không sửa tài nguyên dùng chung.
 	if _base_layout == null:
 		_base_layout = layout
+	var wanted_difficulty: String = Settings.launch_value("difficulty")
+	if not wanted_difficulty.is_empty():
+		Profile.difficulty = Difficulty.from_id(StringName(wanted_difficulty), Profile.difficulty)
 	if _base_layout.satellite_docks.size() > 0:
 		layout = Profile.battle_layout(_base_layout)
 	else:

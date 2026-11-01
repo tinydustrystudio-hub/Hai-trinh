@@ -74,9 +74,10 @@ func reset_islands() -> void:
 func refresh() -> void:
 	if _count == null:
 		return
-	_count.text = tr(&"BASE_ISLAND_COUNT") % [Profile.island_total(), Profile.bought_islands, Profile.max_bought_islands()]
+	_count.text = tr(&"BASE_ISLAND_COUNT") % [Profile.island_total(), Profile.usable_bought_islands(), Profile.max_bought_islands()]
+	_count.text += "\n" + tr(&"BASE_OUTPOST_LIMIT") % [Profile.outpost_total(), Profile.map().outpost_limit(Profile.difficulty), tr(Difficulty.name_key(Profile.difficulty))]
 	_move.text = tr(&"BASE_ISLAND_MOVE") % Profile.island_move_cost()
-	if Profile.bought_islands >= Profile.max_bought_islands():
+	if Profile.usable_bought_islands() >= Profile.max_bought_islands():
 		_buy.text = tr(&"BASE_ISLAND_BUY_MAX")
 		_buy.disabled = true
 	else:

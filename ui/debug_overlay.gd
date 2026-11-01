@@ -23,6 +23,7 @@ var _stats: Label
 var _water: Button
 var _weather: Button
 var _light: Button
+var _difficulty: Button
 var _refresh_left: float = 0.0
 var _log_left: float = LOG_SECONDS
 var _last_usec: int = 0
@@ -71,6 +72,9 @@ func _ready() -> void:
 	_light = _debug_button(&"", grid)
 	_light.name = "Light"
 	_light.pressed.connect(_on_light_pressed)
+	_difficulty = _debug_button(&"", grid)
+	_difficulty.name = "Difficulty"
+	_difficulty.pressed.connect(_on_difficulty_pressed)
 	expanded = expanded
 	_refresh()
 
@@ -131,6 +135,7 @@ func _refresh() -> void:
 	var battle: BattleController = owner as BattleController
 	if battle != null and battle.is_node_ready() and battle.weather != null:
 		_weather.text = tr(&"DEBUG_WEATHER") % tr(battle.weather.data.name_key)
+	_difficulty.text = tr(&"DEBUG_DIFFICULTY") % tr(Difficulty.name_key(Profile.difficulty))
 	if battle != null and battle.is_node_ready() and battle.lighting != null:
 		_light.text = tr(&"DEBUG_LIGHT") % tr(battle.lighting.name_key)
 
@@ -160,6 +165,15 @@ func _on_light_pressed() -> void:
 		return
 	var next: int = (Lighting.ORDER.find(battle.lighting.id) + 1) % Lighting.ORDER.size()
 	battle.set_lighting(Lighting.ORDER[next])
+	_refresh()
+
+
+## Dễ → Trung bình → Khó → Dễ; đổi số đảo mua thêm dùng được nên chơi lại màn.
+func _on_difficulty_pressed() -> void:
+	Profile.set_difficulty(Difficulty.next(Profile.difficulty))
+	var battle: BattleController = owner as BattleController
+	if battle != null:
+		battle.retry()
 	_refresh()
 
 
