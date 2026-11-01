@@ -39,7 +39,7 @@ func _ready() -> void:
 	_confirm.add_theme_font_size_override(&"font_size", 38)
 	_confirm.pressed.connect(_on_confirm)
 	add_child(_confirm)
-	_cancel = UiStyle.primary_button(&"BUILD_CANCEL", CANCEL_SIZE)
+	_cancel = UiStyle.secondary_button(&"BUILD_CANCEL", CANCEL_SIZE)
 	_cancel.name = "Cancel"
 	_cancel.pressed.connect(_on_cancel)
 	add_child(_cancel)

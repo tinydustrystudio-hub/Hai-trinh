@@ -5,7 +5,7 @@ extends VBoxContainer
 const BAR_SIZE: Vector2 = Vector2(380, 26)
 const FULL: Color = Color(0.35, 0.85, 0.95)
 const LOW: Color = Color(1.0, 0.3, 0.2)
-const BACK: Color = Color(0.03, 0.08, 0.14, 0.8)
+const BACK: Color = Color(0.03, 0.08, 0.14, 0.85)
 
 var ratio: float = 1.0
 

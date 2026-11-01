@@ -6,7 +6,7 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 
 | GĐ | Việc | Xong khi |
 | --- | --- | --- |
-| P1 | **Nền giao diện:** bộ kiểu dùng chung theo Liên Minh Mũi Neo (khung, nút, chữ, biểu tượng vẽ bằng code), chuyển cảnh mờ dần, âm bấm nút | HUD, vòng chọn, thẻ nhánh, tạm dừng, kết quả cùng một phong cách; nút ≥ 120 px |
+| P1 (xong) | **Nền giao diện:** bộ kiểu dùng chung theo Liên Minh Mũi Neo (khung, nút, chữ, biểu tượng vẽ bằng code), chuyển cảnh mờ dần, âm bấm nút | HUD, vòng chọn, thẻ nhánh, tạm dừng, kết quả cùng một phong cách; nút ≥ 120 px |
 | P2 | **Luồng menu cốt lõi:** màn tiêu đề, cài đặt (âm thanh, nhạc, rung, chất lượng nước, thời tiết, ngôn ngữ), chuẩn bị trận, kết quả làm lại, hướng dẫn vài bước đầu; lưu cài đặt xuống máy | Mở game → tiêu đề → chuẩn bị → trận → kết quả → quay lại, không cần bảng debug |
 | P3 | **Hình khối lô cốt và địch:** làm lại Súng Máy, Keo, Tia Sáng, ba loại địch theo concept pack; vệt đạn, nổ, MEGA rõ hình bóng khi thu nhỏ | Ảnh chụp từ camera trận nhận ra từng loại từ xa; vẫn ≤ 60 địch, dùng pool và MultiMesh |
 | P4 | **Đảo chính và công trình:** các công trình MVP (Khiên, Xưởng Sửa Chữa, Năng Lượng, Xưởng Tàu) thêm lên pháo đài theo cấp 1, 3, 5; 4 tiện ích đảo vệ tinh; đạo cụ môi trường thấp gần luồng | Pháo đài đủ tầng, vành, công trình; đạo cụ không che luồng |

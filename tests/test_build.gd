@@ -15,7 +15,7 @@ func before_each() -> void:
 
 func test_starting_steel_on_hud() -> void:
 	assert_eq(_battle.economy.steel, 200)
-	assert_eq(_battle.hud.steel_text(), "Thép: 200")
+	assert_eq(_battle.hud.steel_text(), "200")
 
 
 func test_build_spends_steel_and_occupies_pad() -> void:
@@ -26,7 +26,7 @@ func test_build_spends_steel_and_occupies_pad() -> void:
 	assert_true(pad.occupied)
 	assert_eq(_battle.economy.steel, 130)
 	assert_eq(tower.invested, 70)
-	assert_eq(_battle.hud.steel_text(), "Thép: 130")
+	assert_eq(_battle.hud.steel_text(), "130")
 	assert_null(_battle.build_tower(pad, MG), "bệ đã có lô cốt")
 	assert_eq(_battle.economy.steel, 130)
 

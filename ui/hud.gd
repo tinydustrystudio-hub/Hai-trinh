@@ -3,7 +3,7 @@ extends CanvasLayer
 ## HUD trận theo GDD mục 7.10, mọi thứ nằm trong vùng an toàn (tránh tai thỏ):
 ## - trên trái: Độ Nổi (thanh và số), đợt hiện tại / tổng số đợt;
 ## - trên giữa: báo đợt sắp tới (giây còn lại, tầng địch); hướng địch tới do đèn báo trên đảo chính chỉ;
-## - trên phải: Thép, nút ×1/×2, nút Tạm dừng;
+## - trên phải: Tiền Vàng (đồng xu và số), nút ×1/×2, nút Tạm dừng;
 ## - dưới trái: Gọi đợt sớm khi đang chờ đợt kế;
 ## - dưới phải: khay MEGA.
 ## Kèm vòng chọn lô cốt, vòng nâng cấp, thẻ chọn nhánh, màn Tạm dừng và màn kết quả.
@@ -167,8 +167,14 @@ func _build_top_right() -> void:
 	row.add_theme_constant_override(&"separation", 16)
 	row.alignment = BoxContainer.ALIGNMENT_END
 	frame.add_child(row)
-	_steel = UiStyle.label(UiStyle.TEXT_SIZE + 4)
+	var coin: CoinIcon = CoinIcon.new()
+	coin.name = "GoldCoin"
+	coin.custom_minimum_size = Vector2(CoinIcon.SIZE + 8.0, CoinIcon.SIZE + 8.0)
+	coin.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(coin)
+	_steel = UiStyle.label(UiStyle.TEXT_SIZE + 8)
 	_steel.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_steel.add_theme_color_override(&"font_color", UiStyle.GOLD.lightened(0.35))
 	row.add_child(_steel)
 	_speed = UiStyle.primary_button(&"HUD_SPEED_NORMAL", TOP_BUTTON)
 	_speed.name = "Speed"
