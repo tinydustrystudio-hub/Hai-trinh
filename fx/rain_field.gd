@@ -1,7 +1,8 @@
 class_name RainField
 extends MultiMeshInstance3D
 ## Mưa 3D (góp ý 8 của người duyệt: mưa phải rơi xuống biển và công trình, không phải một lớp phủ 2D trên màn hình):
-## COUNT nét mưa thẳng đứng trong một khối không gian quanh điểm camera nhìn, một lệnh vẽ. Vị trí rơi tính hoàn toàn
+## COUNT nét mưa thẳng đứng trong một khối không gian quanh điểm camera nhìn, một lệnh vẽ; mưa đứng yên trong không gian
+## trận nên khi kéo camera, mưa trượt cùng sóng và công trình (không dính vào màn hình). Vị trí rơi tính hoàn toàn
 ## trong shader theo TIME nên không tốn CPU; mưa nhẹ chỉ hiện một phần số nét.
 
 const SHADER: Shader = preload("res://fx/rain_field.gdshader")
@@ -16,6 +17,8 @@ const SLANT_PER_RADIAN: float = 0.5
 const BASE_SLANT: float = 0.1
 
 var rain: float = 0.0
+## Điểm camera nhìn mà khối mưa đang phủ quanh.
+var focus: Vector2 = Vector2.ZERO
 
 var _material: ShaderMaterial
 
@@ -29,6 +32,7 @@ func _ready() -> void:
 	_material.shader = SHADER
 	_material.set_shader_parameter(&"fall_height", FALL_HEIGHT)
 	_material.set_shader_parameter(&"streak_length", STREAK_LENGTH)
+	_material.set_shader_parameter(&"area", AREA)
 	_material.render_priority = 3
 	quad.material = _material
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -59,9 +63,12 @@ func set_rain(intensity: float, wind: float) -> void:
 	_material.set_shader_parameter(&"slant", Vector2(BASE_SLANT + wind * SLANT_PER_RADIAN, 0.0))
 
 
-## Đưa khối mưa tới điểm camera nhìn để mưa luôn phủ vùng nhìn thấy.
-func follow(focus: Vector2) -> void:
-	position = Vector3(focus.x, 0.0, focus.y)
+## Cho khối mưa phủ quanh điểm camera nhìn mà mưa vẫn đứng yên trong không gian trận: node không dời, hạt nào ra khỏi
+## khối thì xuất hiện lại ở mép đối diện (tính trong shader).
+func follow(center: Vector2) -> void:
+	focus = center
+	if _material != null:
+		_material.set_shader_parameter(&"focus", center)
 
 
 func is_showing() -> bool:

@@ -48,6 +48,9 @@ uniform float sea_dim : hint_range(0.0, 1.0) = 0.0;
 uniform float chop = 1.0;
 // Đồng hồ sóng (chạy nhanh chậm theo thời tiết) và mức mưa rơi: gợn nước tròn lan ra trên mặt biển.
 uniform float sea_time = 0.0;
+// Vùng nước lặng quanh đảo: x, z, bán kính, độ loang (khớp Ocean.calm_factor).
+uniform vec4 island_discs[8];
+uniform int island_disc_count = 0;
 uniform float rain_amount : hint_range(0.0, 1.0) = 0.0;
 uniform float gravity = 9.8;
 // 1 = đủ chi tiết (hai lớp normal map, mây hai lớp, lấp lánh); 0 = rẻ.
@@ -94,6 +97,17 @@ void vertex() {
 		}
 		offset += gerstner(waves[i], wave_shapes[i], wave_motions[i], world, sea_time, tangent, binormal);
 	}
+	// Gần đảo sóng dịu dần về lặng để sóng bão cao không nhấn chìm sàn đảo.
+	float calm = 1.0;
+	for (int i = 0; i < 8; i++) {
+		if (i >= island_disc_count) {
+			break;
+		}
+		calm = min(calm, smoothstep(island_discs[i].z, island_discs[i].z + island_discs[i].w, distance(world.xz, island_discs[i].xy)));
+	}
+	offset *= calm;
+	tangent = vec3(1.0, 0.0, 0.0) + (tangent - vec3(1.0, 0.0, 0.0)) * calm;
+	binormal = vec3(0.0, 0.0, 1.0) + (binormal - vec3(0.0, 0.0, 1.0)) * calm;
 	VERTEX += offset;
 	v_world = world + offset;
 	v_normal = normalize(cross(binormal, tangent));

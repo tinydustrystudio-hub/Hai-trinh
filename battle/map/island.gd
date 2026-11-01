@@ -17,6 +17,11 @@ const REFERENCE_RADIUS: float = 4.0
 const HEAVE_SCALE: float = 0.6
 const ROCK_SCALE: float = 0.5
 const MAX_ROCK_DEGREES: float = 1.5
+## Giới hạn nhấp nhô xuống và lên (đơn vị Godot) để sàn đảo luôn nổi trên mặt nước lặng quanh đảo.
+const HEAVE_MIN: float = -0.15
+const HEAVE_MAX: float = 0.9
+## Bão lắc đảo nhiều hơn nhưng tối đa gấp chừng này lần mức bình thường, để mép đảo không chìm.
+const MAX_ROCK_SCALE: float = 1.6
 
 static var _solid: StandardMaterial3D
 static var _lamp: StandardMaterial3D
@@ -125,15 +130,16 @@ func _apply_body_pose() -> void:
 static func sample_pose(ocean: Ocean, center: Vector3, radius: float, time: float, scale: float = 1.0) -> Vector3:
 	var gain: float = bob_gain(radius) * scale
 	var reach: float = maxf(radius * 0.6, 1.0)
-	var here: float = ocean.height_at(center.x, center.z, time)
-	var north: float = ocean.height_at(center.x, center.z - reach, time)
-	var south: float = ocean.height_at(center.x, center.z + reach, time)
-	var east: float = ocean.height_at(center.x + reach, center.z, time)
-	var west: float = ocean.height_at(center.x - reach, center.z, time)
+	var here: float = ocean.raw_height_at(center.x, center.z)
+	var north: float = ocean.raw_height_at(center.x, center.z - reach)
+	var south: float = ocean.raw_height_at(center.x, center.z + reach)
+	var east: float = ocean.raw_height_at(center.x + reach, center.z)
+	var west: float = ocean.raw_height_at(center.x - reach, center.z)
 	# Bắc (−z) cao hơn nam thì mũi bắc ngẩng lên: quay quanh x theo chiều âm đảo dấu.
-	var pitch: float = clampf(rad_to_deg(atan2(north - south, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES * scale, MAX_ROCK_DEGREES * scale)
-	var roll: float = clampf(rad_to_deg(atan2(west - east, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES * scale, MAX_ROCK_DEGREES * scale)
-	return Vector3(here * gain * HEAVE_SCALE, -pitch, roll)
+	var pitch: float = clampf(rad_to_deg(atan2(north - south, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES * minf(scale, MAX_ROCK_SCALE), MAX_ROCK_DEGREES * minf(scale, MAX_ROCK_SCALE))
+	var roll: float = clampf(rad_to_deg(atan2(west - east, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES * minf(scale, MAX_ROCK_SCALE), MAX_ROCK_DEGREES * minf(scale, MAX_ROCK_SCALE))
+	# Sóng bão cao thì đảo nhấp nhô theo nhưng bị giới hạn để sàn luôn nổi trên mặt nước lặng quanh đảo.
+	return Vector3(clampf(here * gain * HEAVE_SCALE, HEAVE_MIN, HEAVE_MAX), -pitch, roll)
 
 
 ## Hệ số dập dìu theo cỡ đảo: 1 ở đảo bán kính REFERENCE_RADIUS, giảm theo tỉ lệ nghịch khi đảo to hơn.

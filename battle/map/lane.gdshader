@@ -1,6 +1,7 @@
 shader_type spatial;
 // Dải luồng địch: nền mờ, viền sáng hơn, vạch hình mũi tên chạy về phía đảo; strength làm mờ cả dải.
-render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabled;
+// Không kiểm tra chiều sâu: sóng bão cao vài đơn vị không che mất dải chỉ dẫn.
+render_mode unshaded, blend_mix, depth_draw_never, depth_test_disabled, cull_disabled, shadows_disabled;
 
 uniform vec4 base_color : source_color = vec4(1.0, 0.78, 0.5, 0.1);
 uniform vec4 edge_color : source_color = vec4(1.0, 0.75, 0.4, 0.7);
