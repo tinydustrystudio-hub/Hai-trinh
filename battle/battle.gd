@@ -45,6 +45,10 @@ var paused: bool = false
 var speed: float = 1.0
 ## Đang mở hai thẻ chọn nhánh cấp 5.
 var choosing_branch: bool = false
+## Lô cốt đang được chọn để dời và bệ đích đã chọn (chờ xác nhận); null nếu không dời.
+var moving_tower: Tower = null
+var move_target: TowerPad = null
+var move_confirm: MoveConfirm
 ## Cảnh thử hiệu năng: không có đợt, luôn giữ đủ MAX_ACTIVE_ENEMIES địch, đảo không chìm.
 var stress_mode: bool = false
 ## Mili giây từ lúc dựng trận (bấm Xuất kích, hay mở thẳng bằng ?play) tới lúc trận sẵn sàng (kế hoạch mục 7: không quá 3 giây).
@@ -129,6 +133,12 @@ func _ready() -> void:
 	hud.upgrade_ring.upgrade_requested.connect(_on_upgrade_requested)
 	hud.upgrade_ring.branch_requested.connect(_on_branch_requested)
 	hud.upgrade_ring.sell_requested.connect(_on_sell_requested)
+	hud.upgrade_ring.move_requested.connect(_on_move_requested)
+	move_confirm = MoveConfirm.new()
+	move_confirm.name = "MoveConfirm"
+	hud.add_child(move_confirm)
+	move_confirm.confirmed.connect(confirm_move)
+	move_confirm.cancelled.connect(cancel_move)
 	hud.branch_cards.branch_chosen.connect(_on_branch_chosen)
 	hud.branch_cards.cancelled.connect(close_branch_cards)
 	hud.mega_tray.mega_requested.connect(activate_mega)
@@ -199,6 +209,7 @@ func start_battle() -> void:
 		deployer.reset()
 	enemy_pool.clear()
 	_clear_towers()
+	cancel_move()
 	close_build_ring()
 	close_branch_cards()
 	hud.mega_tray.clear()
@@ -271,6 +282,67 @@ func build_tower(pad: TowerPad, data: TowerData) -> Tower:
 	towers.append(tower)
 	Events.tower_built.emit(tower)
 	return tower
+
+
+## Dời lô cốt sang bệ trống khác: trừ phí dời (Profile.tower_move_cost), lô cốt giữ nguyên cấp, nhánh, Quá tải. Trả true nếu đã dời.
+func move_tower(tower: Tower, pad: TowerPad) -> bool:
+	if tower == null or pad == null or is_over() or not towers.has(tower):
+		return false
+	if pad.occupied or pad.locked or pad == tower.pad:
+		return false
+	if not economy.spend(Profile.tower_move_cost()):
+		return false
+	var old: TowerPad = tower.pad
+	old.hide_range()
+	old.occupied = false
+	tower.get_parent().remove_child(tower)
+	pad.add_child(tower)
+	tower.position = Vector3.ZERO
+	tower.name = "Tower%d" % pad.pad_index
+	pad.occupied = true
+	tower.relocate(pad, lanes)
+	Events.tower_moved.emit(tower)
+	return true
+
+
+## Vào chế độ dời cho lô cốt tower: chạm một bệ trống để chọn đích, rồi xác nhận.
+func begin_move(tower: Tower) -> void:
+	if tower == null or is_over():
+		return
+	close_build_ring()
+	moving_tower = tower
+	move_target = null
+	move_confirm.prompt(Profile.tower_move_cost())
+
+
+## Chọn bệ đích khi đang dời (hiện tầm bắn tại đó và hai nút xác nhận).
+func select_move_target(pad: TowerPad) -> bool:
+	if moving_tower == null or pad == null or not pad.is_selectable() or pad == moving_tower.pad:
+		return false
+	if move_target != null:
+		move_target.hide_range()
+	move_target = pad
+	pad.show_range(moving_tower.range_units())
+	move_confirm.place(camera.unproject_position(pad.global_position), economy.steel)
+	return true
+
+
+func confirm_move() -> bool:
+	if moving_tower == null or move_target == null:
+		return false
+	var done: bool = move_tower(moving_tower, move_target)
+	if done:
+		cancel_move()
+	return done
+
+
+func cancel_move() -> void:
+	if move_target != null:
+		move_target.hide_range()
+	moving_tower = null
+	move_target = null
+	if move_confirm != null:
+		move_confirm.close()
 
 
 ## Đóng vòng chọn, vòng nâng cấp và bỏ chọn bệ.
@@ -625,6 +697,11 @@ func _on_enemy_killed(enemy: Enemy, reward: int) -> void:
 
 
 func _on_tapped(screen_position: Vector2) -> void:
+	if moving_tower != null:
+		var wanted: TowerPad = island.pad_near(camera.ground_point(screen_position, TowerPad.TOP_HEIGHT), TowerPad.RADIUS * PAD_PICK_TOLERANCE)
+		if not select_move_target(wanted):
+			cancel_move()
+		return
 	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
 	var pad: TowerPad = island.pad_near(point, TowerPad.RADIUS * PAD_PICK_TOLERANCE)
 	var same: bool = pad == selected_pad
@@ -648,7 +725,7 @@ func _on_tapped(screen_position: Vector2) -> void:
 func _open_upgrade_ring(tower: Tower, at: Vector2) -> void:
 	if tower != null:
 		tower.pad.show_range(tower.range_units())
-		hud.upgrade_ring.open(at, tower, economy.steel, economy.refund_for(tower.invested))
+		hud.upgrade_ring.open(at, tower, economy.steel, economy.refund_for(tower.invested), Profile.tower_move_cost())
 
 
 func _on_upgrade_requested() -> void:
@@ -666,6 +743,10 @@ func _on_branch_chosen(chosen: TowerBranch) -> void:
 	var tower: Tower = hud.branch_cards.tower
 	choose_branch(tower, chosen)
 	close_branch_cards()
+
+
+func _on_move_requested() -> void:
+	begin_move(hud.upgrade_ring.tower)
 
 
 func _on_sell_requested() -> void:

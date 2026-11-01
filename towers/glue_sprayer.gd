@@ -43,6 +43,12 @@ func _on_branch_chosen(lanes: Array[Lane]) -> void:
 	_hold_left = branch.hold_interval
 
 
+func _on_relocated(lanes: Array[Lane]) -> void:
+	_puddle_life.fill(0.0)
+	if branch != null and branch.fixed_lake:
+		_on_branch_chosen(lanes)
+
+
 ## Chỗ đặt hồ keo: điểm gần lô cốt nhất trên các luồng, nếu trong tầm; không có thì ngay dưới lô cốt.
 static func lake_anchor(origin: Vector3, lanes: Array[Lane], reach: float) -> Vector3:
 	var best: Vector3 = Vector3(origin.x, 0.0, origin.z)

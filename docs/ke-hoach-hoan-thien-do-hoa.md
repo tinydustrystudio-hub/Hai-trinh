@@ -47,3 +47,5 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 **P7 đã làm (1/11):** ba texture nhiễu của nước dựng sẵn thành PNG (công cụ `tools/bake_noise.gd`), vào trận không còn sinh nhiễu; mục "Vào trận" của bảng debug tính từ lúc dựng trận. Còn chờ số đo trên điện thoại của đạo diễn (xem `docs/nhat-ky-hieu-nang.md`).
 
 **GY12 (1/11):** `docs/danh-sach-tai-nguyen-tam.md` liệt kê mọi tài nguyên tạm cho họa sĩ. Khiên Chắn Sóng đổi tên thành **Tường Chắn Sóng**, nâng cấp đổi cả vành tường quanh đảo (cao, dày, sọc, chân, đèn, kính); Trạm Năng Lượng từ cấp 2 có ống cáp quanh mép đảo. Đảo xem trước ở màn Căn cứ nghiêng được (kéo lên xuống).
+
+**Dời lô cốt (1/11):** vì chỗ đặt lô cốt trên biển hạn chế, mọi lô cốt đều dời được. Chạm lô cốt → nút Dời (kèm giá) → chạm một bệ trống (hiện tầm bắn tại đó) → dấu tích/dấu nhân. Phí dời bằng giá lô cốt rẻ nhất (`tower_move_ratio` trong `data/economy.tres`); lô cốt giữ nguyên cấp, nhánh và thanh Quá tải. Bước kế: nhà giàn cố định trên biển theo từng màn (giàn khoan dầu, nhà giàn quân sự, trạm nghiên cứu).
