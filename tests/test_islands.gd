@@ -355,3 +355,44 @@ func test_grid_shows_only_while_dragging_or_pending() -> void:
 	assert_true(grid.visible, "chờ xác nhận vẫn hiện lưới")
 	deployer.decline()
 	assert_false(grid.visible)
+
+
+## Kéo đảo tới nhiều đích khắp biển (kể cả đích xuyên qua đảo khác): trên mọi bước đảo không được chồng lên đảo nào.
+func test_tow_sweep_never_overlaps_any_island() -> void:
+	Profile.set_gold(100000)
+	Profile.buy_island()
+	var battle: BattleController = await _new_battle()
+	var deployer: IslandDeployer = battle.deployer
+	var layout: MapLayout = battle.layout
+	var reach: float = layout.fortress_radius
+	for i: int in layout.pad_count():
+		if not layout.is_satellite_pad(i):
+			reach = maxf(reach, _flat(layout.pad_positions[i], layout.fortress_center) + AllianceFortress.PIER_END_RADIUS)
+	var targets: Array[Vector3] = []
+	for x: int in range(-80, 81, 20):
+		for z: int in range(-80, 41, 20):
+			var point: Vector3 = Vector3(x, 0.0, z)
+			if layout.island_spot_valid(point, 4):
+				targets.append(point)
+	assert_gt(targets.size(), 8)
+	var worst_island: float = INF
+	var worst_fortress: float = INF
+	for target: Vector3 in targets:
+		var screen: Vector2 = battle.camera.unproject_position(layout.satellite_centers[4])
+		assert_true(deployer.begin_drag(screen))
+		deployer.drag_to(battle.camera.unproject_position(target))
+		deployer.end_drag()
+		var guard: int = 0
+		while deployer.is_towing(4) and guard < 3000:
+			deployer.tow_step(0.1)
+			guard += 1
+			worst_fortress = minf(worst_fortress, _flat(layout.satellite_centers[4], layout.fortress_center))
+			for j: int in 4:
+				worst_island = minf(worst_island, _flat(layout.satellite_centers[4], layout.satellite_centers[j]))
+		deployer.decline()
+		guard = 0
+		while deployer.is_towing(4) and guard < 3000:
+			deployer.tow_step(0.1)
+			guard += 1
+	assert_gte(worst_island, layout.satellite_radius * 2.0 - 0.05, "chồng đảo vệ tinh khác")
+	assert_gte(worst_fortress, reach + layout.satellite_radius - 0.5, "chồng mỏm bến của đảo chính")

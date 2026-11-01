@@ -28,7 +28,7 @@ const GRID_Y: float = 0.5
 const GRID_OK: Color = Color(0.25, 0.65, 1.0, 0.2)
 const GRID_BAD: Color = Color(0.95, 0.25, 0.2, 0.24)
 ## Khe hở khi đi vòng qua đảo khác.
-const AVOID_MARGIN: float = 1.0
+const AVOID_MARGIN: float = 2.0
 
 var battle: BattleController
 
@@ -251,14 +251,18 @@ func tow_step(delta: float) -> void:
 	_relayout_clock += delta
 	for k: int in _goal.keys():
 		var here: Vector3 = battle.layout.satellite_centers[k]
-		var goal: Vector3 = clear_of_obstacles(_goal[k], _obstacles(k))
-		var waypoint: Vector3 = next_waypoint(here, goal, _obstacles(k))
+		var soft: Array[Vector4] = _obstacles(k, AVOID_MARGIN)
+		var hard: Array[Vector4] = _obstacles(k, 0.0)
+		var goal: Vector3 = clear_of_obstacles(_goal[k], hard)
+		var waypoint: Vector3 = next_waypoint(here, goal, soft)
 		var remaining: float = Vector2(waypoint.x - here.x, waypoint.z - here.z).length() + Vector2(goal.x - waypoint.x, goal.z - waypoint.z).length()
 		var final: bool = waypoint == goal
 		var step: Dictionary = tow_motion(here, _velocity.get(k, Vector3.ZERO), waypoint, speed, accel, delta, remaining, final)
-		_velocity[k] = step["velocity"]
 		var arrived_now: bool = final and step["arrived"] and goal.is_equal_approx(_goal[k])
-		_place(k, _goal[k] if arrived_now else step["position"], arrived_now and _dragging != k)
+		# Lưới an toàn: quán tính không bao giờ đưa đảo chồng lên đảo khác, chạm vào thì trượt dọc mép.
+		var slid: Dictionary = slide_out(step["position"], step["velocity"], hard)
+		_velocity[k] = slid["velocity"]
+		_place(k, _goal[k] if arrived_now else slid["position"], arrived_now and _dragging != k)
 		if arrived_now:
 			_finish_tow(k)
 	if _relayout_clock >= RELAYOUT_INTERVAL:
@@ -289,32 +293,42 @@ static func tow_motion(here: Vector3, velocity: Vector3, goal: Vector3, speed: f
 	return {"position": here + travel, "velocity": next_velocity, "arrived": false}
 
 
-## Điểm đầu tiên cần hướng tới để đi từ here tới goal mà không cắt qua vật cản (mỗi vật cản là Vector4(x, z, bán kính, 0)). Đường bị chắn thì đi vòng qua tiếp tuyến phía ngược với tâm vật cản.
+## Điểm đầu tiên cần hướng tới để đi từ here tới goal mà không cắt qua vật cản (mỗi vật cản là Vector4(x, z, bán kính, 0)).
+## Đang nằm trong một vật cản thì đi ra khỏi nó trước. Đường bị chắn thì hướng tới tiếp điểm của tiếp tuyến vẽ từ here tới
+## vật cản, phía cùng chiều với hướng đi; mỗi nhịp tính lại nên đảo bám mép vật cản rồi thoát ra đúng chỗ.
 static func next_waypoint(here: Vector3, goal: Vector3, obstacles: Array[Vector4]) -> Vector3:
-	var target: Vector3 = goal
+	var from: Vector2 = Vector2(here.x, here.z)
+	var end: Vector2 = Vector2(goal.x, goal.z)
+	for o: Vector4 in obstacles:
+		var center: Vector2 = Vector2(o.x, o.y)
+		if from.distance_to(center) < o.z and end.distance_to(center) >= o.z:
+			var out: Vector2 = center + (from - center).normalized() * (o.z + 0.4) if from.distance_to(center) > 0.001 else center + Vector2.RIGHT * (o.z + 0.4)
+			return Vector3(out.x, 0.0, out.y)
+	var target: Vector2 = end
 	for _attempt: int in 6:
 		var hit: int = -1
 		var hit_distance: float = INF
 		for i: int in obstacles.size():
 			var o: Vector4 = obstacles[i]
 			var center: Vector2 = Vector2(o.x, o.y)
-			var from: Vector2 = Vector2(here.x, here.z)
-			if from.distance_to(center) < o.z:
+			if target.distance_to(center) < o.z or from.distance_to(center) < o.z:
 				continue
-			var closest: Vector2 = Geometry2D.get_closest_point_to_segment(center, from, Vector2(target.x, target.z))
+			var closest: Vector2 = Geometry2D.get_closest_point_to_segment(center, from, target)
 			if closest.distance_to(center) < o.z and from.distance_to(closest) < hit_distance:
 				hit = i
 				hit_distance = from.distance_to(closest)
 		if hit < 0:
-			return target
+			break
 		var c: Vector4 = obstacles[hit]
-		var heading: Vector2 = (Vector2(target.x, target.z) - Vector2(here.x, here.z)).normalized()
-		var side: Vector2 = Vector2(-heading.y, heading.x)
-		var offset: float = side.dot(Vector2(c.x, c.y) - Vector2(here.x, here.z))
-		var sign_of: float = 1.0 if offset >= 0.0 else -1.0
-		var way: Vector2 = Vector2(c.x, c.y) - side * sign_of * (c.z + 0.6)
-		target = Vector3(way.x, 0.0, way.y)
-	return target
+		var center: Vector2 = Vector2(c.x, c.y)
+		var to_center: Vector2 = center - from
+		var ring: float = c.z + 0.3
+		var distance: float = to_center.length()
+		var half: float = asin(clampf(ring / distance, 0.0, 1.0))
+		var turn: float = 1.0 if to_center.cross(target - from) >= 0.0 else -1.0
+		var tangent: Vector2 = from + to_center.normalized().rotated(half * turn) * sqrt(maxf(distance * distance - ring * ring, 0.25))
+		target = tangent
+	return Vector3(target.x, 0.0, target.y)
 
 
 ## Đẩy điểm point ra ngoài mọi vật cản chứa nó (để đảo dừng sát mép vật cản chứ không chui vào).
@@ -330,15 +344,34 @@ static func clear_of_obstacles(point: Vector3, obstacles: Array[Vector4]) -> Vec
 	return result
 
 
-## Vật cản của đảo k: đảo chính và các đảo vệ tinh khác, mỗi cái nở thêm bán kính của đảo k và khe hở.
-func _obstacles(k: int) -> Array[Vector4]:
+## Đẩy vị trí position ra khỏi các vật cản (bán kính thật) và bỏ thành phần vận tốc đâm vào chúng.
+static func slide_out(position: Vector3, velocity: Vector3, obstacles: Array[Vector4]) -> Dictionary:
+	var result: Vector3 = position
+	var speed: Vector3 = velocity
+	for o: Vector4 in obstacles:
+		var center: Vector3 = Vector3(o.x, 0.0, o.y)
+		var away: Vector3 = result - center
+		away.y = 0.0
+		if away.length() < o.z:
+			var normal: Vector3 = away.normalized() if away.length() > 0.001 else Vector3.RIGHT
+			result = center + normal * o.z
+			if speed.dot(normal) < 0.0:
+				speed -= normal * speed.dot(normal)
+	return {"position": result, "velocity": speed}
+
+
+## Vật cản của đảo k: đảo chính (kể cả đầu mỏm bến) và các đảo vệ tinh khác, nở thêm bán kính đảo k và khe hở margin.
+func _obstacles(k: int, margin: float) -> Array[Vector4]:
 	var layout: MapLayout = battle.layout
 	var result: Array[Vector4] = []
-	var reach: float = layout.satellite_radius + AVOID_MARGIN
-	result.append(Vector4(layout.fortress_center.x, layout.fortress_center.z, layout.fortress_radius + AllianceFortress.PIER_END_RADIUS * 2.0 + reach, 0.0))
+	var reach: float = layout.fortress_radius
+	for i: int in layout.pad_count():
+		if not layout.is_satellite_pad(i):
+			reach = maxf(reach, Vector2(layout.pad_positions[i].x - layout.fortress_center.x, layout.pad_positions[i].z - layout.fortress_center.z).length() + AllianceFortress.PIER_END_RADIUS)
+	result.append(Vector4(layout.fortress_center.x, layout.fortress_center.z, reach + layout.satellite_radius + margin, 0.0))
 	for j: int in layout.satellite_centers.size():
 		if j != k:
-			result.append(Vector4(layout.satellite_centers[j].x, layout.satellite_centers[j].z, layout.satellite_radius + reach, 0.0))
+			result.append(Vector4(layout.satellite_centers[j].x, layout.satellite_centers[j].z, layout.satellite_radius * 2.0 + margin, 0.0))
 	return result
 
 
