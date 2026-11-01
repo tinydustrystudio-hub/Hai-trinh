@@ -307,12 +307,28 @@ func move_tower(tower: Tower, pad: TowerPad) -> bool:
 	return true
 
 
+## Bệ trúng điểm chạm: chiếu tia lên mặt phẳng ngang của từng bệ (bệ trên sàn nhà giàn cao hơn bệ trên mặt nước).
+func pad_at(screen_position: Vector2) -> TowerPad:
+	var best: TowerPad = null
+	var best_distance: float = TowerPad.RADIUS * PAD_PICK_TOLERANCE
+	for pad: TowerPad in island.pads:
+		if pad.locked:
+			continue
+		var center: Vector3 = pad.global_position
+		var point: Vector3 = camera.ground_point(screen_position, center.y + TowerPad.TOP_HEIGHT)
+		var d: float = Vector2(point.x - center.x, point.z - center.z).length()
+		if d <= best_distance:
+			best = pad
+			best_distance = d
+	return best
+
+
 ## Bắt đầu kéo lô cốt nếu điểm chạm trúng bệ có lô cốt: lô cốt rời bệ theo ngón tay (ngừng bắn), bệ trống hợp lệ gần nhất sáng
 ## tầm bắn. Trả true nếu bắt được.
 func begin_tower_drag(screen_position: Vector2) -> bool:
 	if is_over() or moving_tower != null:
 		return false
-	var pad: TowerPad = island.pad_near(camera.ground_point(screen_position, TowerPad.TOP_HEIGHT), TowerPad.RADIUS * PAD_PICK_TOLERANCE)
+	var pad: TowerPad = pad_at(screen_position)
 	var tower: Tower = tower_on(pad) if pad != null else null
 	if tower == null or pad.locked:
 		return false
@@ -331,7 +347,7 @@ func drag_tower_to(screen_position: Vector2) -> void:
 	if not tower_dragging or moving_tower == null:
 		return
 	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
-	var hover: TowerPad = island.pad_near(point, TowerPad.RADIUS * PAD_PICK_TOLERANCE)
+	var hover: TowerPad = pad_at(screen_position)
 	if hover != null and (not hover.is_selectable() or hover == moving_tower.pad):
 		hover = null
 	if hover != move_target:
@@ -732,8 +748,7 @@ func _on_tapped(screen_position: Vector2) -> void:
 		# Đang chờ xác nhận dời: chạm chỗ khác thì thôi.
 		cancel_move()
 		return
-	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
-	var pad: TowerPad = island.pad_near(point, TowerPad.RADIUS * PAD_PICK_TOLERANCE)
+	var pad: TowerPad = pad_at(screen_position)
 	var same: bool = pad == selected_pad
 	close_build_ring()
 	if pad == null or same or is_over():

@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(HERE, "models"))
 
 import kit  # noqa: E402
 
-MODELS = ["enm_raider_skiff", "enm_ram_drone", "enm_spiked_crab", "twr_machine_gun", "twr_glue_sprayer", "twr_light_beam", "bld_wave_shield", "bld_repair_works", "bld_tidal_power", "bld_shipyard", "sat_radar_outpost", "sat_steel_depot", "sat_buoy_station", "sat_comms_tower"]
+MODELS = ["enm_raider_skiff", "enm_ram_drone", "enm_spiked_crab", "twr_machine_gun", "twr_glue_sprayer", "twr_light_beam", "bld_wave_shield", "bld_repair_works", "bld_tidal_power", "bld_shipyard", "sat_radar_outpost", "sat_steel_depot", "sat_buoy_station", "sat_comms_tower", "plt_old_oil_rig"]
 OUT = os.path.normpath(os.path.join(HERE, "..", "..", "assets", "models"))
 
 

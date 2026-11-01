@@ -27,7 +27,9 @@ func _flat_distance(a: Vector3, b: Vector3) -> float:
 
 
 func test_counts() -> void:
-	assert_eq(LAYOUT.pad_count(), 10)
+	assert_eq(LAYOUT.pad_count(), 14)
+	assert_eq(LAYOUT.platform_centers.size(), 4)
+	assert_eq(LAYOUT.platform_kinds.size(), 4)
 	assert_eq(LAYOUT.lane_count(), 4)
 	assert_eq(LAYOUT.lane_name_keys, [&"LANE_NORTH", &"LANE_EAST", &"LANE_WEST", &"LANE_SOUTH"] as Array[StringName])
 	assert_eq(LAYOUT.satellite_centers.size(), 4)
@@ -41,6 +43,8 @@ func test_two_rings_of_pads() -> void:
 		if LAYOUT.is_satellite_pad(i):
 			on_satellites += 1
 			assert_gt(d, LAYOUT.fortress_radius * 2.0, "bệ %d: đảo vệ tinh ở vòng ngoài" % i)
+		elif LAYOUT.platform_index_of_pad(i) >= 0:
+			assert_gt(d, LAYOUT.fortress_radius * 2.0, "bệ %d: nhà giàn ở vòng ngoài" % i)
 		else:
 			on_piers += 1
 			assert_between(d, LAYOUT.fortress_radius, LAYOUT.fortress_radius + MapLayout.UNITS_PER_CELL * 2.0, "bệ %d: trên mỏm bến" % i)
@@ -62,7 +66,7 @@ func test_pads_are_one_cell_apart() -> void:
 
 func test_pads_and_islands_do_not_block_lanes() -> void:
 	for i: int in LAYOUT.pad_count():
-		var footprint: float = LAYOUT.satellite_radius if LAYOUT.is_satellite_pad(i) else AllianceFortress.PIER_END_RADIUS
+		var footprint: float = LAYOUT.platform_radius if LAYOUT.platform_index_of_pad(i) >= 0 else (LAYOUT.satellite_radius if LAYOUT.is_satellite_pad(i) else AllianceFortress.PIER_END_RADIUS)
 		for lane: Lane in _lanes:
 			var d: float = lane.distance_to(LAYOUT.pad_positions[i])
 			assert_gt(d, footprint + Lane.RIBBON_WIDTH * 0.5, "bệ %d đè lên luồng %d" % [i, lane.lane_index])

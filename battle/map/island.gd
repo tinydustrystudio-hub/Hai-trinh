@@ -34,6 +34,8 @@ var pads: Array[TowerPad] = []
 var beacons: LaneBeacons
 ## Từng đảo vệ tinh, mỗi đảo một nút để dập dìu riêng.
 var satellites: Array[Node3D] = []
+## Từng nhà giàn cố định (không dập dìu).
+var platforms: Array[Node3D] = []
 ## Hệ số dập dìu của thời tiết (bão cho đảo dập dìu nhiều hơn).
 var bob_scale: float = 1.0
 
@@ -51,6 +53,7 @@ func build(layout: MapLayout) -> void:
 		child.queue_free()
 	pads.clear()
 	satellites.clear()
+	platforms.clear()
 	_layout = layout
 	_fortress_radius = layout.fortress_radius
 	_satellite_radius = layout.satellite_radius
@@ -84,6 +87,16 @@ func build(layout: MapLayout) -> void:
 			_add_mesh(satellite, "Utility", ModelMesh.load_mesh(SatelliteUtilities.model_name(utility)), solid_material(),
 				SatelliteUtilities.model_transform(SatelliteUtilities.direction_for(layout, k)))
 		satellites.append(satellite)
+	for k: int in layout.platform_centers.size():
+		var kind: StringName = layout.platform_kind(k)
+		var platform: Node3D = Node3D.new()
+		platform.name = "Platform%d" % k
+		platform.position = layout.platform_centers[k]
+		platform.rotation.y = Platforms.yaw_for(layout.platform_centers[k], layout.fortress_center)
+		add_child(platform)
+		platforms.append(platform)
+		if Platforms.has_model(kind):
+			_add_mesh(platform, "Model", ModelMesh.load_mesh(Platforms.model_name(kind)), solid_material())
 	_add_mesh(self, "Shadow", build_shadow(layout), _shadow_material())
 	_add_mesh(self, "Foam", build_foam(layout), _foam_material())
 	for i: int in layout.pad_positions.size():
@@ -91,7 +104,12 @@ func build(layout: MapLayout) -> void:
 		pad.name = "TowerPad%d" % i
 		pad.pad_index = i
 		var satellite_index: int = layout.satellite_index_of_pad(i)
-		if satellite_index >= 0:
+		var platform_index: int = layout.platform_index_of_pad(i)
+		if platform_index >= 0:
+			# Bệ nằm trên sàn nhà giàn: phần trên của bệ ngang mặt sàn.
+			pad.position = Vector3(0.0, Platforms.deck_height(layout.platform_kind(platform_index)) - TowerPad.TOP_HEIGHT, 0.0)
+			platforms[platform_index].add_child(pad)
+		elif satellite_index >= 0:
 			pad.position = layout.pad_positions[i] - layout.satellite_centers[satellite_index]
 			satellites[satellite_index].add_child(pad)
 		else:
@@ -194,6 +212,8 @@ static func build_shadow(layout: MapLayout) -> ArrayMesh:
 	_soft_disc(st, layout.fortress_center + away * r * 0.1 * length, r * 0.96, r * 0.3, 6, 0.0)
 	for center: Vector3 in layout.satellite_centers:
 		_soft_disc(st, center + away * 0.6 * length, layout.satellite_radius, 1.2, 20, 0.0)
+	for center: Vector3 in layout.platform_centers:
+		_soft_disc(st, center + away * 1.2 * length, layout.platform_radius * 0.7, 1.6, 20, 0.0)
 	return MeshKit.commit(st)
 
 
@@ -204,7 +224,7 @@ static func build_foam(layout: MapLayout) -> ArrayMesh:
 	var r: float = layout.fortress_radius
 	_band(st, _polygon(c, r + 0.15, 6, 0.0), 2.6)
 	for i: int in layout.pad_count():
-		if layout.is_satellite_pad(i):
+		if not layout.is_pier_pad(i):
 			continue
 		var pad: Vector3 = layout.pad_positions[i]
 		var dir: Vector3 = Vector3(pad.x - c.x, 0.0, pad.z - c.z).normalized()
@@ -217,6 +237,8 @@ static func build_foam(layout: MapLayout) -> ArrayMesh:
 		_band(st, _polygon(Vector3(pad.x, 0.0, pad.z), AllianceFortress.PIER_END_RADIUS + 0.05, 20, 0.0), 1.8)
 	for center: Vector3 in layout.satellite_centers:
 		_band(st, _polygon(center, layout.satellite_radius + 0.1, 24, 0.0), 1.8)
+	for center: Vector3 in layout.platform_centers:
+		_band(st, _polygon(center, layout.platform_radius * 0.62, 20, 0.0), 1.6)
 	for buoy: Vector3 in AllianceFortress.buoy_positions(layout):
 		_band(st, _polygon(buoy, 0.5, 10, 0.0), 0.9)
 	return MeshKit.commit(st)

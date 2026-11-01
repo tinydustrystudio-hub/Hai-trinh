@@ -53,6 +53,7 @@ func test_shadow_falls_away_from_sun() -> void:
 	# Chỉ xét bóng của pháo đài: bỏ đảo vệ tinh (đặt lệch nhau) ra khỏi bố cục thử.
 	var fortress_only: MapLayout = LAYOUT.duplicate()
 	fortress_only.satellite_centers = PackedVector3Array()
+	fortress_only.platform_centers = PackedVector3Array()
 	var box: AABB = Island.build_shadow(fortress_only).get_aabb()
 	var sun: Vector3 = LAYOUT.sun_direction
 	# Bóng của pháo đài lệch về phía ngược nắng so với tâm đảo.
@@ -66,7 +67,7 @@ func test_tilt_moves_fortress_only() -> void:
 	island.build(LAYOUT)
 	island.set_tilt(5.0)
 	assert_almost_eq(island.tilt_degrees(), 5.0, 0.0001)
-	assert_eq(island.pads.size(), 10)
+	assert_eq(island.pads.size(), 14)
 
 
 func test_lane_beacons_point_to_each_lane() -> void:
