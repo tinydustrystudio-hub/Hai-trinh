@@ -37,6 +37,13 @@ const LANE_GAP: float = 0.5
 ## Cách luồng đủ xa để không đè lên. Đảo cấp sẵn (satellite_centers) do từng màn tự sắp xếp.
 @export var satellite_docks: PackedVector3Array = PackedVector3Array()
 
+@export_group("Nhà giàn của màn")
+## Nhà giàn cố định trên biển: tâm từng nhà giàn, chủng loại (old_oil_rig, ...) cùng thứ tự, và bán kính chiếm chỗ (tính cả bãi đáp).
+## Mỗi nhà giàn mang một bệ lô cốt, nằm trong pad_positions ngay sau các bệ mỏm bến và trước các bệ đảo vệ tinh.
+@export var platform_centers: PackedVector3Array = PackedVector3Array()
+@export var platform_kinds: Array[StringName] = []
+@export var platform_radius: float = 5.0
+
 @export_group("Đảo vệ tinh của màn")
 ## Số đảo vệ tinh cấp sẵn đầu màn (đặt miễn phí). 0 = dùng đúng số đảo đã đặt sẵn trong satellite_centers.
 @export var satellite_free_count: int = 0
@@ -100,6 +107,19 @@ func satellite_index_of_pad(index: int) -> int:
 	return -1
 
 
+## Nhà giàn mà bệ index nằm trên, hoặc −1.
+func platform_index_of_pad(index: int) -> int:
+	var pad: Vector3 = pad_positions[index]
+	for k: int in platform_centers.size():
+		if Vector2(platform_centers[k].x - pad.x, platform_centers[k].z - pad.z).length() < 1.0:
+			return k
+	return -1
+
+
+func platform_kind(index: int) -> StringName:
+	return platform_kinds[index] if index < platform_kinds.size() else Platforms.OLD_OIL_RIG
+
+
 ## Số đảo cấp sẵn thật sự.
 func free_satellites() -> int:
 	return satellite_free_count if satellite_free_count > 0 else satellite_centers.size()
@@ -128,6 +148,11 @@ func is_satellite_pad(index: int) -> bool:
 		if Vector2(center.x - pad.x, center.z - pad.z).length() < satellite_radius * 0.5:
 			return true
 	return false
+
+
+## Bệ nằm trên mỏm bến của đảo chính (không phải bệ đảo vệ tinh hay bệ nhà giàn).
+func is_pier_pad(index: int) -> bool:
+	return not is_satellite_pad(index) and platform_index_of_pad(index) < 0
 
 
 ## Cấp của công trình (1, 3 hoặc 5), mặc định 1.
@@ -169,6 +194,9 @@ func island_spot_valid(point: Vector3, ignore_index: int = -1) -> bool:
 		return false
 	for k: int in satellite_centers.size():
 		if k != ignore_index and flat.distance_to(Vector2(satellite_centers[k].x, satellite_centers[k].z)) < satellite_radius * 2.0 + ISLAND_GAP:
+			return false
+	for center: Vector3 in platform_centers:
+		if flat.distance_to(Vector2(center.x, center.z)) < platform_radius + satellite_radius + ISLAND_GAP:
 			return false
 	var clearance: float = satellite_radius + Lane.RIBBON_WIDTH * 0.5 + LANE_GAP
 	if _lane_curves.size() != lane_points.size():

@@ -37,7 +37,7 @@ static func build_fortress(layout: MapLayout) -> ArrayMesh:
 	_inner_ring(st, c, r, layout.building_level(&"tidal_power"), layout.building_level(&"repair_works"))
 	_tower(st, c, r)
 	for i: int in layout.pad_count():
-		if not layout.is_satellite_pad(i):
+		if layout.is_pier_pad(i):
 			_pier(st, c, r, layout.pad_positions[i])
 	_cranes(st, c, r)
 	FortressBuildings.build(st, layout)

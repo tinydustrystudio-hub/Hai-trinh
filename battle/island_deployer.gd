@@ -366,9 +366,11 @@ func _obstacles(k: int, margin: float) -> Array[Vector4]:
 	var result: Array[Vector4] = []
 	var reach: float = layout.fortress_radius
 	for i: int in layout.pad_count():
-		if not layout.is_satellite_pad(i):
+		if layout.is_pier_pad(i):
 			reach = maxf(reach, Vector2(layout.pad_positions[i].x - layout.fortress_center.x, layout.pad_positions[i].z - layout.fortress_center.z).length() + AllianceFortress.PIER_END_RADIUS)
 	result.append(Vector4(layout.fortress_center.x, layout.fortress_center.z, reach + layout.satellite_radius + margin, 0.0))
+	for center: Vector3 in layout.platform_centers:
+		result.append(Vector4(center.x, center.z, layout.platform_radius + layout.satellite_radius + margin, 0.0))
 	for j: int in layout.satellite_centers.size():
 		if j != k:
 			result.append(Vector4(layout.satellite_centers[j].x, layout.satellite_centers[j].z, layout.satellite_radius * 2.0 + margin, 0.0))

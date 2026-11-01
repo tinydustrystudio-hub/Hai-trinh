@@ -50,8 +50,10 @@ func test_loses_without_towers() -> void:
 	# Bệ trên đảo vệ tinh là phao riêng, chỉ dập dìu nhẹ theo sóng; bệ trên mỏm bến nghiêng theo pháo đài.
 	for i: int in _battle.layout.pad_count():
 		var pad: TowerPad = _battle.island.pads[i]
-		if _battle.layout.is_satellite_pad(i):
-			assert_lt(pad.global_position.distance_to(_battle.layout.pad_positions[i]), 0.5)
+		if _battle.layout.is_satellite_pad(i) or _battle.layout.platform_index_of_pad(i) >= 0:
+			var flat: Vector3 = pad.global_position - _battle.layout.pad_positions[i]
+			flat.y = 0.0
+			assert_lt(flat.length(), 0.5)
 		else:
 			assert_ne(pad.global_position, _battle.layout.pad_positions[i])
 	assert_true(_battle.hud.result_panel.visible)

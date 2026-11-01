@@ -51,7 +51,7 @@ func test_docks_are_beside_fortress_and_clear() -> void:
 		for b: int in range(a + 1, LAYOUT.satellite_docks.size()):
 			assert_gte(_flat(dock, LAYOUT.satellite_docks[b]), LAYOUT.satellite_radius * 2.0 + 2.0)
 		for i: int in LAYOUT.pad_count():
-			if not LAYOUT.is_satellite_pad(i):
+			if LAYOUT.is_pier_pad(i):
 				assert_gt(_flat(dock, LAYOUT.pad_positions[i]), LAYOUT.satellite_radius + AllianceFortress.PIER_END_RADIUS + 1.0)
 
 
@@ -65,7 +65,7 @@ func test_buy_island_costs_and_stays_docked() -> void:
 	var layout: MapLayout = Profile.battle_layout(LAYOUT)
 	assert_eq(layout.satellite_centers.size(), 5)
 	assert_eq(layout.satellite_centers[4], LAYOUT.satellite_docks[0], "đảo mua đậu ở chỗ đậu")
-	assert_eq(layout.pad_count(), 6 + 5)
+	assert_eq(layout.pad_count(), 6 + LAYOUT.platform_centers.size() + 5)
 
 
 func test_cannot_buy_without_gold_or_beyond_max() -> void:
@@ -107,7 +107,7 @@ func test_battle_starts_with_bought_islands_docked_and_locked() -> void:
 	assert_eq(battle.island.satellites.size(), 5)
 	assert_eq(battle.deployer.docked_count(), 1)
 	assert_eq(battle.layout.satellite_centers[4], LAYOUT.satellite_docks[0])
-	var pad: TowerPad = battle.island.pads[6 + 4]
+	var pad: TowerPad = battle.island.pads[battle.island.pads.size() - 1]
 	assert_true(pad.locked)
 	assert_false(pad.is_selectable())
 	assert_null(battle.island.pad_near(pad.global_position, 3.0), "bệ khoá không chọn được")
@@ -197,12 +197,12 @@ func test_deploy_island_anywhere_costs_gold_and_unlocks_pad_on_arrival() -> void
 	assert_eq(battle.economy.steel, before - Profile.island_move_cost())
 	assert_true(deployer.is_deployed(4))
 	assert_eq(deployer.pending_island(), -1)
-	assert_true(battle.island.pads[6 + 4].locked, "đang lai dắt thì bệ chưa mở")
+	assert_true(battle.island.pads[battle.island.pads.size() - 1].locked, "đang lai dắt thì bệ chưa mở")
 	_tow_until_done(deployer, battle, 4)
 	assert_eq(battle.layout.satellite_centers[4], deployer.home_of(4))
 	assert_almost_eq(_flat(battle.layout.satellite_centers[4], spot), 0.0, 1.5, "tới chỗ thả, không bị hút vào ô nào")
-	assert_eq(battle.layout.pad_positions[6 + 4], battle.layout.satellite_centers[4])
-	assert_false(battle.island.pads[6 + 4].locked)
+	assert_eq(battle.layout.pad_positions[battle.layout.pad_count() - 1], battle.layout.satellite_centers[4])
+	assert_false(battle.island.pads[battle.island.pads.size() - 1].locked)
 	assert_eq(deployer.docked_count(), 0)
 
 
@@ -233,7 +233,7 @@ func test_invalid_spot_or_no_gold_tows_island_back_free() -> void:
 	_tow_until_done(deployer, battle, 4)
 	assert_eq(battle.layout.satellite_centers[4], dock, "huỷ thì về chỗ đậu")
 	assert_eq(battle.economy.steel, 5)
-	assert_true(battle.island.pads[6 + 4].locked)
+	assert_true(battle.island.pads[battle.island.pads.size() - 1].locked)
 
 
 func test_free_islands_cannot_be_dragged() -> void:
@@ -253,7 +253,7 @@ func test_island_with_tower_cannot_be_moved_and_retry_returns_islands() -> void:
 	deployer.end_drag()
 	deployer.confirm()
 	_tow_until_done(deployer, battle, 4)
-	var pad: TowerPad = battle.island.pads[6 + 4]
+	var pad: TowerPad = battle.island.pads[battle.island.pads.size() - 1]
 	battle.economy.reset(1000)
 	var tower: Tower = battle.build_tower(pad, load("res://data/towers/machine_gun.tres"))
 	assert_not_null(tower)
@@ -366,7 +366,7 @@ func test_tow_sweep_never_overlaps_any_island() -> void:
 	var layout: MapLayout = battle.layout
 	var reach: float = layout.fortress_radius
 	for i: int in layout.pad_count():
-		if not layout.is_satellite_pad(i):
+		if layout.is_pier_pad(i):
 			reach = maxf(reach, _flat(layout.pad_positions[i], layout.fortress_center) + AllianceFortress.PIER_END_RADIUS)
 	var targets: Array[Vector3] = []
 	for x: int in range(-80, 81, 20):
