@@ -78,6 +78,43 @@ class Model:
             pts = [p for p in pts if abs(p[1] - y1) > 1e-6] + [(cx, y1, cz)]
         return self.hull(pts, color, top_color)
 
+    def torus(self, center, big_r, small_r, e1, e2, color, arc=(0.0, math.tau), sections=16, tube_sides=8):
+        """Vòng xuyến (phao cứu hộ, vành): tâm `center`, bán kính vòng big_r, bán kính ống small_r, nằm trong mặt phẳng do hai trục
+        đơn vị e1, e2 (toạ độ Godot) căng ra; arc là đoạn góc dựng (để ghép sọc hai màu)."""
+        bm = self.bm
+        n = (e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0])
+        steps = max(int(sections * (arc[1] - arc[0]) / math.tau), 1)
+        grid = []
+        for i in range(steps + 1):
+            phi = arc[0] + (arc[1] - arc[0]) * i / steps
+            ring_dir = [math.cos(phi) * e1[k] + math.sin(phi) * e2[k] for k in range(3)]
+            row = []
+            for j in range(tube_sides):
+                psi = math.tau * j / tube_sides
+                pos = [center[k] + big_r * ring_dir[k] + small_r * (math.cos(psi) * ring_dir[k] + math.sin(psi) * n[k]) for k in range(3)]
+                row.append(bm.verts.new(G(*pos)))
+            grid.append(row)
+        faces = []
+        for i in range(steps):
+            for j in range(tube_sides):
+                k = (j + 1) % tube_sides
+                f = bm.faces.new((grid[i][j], grid[i + 1][j], grid[i + 1][k], grid[i][k]))
+                faces.append(f)
+        for f in faces:
+            f.normal_update()
+            # Pháp tuyến phải hướng ra khỏi trục ống: so với điểm giữa của hàng đỉnh.
+            ring_center = [0.0, 0.0, 0.0]
+            idx = faces.index(f) // tube_sides
+            row = grid[idx]
+            for v in row:
+                for k in range(3):
+                    ring_center[k] += v.co[k] / tube_sides
+            outward = [f.calc_center_median()[k] - ring_center[k] for k in range(3)]
+            if sum(f.normal[k] * outward[k] for k in range(3)) < 0:
+                f.normal_flip()
+            self._face_colors[f] = (color, None)
+        return faces
+
     def loft(self, stations, color, top_color=None):
         """Thân thon dựng từ các mặt cắt: stations = [(z, [(x, y), ...]), ...] (mỗi mặt cắt liệt kê đủ cả hai bên).
         Mỗi cặp mặt cắt liền kề là một vỏ lồi; ghép lại thành thân cong mượt (thân tàu, mai cua)."""

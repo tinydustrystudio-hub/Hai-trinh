@@ -79,6 +79,10 @@ func build(layout: MapLayout) -> void:
 		satellite.position = layout.satellite_centers[k]
 		add_child(satellite)
 		_add_mesh(satellite, "Mesh", AllianceFortress.build_satellite(layout, k), solid_material())
+		var utility: StringName = layout.satellite_utility(k)
+		if SatelliteUtilities.has_model(utility):
+			_add_mesh(satellite, "Utility", ModelMesh.load_mesh(SatelliteUtilities.model_name(utility)), solid_material(),
+				SatelliteUtilities.model_transform(SatelliteUtilities.direction_for(layout, k)))
 		satellites.append(satellite)
 	_add_mesh(self, "Shadow", build_shadow(layout), _shadow_material())
 	_add_mesh(self, "Foam", build_foam(layout), _foam_material())

@@ -85,13 +85,6 @@ func test_tidal_power_levels_add_turbine_and_battery() -> void:
 	assert_gt(l5, l3)
 
 
-## Số tam giác của công trình id ở cấp level: mô hình Blender nếu có, không thì cả thân đảo dựng bằng code.
-func _building_triangles(id: StringName, level: int) -> int:
-	if AllianceFortress.has_building_model(id, level):
-		return _triangles(ModelMesh.load_mesh(AllianceFortress.building_model_name(id, level)))
-	return _triangles(AllianceFortress.build_fortress(_layout({id: level})))
-
-
 func test_every_level_changes_every_building() -> void:
 	for id: StringName in [&"wave_shield", &"repair_works", &"tidal_power", &"shipyard"]:
 		var previous: int = _building_triangles(id, 1)
