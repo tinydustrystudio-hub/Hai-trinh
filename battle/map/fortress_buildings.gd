@@ -21,12 +21,18 @@ static func build(st: SurfaceTool, layout: MapLayout) -> void:
 
 ## Số trụ của Khiên Chắn Sóng theo cấp.
 static func shield_posts(level: int) -> int:
-	return 1 if level < 3 else (3 if level < 5 else 5)
+	return clampi(level, 1, 5)
 
 
 ## Số ụ của Xưởng Tàu theo cấp (cấp 5 có hai ụ).
 static func shipyard_docks(level: int) -> int:
 	return 2 if level >= 5 else 1
+
+
+## Cấp tối thiểu của từng phần Xưởng Tàu: cầu cẩu, thân tàu, buồng lái và cột.
+const SHIPYARD_CRANE_LEVEL: int = 2
+const SHIPYARD_HULL_LEVEL: int = 3
+const SHIPYARD_CABIN_LEVEL: int = 4
 
 
 static func _polar(c: Vector3, radius: float, degrees: float) -> Vector3:
@@ -46,33 +52,34 @@ static func _wave_shield(st: SurfaceTool, c: Vector3, r: float, level: int) -> v
 		var outward: Vector3 = (p - c).normalized()
 		var yaw: float = atan2(-outward.z, outward.x)
 		# Trụ xám than có đầu cao su đen, sọc ngà, hơi nghiêng ra biển bằng một khối đế vát.
-		MeshKit.box(st, Vector3(p.x, y + 0.9, p.z), Vector3(0.7, 1.8, 0.9), AllianceFortress.STEEL, yaw, AllianceFortress.DARK)
-		MeshKit.box(st, Vector3(p.x, y + 1.55, p.z) + outward * 0.3, Vector3(0.5, 0.5, 0.7), AllianceFortress.IVORY, yaw)
-	# Từ cấp 3 có dây chắn nối các trụ; cấp 5 thêm màng sóng lam nhạt.
+		MeshKit.box(st, Vector3(p.x, y + 1.2, p.z), Vector3(0.9, 2.4, 1.1), AllianceFortress.STEEL, yaw, AllianceFortress.DARK)
+		MeshKit.box(st, Vector3(p.x, y + 2.5, p.z) + outward * 0.3, Vector3(0.7, 0.5, 0.9), AllianceFortress.ORANGE, yaw)
+	# Từ cấp 2 có dây chắn nối các trụ; cấp 4 trở lên thêm màng sóng lam nhạt.
 	for i: int in range(1, points.size()):
 		var a: Vector3 = points[i - 1]
 		var b: Vector3 = points[i]
 		var mid: Vector3 = (a + b) * 0.5
 		var yaw: float = atan2(-(b - a).z, (b - a).x)
-		MeshKit.box(st, Vector3(mid.x, y + 1.2, mid.z), Vector3(a.distance_to(b), 0.1, 0.1), AllianceFortress.DARK, yaw)
-		if level >= 5:
-			MeshKit.box(st, Vector3(mid.x, y + 0.75, mid.z), Vector3(a.distance_to(b), 0.9, 0.05), AllianceFortress.GLASS.lightened(0.2), yaw)
+		MeshKit.box(st, Vector3(mid.x, y + 1.8, mid.z), Vector3(a.distance_to(b), 0.14, 0.14), AllianceFortress.DARK, yaw)
+		if level >= 4:
+			MeshKit.box(st, Vector3(mid.x, y + 1.1, mid.z), Vector3(a.distance_to(b), 1.3, 0.06), AllianceFortress.GLASS.lightened(0.2), yaw)
 
 
 static func _repair_extras(st: SurfaceTool, c: Vector3, r: float, level: int) -> void:
-	if level < 3:
+	if level < 2:
 		return
 	var y: float = AllianceFortress.DECK_Y
 	var base: Vector3 = _polar(c, r * 0.8, REPAIR_ANGLE)
-	# Băng chuyền thấp dẫn ra phía xưởng, thùng vật liệu cam chạy trên đó.
-	MeshKit.box(st, Vector3(base.x, y + 0.15, base.z), Vector3(3.6, 0.3, 1.0), AllianceFortress.DARK.lightened(0.15), 0.0)
-	for i: int in 3:
-		MeshKit.box(st, Vector3(base.x - 1.2 + float(i) * 1.2, y + 0.55, base.z), Vector3(0.6, 0.5, 0.6), AllianceFortress.ORANGE)
+	# Cấp 2: băng chuyền thấp; mỗi cấp thêm một thùng vật liệu cam chạy trên đó.
+	MeshKit.box(st, Vector3(base.x, y + 0.15, base.z), Vector3(4.4, 0.3, 1.1), AllianceFortress.DARK.lightened(0.15), 0.0)
+	for i: int in mini(level - 1, 4):
+		MeshKit.box(st, Vector3(base.x - 1.5 + float(i) * 1.0, y + 0.65, base.z), Vector3(0.7, 0.7, 0.7), AllianceFortress.ORANGE)
+	if level >= 4:
+		# Mái vòm kính; cấp 5 thêm tay máy.
+		MeshKit.prism(st, Vector3(base.x, 0.0, base.z + 2.4), 1.5, y, y + 1.7, 12, AllianceFortress.IVORY, AllianceFortress.GLASS, 0.0, 0.8)
 	if level >= 5:
-		# Mái vòm và cánh tay máy.
-		MeshKit.prism(st, Vector3(base.x, 0.0, base.z + 2.0), 1.3, y, y + 1.4, 12, AllianceFortress.IVORY, AllianceFortress.GLASS, 0.0, 0.7)
-		MeshKit.box(st, Vector3(base.x + 1.6, y + 1.6, base.z + 2.0), Vector3(0.3, 2.2, 0.3), AllianceFortress.ORANGE)
-		MeshKit.box(st, Vector3(base.x + 1.0, y + 2.6, base.z + 2.0), Vector3(1.6, 0.3, 0.3), AllianceFortress.ORANGE)
+		MeshKit.box(st, Vector3(base.x + 1.9, y + 2.0, base.z + 2.4), Vector3(0.35, 2.8, 0.35), AllianceFortress.ORANGE)
+		MeshKit.box(st, Vector3(base.x + 1.1, y + 3.3, base.z + 2.4), Vector3(1.8, 0.35, 0.35), AllianceFortress.ORANGE)
 
 
 static func _shipyard(st: SurfaceTool, c: Vector3, r: float, level: int) -> void:
@@ -91,12 +98,19 @@ static func _shipyard(st: SurfaceTool, c: Vector3, r: float, level: int) -> void
 			MeshKit.box(st, Vector3(wall.x, y + 0.6, wall.z), Vector3(2.8, 1.0, 0.3), AllianceFortress.SEA_BLUE, yaw, AllianceFortress.ORANGE)
 		var back: Vector3 = base - out * 1.5
 		MeshKit.box(st, Vector3(back.x, y + 0.6, back.z), Vector3(0.3, 1.0, 3.0), AllianceFortress.SEA_BLUE, yaw)
-		# Cầu cẩu ngang qua ụ.
-		MeshKit.box(st, Vector3(base.x, y + 1.5, base.z), Vector3(0.3, 0.3, 3.4), AllianceFortress.ORANGE, yaw)
+		# Cấp 2: cầu cẩu ngang qua ụ.
+		if level >= SHIPYARD_CRANE_LEVEL:
+			MeshKit.box(st, Vector3(base.x, y + 1.7, base.z), Vector3(0.4, 0.4, 3.6), AllianceFortress.ORANGE, yaw)
+			for s: float in [-1.0, 1.0]:
+				var leg: Vector3 = base + side * s * 1.7
+				MeshKit.box(st, Vector3(leg.x, y + 0.9, leg.z), Vector3(0.4, 1.8, 0.4), AllianceFortress.ORANGE, yaw)
 		# Cấp 3: thân tàu đang đóng nằm trong ụ.
-		if level >= 3:
+		if level >= SHIPYARD_HULL_LEVEL:
 			MeshKit.box(st, Vector3(base.x, y + 0.45, base.z), Vector3(2.0, 0.4, 1.0), AllianceFortress.IVORY.darkened(0.1), yaw)
-			MeshKit.box(st, Vector3(base.x, y + 0.8, base.z) - out * 0.4, Vector3(0.7, 0.4, 0.7), AllianceFortress.GLASS, yaw)
+		# Cấp 4: buồng lái kính và cột ăng-ten trên thân tàu.
+		if level >= SHIPYARD_CABIN_LEVEL:
+			MeshKit.box(st, Vector3(base.x, y + 0.95, base.z) - out * 0.4, Vector3(0.9, 0.6, 0.9), AllianceFortress.GLASS, yaw)
+			MeshKit.box(st, Vector3(base.x, y + 1.6, base.z) - out * 0.4, Vector3(0.08, 0.9, 0.08), AllianceFortress.DARK)
 
 
 static func _lamp_posts(st: SurfaceTool, c: Vector3, r: float) -> void:

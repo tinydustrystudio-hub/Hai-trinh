@@ -107,3 +107,40 @@ func test_test_buttons_do_not_overlap_main_buttons() -> void:
 		for rect: Rect2 in rects:
 			assert_false(button.get_global_rect().intersects(rect))
 		assert_true(_screen.get_viewport_rect().encloses(button.get_global_rect()))
+
+
+func test_preview_zoom_wheel_pinch_and_limits() -> void:
+	var preview: Control = _screen.get_node("Preview")
+	var wheel: InputEventMouseButton = InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+	wheel.pressed = true
+	preview.gui_input.emit(wheel)
+	assert_lt(_screen.distance_factor(), 1.0, "lăn lên là phóng to")
+	wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+	preview.gui_input.emit(wheel)
+	assert_almost_eq(_screen.distance_factor(), 1.0, 0.001)
+	# Chụm hai ngón xa ra thì phóng to.
+	for index: int in 2:
+		var touch: InputEventScreenTouch = InputEventScreenTouch.new()
+		touch.index = index
+		touch.pressed = true
+		touch.position = Vector2(100 + index * 100, 100)
+		preview.gui_input.emit(touch)
+	var spread: InputEventScreenDrag = InputEventScreenDrag.new()
+	spread.index = 1
+	spread.position = Vector2(400, 100)
+	preview.gui_input.emit(spread)
+	assert_lt(_screen.distance_factor(), 1.0)
+	# Đang chụm thì kéo chuột giả lập không xoay.
+	var yaw: float = _screen.yaw()
+	var motion: InputEventMouseMotion = InputEventMouseMotion.new()
+	motion.relative = Vector2(200, 0)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	preview.gui_input.emit(motion)
+	assert_eq(_screen.yaw(), yaw)
+	for i: int in 40:
+		_screen.zoom_preview(1.5)
+	assert_gte(_screen.distance_factor(), BaseScreen.MIN_DISTANCE)
+	for i: int in 80:
+		_screen.zoom_preview(0.5)
+	assert_lte(_screen.distance_factor(), BaseScreen.MAX_DISTANCE)

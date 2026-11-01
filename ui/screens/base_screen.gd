@@ -12,6 +12,10 @@ const UPGRADE_SIZE: Vector2 = Vector2(300, 130)
 const PREVIEW_SIZE: Vector2i = Vector2i(900, 760)
 ## Xoay: radian mỗi pixel kéo.
 const ROTATE_SPEED: float = 0.008
+## Giới hạn phóng to, thu nhỏ khung xem trước (hệ số khoảng cách camera) và bước mỗi nấc lăn chuột.
+const MIN_DISTANCE: float = 0.35
+const MAX_DISTANCE: float = 1.3
+const WHEEL_STEP: float = 1.12
 ## Vàng cộng thêm của nút thử nghiệm.
 const TEST_GOLD: int = 1000
 const LAYOUT_PATH: String = "res://data/maps/north_dock_layout.tres"
@@ -25,6 +29,10 @@ var _layout: MapLayout
 var _camera: Camera3D
 ## Góc xoay của camera quanh đảo (radian), kéo ngón tay để xoay.
 var _yaw: float = 0.0
+## Hệ số khoảng cách camera (nhỏ hơn 1 là phóng to).
+var _distance: float = 1.0
+## Vị trí các ngón đang chạm vào khung xem trước, để nhận cử chỉ chụm hai ngón.
+var _fingers: Dictionary[int, Vector2] = {}
 var _reset_gold: Button
 var _reset_levels: Button
 var _add_gold: Button
@@ -110,6 +118,18 @@ func rotate_preview(delta_yaw: float) -> void:
 	_place_camera()
 
 
+func distance_factor() -> float:
+	return _distance
+
+
+## Phóng to (factor > 1) hoặc thu nhỏ khung xem trước.
+func zoom_preview(factor: float) -> void:
+	if factor <= 0.0:
+		return
+	_distance = clampf(_distance / factor, MIN_DISTANCE, MAX_DISTANCE)
+	_place_camera()
+
+
 func island() -> Island:
 	return _island
 
@@ -154,15 +174,46 @@ func _add_test_buttons() -> void:
 
 
 func _on_preview_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and ((event as InputEventMouseMotion).button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
-		rotate_preview(-(event as InputEventMouseMotion).relative.x * ROTATE_SPEED)
+	if event is InputEventScreenTouch:
+		var touch: InputEventScreenTouch = event
+		if touch.pressed:
+			_fingers[touch.index] = touch.position
+		else:
+			_fingers.erase(touch.index)
+	elif event is InputEventScreenDrag:
+		var drag: InputEventScreenDrag = event
+		if _fingers.size() >= 2 and _fingers.has(drag.index):
+			var before: float = _finger_span()
+			_fingers[drag.index] = drag.position
+			var after: float = _finger_span()
+			if before > 0.0 and after > 0.0:
+				zoom_preview(after / before)
+		elif _fingers.has(drag.index):
+			_fingers[drag.index] = drag.position
+	elif event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
+		var button: InputEventMouseButton = event
+		if button.button_index == MOUSE_BUTTON_WHEEL_UP:
+			zoom_preview(WHEEL_STEP)
+		elif button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			zoom_preview(1.0 / WHEEL_STEP)
+	elif event is InputEventMagnifyGesture:
+		zoom_preview((event as InputEventMagnifyGesture).factor)
+	elif event is InputEventMouseMotion and _fingers.size() < 2:
+		var motion: InputEventMouseMotion = event
+		if (motion.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
+			rotate_preview(-motion.relative.x * ROTATE_SPEED)
+
+
+func _finger_span() -> float:
+	var points: Array[Vector2] = _fingers.values()
+	return points[0].distance_to(points[1]) if points.size() >= 2 else 0.0
 
 
 func _place_camera() -> void:
 	if _camera == null:
 		return
 	var center: Vector3 = _layout.fortress_center
-	var offset: Vector3 = Vector3(0.0, 64.0, 55.0).rotated(Vector3.UP, _yaw)
+	var offset: Vector3 = (Vector3(0.0, 64.0, 55.0) * _distance).rotated(Vector3.UP, _yaw)
 	_camera.look_at_from_position(center + offset, center + Vector3(0.0, 2.0, 0.0))
 
 
