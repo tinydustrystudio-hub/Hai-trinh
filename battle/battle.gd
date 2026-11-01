@@ -47,8 +47,10 @@ var speed: float = 1.0
 var choosing_branch: bool = false
 ## Cảnh thử hiệu năng: không có đợt, luôn giữ đủ MAX_ACTIVE_ENEMIES địch, đảo không chìm.
 var stress_mode: bool = false
-## Mili giây từ lúc chạy game tới lúc trận sẵn sàng (kế hoạch mục 7: không quá 3 giây).
+## Mili giây từ lúc dựng trận (bấm Xuất kích, hay mở thẳng bằng ?play) tới lúc trận sẵn sàng (kế hoạch mục 7: không quá 3 giây).
+## Không tính thời gian khởi động engine và thời gian người chơi ở menu.
 var ready_msec: int = 0
+var _created_msec: int = 0
 
 var towers: Array[Tower] = []
 
@@ -90,6 +92,10 @@ var deployer: IslandDeployer
 var tutorial: TutorialHints
 var fade: ScreenFade
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
+
+
+func _init() -> void:
+	_created_msec = Time.get_ticks_msec()
 
 
 func _ready() -> void:
@@ -147,7 +153,7 @@ func _ready() -> void:
 	_apply_quality(Settings.water_quality)
 	_enemy_types = enemy_types_in(wave_data)
 	start_battle()
-	ready_msec = Time.get_ticks_msec()
+	ready_msec = Time.get_ticks_msec() - _created_msec
 
 
 func _process(delta: float) -> void:

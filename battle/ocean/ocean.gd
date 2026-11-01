@@ -54,9 +54,17 @@ var rain_amount: float = 0.0
 ## Đồng hồ sóng riêng: chạy nhanh hay chậm theo sea_speed nên đổi tốc độ không làm sóng nhảy pha.
 var sea_time: float = 0.0
 
-static var _normal_a: NoiseTexture2D
-static var _normal_b: NoiseTexture2D
-static var _foam_noise: NoiseTexture2D
+## Ba texture nhiễu liền mạch dựng sẵn thành ảnh (tools/bake_noise.gd): không phải sinh nhiễu lúc vào trận, vốn tốn
+## hàng trăm mili giây trên điện thoại và bản web (không có luồng phụ).
+const NORMAL_A: Texture2D = preload("res://assets/textures/water_normal_a.png")
+const NORMAL_B: Texture2D = preload("res://assets/textures/water_normal_b.png")
+const FOAM_NOISE: Texture2D = preload("res://assets/textures/water_foam_noise.png")
+## Thông số sinh ba texture trên (cho công cụ dựng sẵn): tên file, hạt giống, tần số, có phải normal map.
+const NOISE_SPECS: Array[Dictionary] = [
+	{"name": "water_normal_a", "seed": 11, "frequency": 0.018, "normal": true},
+	{"name": "water_normal_b", "seed": 23, "frequency": 0.04, "normal": true},
+	{"name": "water_foam_noise", "seed": 7, "frequency": 0.03, "normal": false},
+]
 
 var quality: Quality = Quality.HIGH
 
@@ -259,25 +267,18 @@ static func make_waves(wave_seed: int) -> Array:
 	return [result_waves, result_shapes, result_motions]
 
 
-## Nhiễu liền mạch dùng chung cho bọt (quanh đảo, sau đuôi tàu).
-static func foam_noise() -> NoiseTexture2D:
-	if _foam_noise == null:
-		_foam_noise = _noise_texture(7, 0.03, false)
-	return _foam_noise
+## Nhiễu liền mạch dùng chung cho bọt (quanh đảo, sau đuôi tàu) và mây phản chiếu.
+static func foam_noise() -> Texture2D:
+	return FOAM_NOISE
 
 
-## Hai normal map cuộn, dựng bằng nhiễu lúc chạy (không cần file ảnh).
-static func _normal_map(index: int) -> NoiseTexture2D:
-	if index == 0:
-		if _normal_a == null:
-			_normal_a = _noise_texture(11, 0.018, true)
-		return _normal_a
-	if _normal_b == null:
-		_normal_b = _noise_texture(23, 0.04, true)
-	return _normal_b
+## Hai normal map cuộn.
+static func _normal_map(index: int) -> Texture2D:
+	return NORMAL_A if index == 0 else NORMAL_B
 
 
-static func _noise_texture(noise_seed: int, frequency: float, as_normal: bool) -> NoiseTexture2D:
+## Sinh một texture nhiễu bằng code; chỉ công cụ dựng sẵn dùng (tools/bake_noise.gd).
+static func make_noise_texture(noise_seed: int, frequency: float, as_normal: bool) -> NoiseTexture2D:
 	var noise: FastNoiseLite = FastNoiseLite.new()
 	noise.seed = noise_seed
 	noise.frequency = frequency
