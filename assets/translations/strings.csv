@@ -142,4 +142,4 @@ DEBUG_LIGHT,Ánh sáng: %s,Lighting: %s
 LIGHT_DAY,Ban ngày,Day
 LIGHT_DAWN,Bình minh,Dawn
 LIGHT_DUSK,Hoàng hôn,Dusk
-ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra một ô lam (%d vàng).","Drag an orange-ringed island onto a blue spot (%d gold)."
+ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra chỗ trống tuỳ ý trên biển, đảo sẽ được lai dắt tới (%d vàng).","Drag an orange-ringed island to any open water; it is towed there (%d gold)."

@@ -21,6 +21,9 @@ extends Resource
 @export var island_buy_step: int = 50
 ## Phí dời một đảo đã đặt = giá xây lô cốt rẻ nhất nhân hệ số này (làm tròn xuống, tối thiểu 1).
 @export_range(0.0, 1.0) var island_move_ratio: float = 0.5
+## Kéo đảo như kéo xà lan: tốc độ tối đa (đơn vị Godot mỗi giây) và gia tốc khởi hành/phanh (đơn vị mỗi giây bình phương).
+@export var island_tow_speed: float = 7.0
+@export var island_tow_accel: float = 3.0
 
 
 ## Giá mua đảo mua thêm thứ n (đếm từ 1; đảo cấp sẵn không tính).
