@@ -27,6 +27,8 @@ var pads: Array[TowerPad] = []
 var beacons: LaneBeacons
 ## Từng đảo vệ tinh, mỗi đảo một nút để dập dìu riêng.
 var satellites: Array[Node3D] = []
+## Hệ số dập dìu của thời tiết (bão cho đảo dập dìu nhiều hơn).
+var bob_scale: float = 1.0
 
 var _body: Node3D
 var _tilt_degrees: float = 0.0
@@ -103,13 +105,13 @@ func tilt_degrees() -> float:
 func bob(ocean: Ocean, time: float) -> void:
 	if _layout == null:
 		return
-	var body_pose: Vector3 = sample_pose(ocean, _layout.fortress_center, _fortress_radius, time)
+	var body_pose: Vector3 = sample_pose(ocean, _layout.fortress_center, _fortress_radius, time, bob_scale)
 	_body.position = _layout.fortress_center + Vector3(0.0, body_pose.x, 0.0)
 	_body_rock = Vector3(body_pose.y, 0.0, body_pose.z)
 	_apply_body_pose()
 	for k: int in satellites.size():
 		var center: Vector3 = _layout.satellite_centers[k]
-		var pose: Vector3 = sample_pose(ocean, center, _satellite_radius, time)
+		var pose: Vector3 = sample_pose(ocean, center, _satellite_radius, time, bob_scale)
 		satellites[k].position = center + Vector3(0.0, pose.x, 0.0)
 		satellites[k].rotation_degrees = Vector3(pose.y, 0.0, pose.z)
 
@@ -120,8 +122,8 @@ func _apply_body_pose() -> void:
 
 
 ## Độ nhấp nhô và lắc của một đảo tâm center, bán kính radius: (độ cao, nghiêng quanh x, nghiêng quanh z), độ.
-static func sample_pose(ocean: Ocean, center: Vector3, radius: float, time: float) -> Vector3:
-	var gain: float = bob_gain(radius)
+static func sample_pose(ocean: Ocean, center: Vector3, radius: float, time: float, scale: float = 1.0) -> Vector3:
+	var gain: float = bob_gain(radius) * scale
 	var reach: float = maxf(radius * 0.6, 1.0)
 	var here: float = ocean.height_at(center.x, center.z, time)
 	var north: float = ocean.height_at(center.x, center.z - reach, time)
@@ -129,8 +131,8 @@ static func sample_pose(ocean: Ocean, center: Vector3, radius: float, time: floa
 	var east: float = ocean.height_at(center.x + reach, center.z, time)
 	var west: float = ocean.height_at(center.x - reach, center.z, time)
 	# Bắc (−z) cao hơn nam thì mũi bắc ngẩng lên: quay quanh x theo chiều âm đảo dấu.
-	var pitch: float = clampf(rad_to_deg(atan2(north - south, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES, MAX_ROCK_DEGREES)
-	var roll: float = clampf(rad_to_deg(atan2(west - east, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES, MAX_ROCK_DEGREES)
+	var pitch: float = clampf(rad_to_deg(atan2(north - south, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES * scale, MAX_ROCK_DEGREES * scale)
+	var roll: float = clampf(rad_to_deg(atan2(west - east, reach * 2.0)) * gain * ROCK_SCALE, -MAX_ROCK_DEGREES * scale, MAX_ROCK_DEGREES * scale)
 	return Vector3(here * gain * HEAVE_SCALE, -pitch, roll)
 
 

@@ -6,11 +6,13 @@
 script = ExtResource("1_weather")
 id = &"storm"
 name_key = &"WEATHER_STORM"
-wave_boost = 2.2
-wind_swing = 0.6
-wind_period = 22.0
+wave_boost = 2.8
+wind_swing = 0.35
+wind_period = 40.0
 chop = 1.8
 rain = 0.8
 darkness = 0.5
 lightning_min_seconds = 5.0
 lightning_max_seconds = 12.0
+wave_speed = 0.55
+bob_scale = 2.4

@@ -148,3 +148,51 @@ func test_weather_is_selectable_by_launch_value() -> void:
 	assert_eq(Settings.query_value("?weather=storm&debug", "weather"), "storm")
 	assert_eq(Settings.query_value("?debug", "weather"), "")
 	assert_eq(Settings.query_value("", "weather"), "")
+
+
+func test_storm_waves_are_bigger_but_not_faster() -> void:
+	# Người duyệt (1/11): bão làm sóng to hơn và đảo dập dìu nhiều hơn, tốc độ không cần quá nhanh.
+	var clear: WeatherData = Weather.by_id(&"clear")
+	var rain: WeatherData = Weather.by_id(&"rain")
+	var storm: WeatherData = Weather.by_id(&"storm")
+	assert_gt(storm.wave_boost, 2.5)
+	assert_gt(storm.wave_boost, rain.wave_boost)
+	assert_lte(storm.wave_speed, rain.wave_speed)
+	assert_lte(rain.wave_speed, clear.wave_speed)
+	assert_lt(storm.wave_speed, 0.7, "bão chậm hơn bình thường")
+	assert_gt(storm.bob_scale, rain.bob_scale)
+	assert_gt(rain.bob_scale, clear.bob_scale)
+	assert_lte(storm.wind_swing, 0.4, "gió đổi chiều nhưng không làm sóng quay vèo")
+	assert_gte(storm.wind_period, 30.0)
+
+
+func test_sea_clock_follows_speed_without_jumping() -> void:
+	_battle.set_weather(&"storm")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
+	assert_almost_eq(_battle.ocean.sea_speed, Weather.by_id(&"storm").wave_speed, 0.001)
+	var before: float = _battle.ocean.sea_time
+	_battle.ocean._process(2.0)
+	assert_almost_eq(_battle.ocean.sea_time - before, 2.0 * _battle.ocean.sea_speed, 0.0001)
+	# Đổi tốc độ không làm sea_time nhảy: chỉ tốc độ tăng sau đó thay đổi.
+	var at_change: float = _battle.ocean.sea_time
+	_battle.set_weather(&"clear")
+	_battle.weather.advance(0.0, 5.0)
+	assert_eq(_battle.ocean.sea_time, at_change)
+
+
+func test_island_bob_scale_follows_weather() -> void:
+	assert_eq(_battle.island.bob_scale, 1.0)
+	_battle.set_weather(&"storm")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
+	assert_almost_eq(_battle.island.bob_scale, Weather.by_id(&"storm").bob_scale, 0.001)
+	var layout: MapLayout = _battle.layout
+	var calm: Vector3 = Island.sample_pose(_battle.ocean, layout.satellite_centers[0], layout.satellite_radius, 3.0, 1.0)
+	var rough: Vector3 = Island.sample_pose(_battle.ocean, layout.satellite_centers[0], layout.satellite_radius, 3.0, 2.4)
+	assert_gt(absf(rough.x), absf(calm.x) * 1.5, "bão: đảo nhấp nhô nhiều hơn")
+
+
+func test_rain_reaches_the_sea_surface() -> void:
+	assert_eq(_battle.ocean.rain_amount, 0.0)
+	_battle.set_weather(&"rain")
+	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
+	assert_gt(_battle.ocean.rain_amount, 0.3, "mặt biển có gợn mưa rơi")

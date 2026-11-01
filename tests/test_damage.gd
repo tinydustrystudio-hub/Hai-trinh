@@ -31,7 +31,8 @@ func test_machine_gun_levels_from_gdd() -> void:
 		assert_eq(level.steel_cost, expected[i][0])
 		assert_eq(level.damage, expected[i][1])
 		assert_eq(level.fire_rate, expected[i][2])
-		assert_almost_eq(level.range_cells, expected[i][3], 0.0001)
+		# Người duyệt (1/11): tầm bắn mọi lô cốt tăng 25% so với số trong GDD.
+		assert_almost_eq(level.range_cells, expected[i][3] * TowerData.RANGE_BONUS, 0.0001)
 	assert_true(MG.can_target(EnemyData.Layer.SURFACE))
 	assert_false(MG.can_target(EnemyData.Layer.AIR))
 

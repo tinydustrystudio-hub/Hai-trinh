@@ -11,7 +11,7 @@ float hash(float n) {
 
 // columns: số cột; fall: màn hình mỗi giây; streak: độ dài vệt (tỉ lệ ô); width: độ mảnh; density: tỉ lệ cột có mưa.
 float layer(vec2 uv, float columns, float fall, float streak, float width, float density, float seed) {
-	vec2 p = vec2((uv.x + uv.y * slant) * columns * aspect, uv.y * 3.0 + TIME * fall * 3.0);
+	vec2 p = vec2((uv.x + uv.y * slant) * columns * aspect, uv.y * 3.0 - TIME * fall * 3.0);
 	float col = floor(p.x);
 	float y = p.y + hash(col + seed) * 23.0;
 	float cell = floor(y);

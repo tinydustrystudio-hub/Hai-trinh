@@ -166,7 +166,7 @@ func step(delta: float) -> void:
 	if stress_mode:
 		spawn_burst(MAX_ACTIVE_ENEMIES - enemy_pool.active_count())
 	island.set_tilt(buoyancy.tilt_degrees())
-	island.bob(ocean, enemy_pool.wave_time())
+	island.bob(ocean, ocean.sea_time)
 
 
 func start_battle() -> void:
@@ -428,6 +428,7 @@ func _build_weather() -> void:
 	weather.name = "Weather"
 	add_child(weather)
 	weather.attach(ocean, sun, rain_fx, lightning_fx)
+	weather.island = island
 	var wanted: StringName = StringName(Settings.launch_value("weather"))
 	weather.set_weather(Weather.by_id(wanted), true)
 

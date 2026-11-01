@@ -46,6 +46,9 @@ uniform float wave_boost = 1.0;
 uniform float wind_angle = 0.0;
 uniform float sea_dim : hint_range(0.0, 1.0) = 0.0;
 uniform float chop = 1.0;
+// Đồng hồ sóng (chạy nhanh chậm theo thời tiết) và mức mưa rơi: gợn nước tròn lan ra trên mặt biển.
+uniform float sea_time = 0.0;
+uniform float rain_amount : hint_range(0.0, 1.0) = 0.0;
 uniform float gravity = 9.8;
 // 1 = đủ chi tiết (hai lớp normal map, mây hai lớp, lấp lánh); 0 = rẻ.
 uniform int detail : hint_range(0, 1) = 1;
@@ -89,7 +92,7 @@ void vertex() {
 		if (i >= wave_count) {
 			break;
 		}
-		offset += gerstner(waves[i], wave_shapes[i], wave_motions[i], world, TIME, tangent, binormal);
+		offset += gerstner(waves[i], wave_shapes[i], wave_motions[i], world, sea_time, tangent, binormal);
 	}
 	VERTEX += offset;
 	v_world = world + offset;
@@ -150,6 +153,20 @@ void fragment() {
 		float blink = smoothstep(0.0, 0.08, life) * (1.0 - smoothstep(0.12, 0.3, life));
 		float facet = smoothstep(0.25, 0.7, length(tilt)) * (0.6 + 0.4 * h);
 		color += mix(sun_color.rgb, vec3(1.0), 0.3) * chosen * blink * facet * sparkle_strength * (1.0 - sea_dim);
+	}
+	// Mưa rơi xuống biển: mỗi ô nước có một giọt rơi ở chỗ ngẫu nhiên, gợn vòng tròn lan ra rồi tan.
+	if (rain_amount > 0.0 && detail > 0) {
+		vec2 grid = v_world.xz * 0.7;
+		vec2 cell = floor(grid);
+		float drop = hash(cell + 3.7);
+		float phase = fract(TIME * (0.55 + drop * 0.5) + drop * 9.0);
+		float epoch = floor(TIME * (0.55 + drop * 0.5) + drop * 9.0);
+		vec2 center = cell + 0.25 + 0.5 * vec2(hash(cell + epoch * 1.3), hash(cell + epoch * 2.1 + 5.0));
+		float d = distance(grid, center);
+		float radius = phase * 0.32;
+		float ring = (1.0 - smoothstep(0.0, 0.035, abs(d - radius))) * (1.0 - phase);
+		float active = step(hash(cell + epoch * 0.7 + 11.0), rain_amount * 0.55);
+		color += vec3(0.62, 0.74, 0.88) * ring * active * 0.55;
 	}
 	// Trời tối (mưa, bão): biển tối và xám đi.
 	float grey = dot(color, vec3(0.3, 0.55, 0.15));

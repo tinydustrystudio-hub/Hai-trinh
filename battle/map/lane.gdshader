@@ -19,5 +19,6 @@ void fragment() {
 	vec4 color = mix(base_color, chevron_color, chevron);
 	color = mix(color, edge_color, edge);
 	ALBEDO = color.rgb;
-	ALPHA = color.a * strength;
+	// Chỉ dẫn nhẹ: tối đa còn khoảng 40% độ rõ gốc để không át cảnh trận.
+	ALPHA = color.a * strength * 0.4;
 }

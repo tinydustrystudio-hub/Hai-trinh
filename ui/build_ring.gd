@@ -1,7 +1,9 @@
 class_name BuildRing
 extends Control
 ## Vòng chọn lô cốt mở quanh bệ vừa chạm (GDD mục 7.10): mỗi lô cốt một nút tròn kèm giá Thép;
-## thiếu Thép thì nút xám và không bấm được. Nút tối thiểu 120 px.
+## thiếu Tiền Vàng thì nút xám và không bấm được. Chạm một lô cốt chỉ để xem trước: hiện tầm bắn trên bệ và hai nút
+## tròn nhỏ có biểu tượng, dấu tích (xây) và dấu nhân (hủy), đặt ngay cạnh bệ (người duyệt 1/11). Giá nằm trên nút
+## lô cốt đang chọn và trong chú giải của nút xây. Nút tối thiểu 120 px.
 
 ## Người chơi bấm Xây sau khi đã chọn một lô cốt.
 signal tower_chosen(data: TowerData)
@@ -14,10 +16,9 @@ const BUTTON_SIZE: float = 168.0
 const RADIUS: float = 165.0
 ## Các nút xếp trên cung phía trên bệ, từ trái sang phải.
 const ARC_DEGREES: float = 70.0
-const CONFIRM_SIZE: Vector2 = Vector2(360, 150)
-const CANCEL_SIZE: Vector2 = Vector2(240, 150)
-## Chừa chỗ cho khay MEGA (nút 150 px) ở sát đáy.
-const TRAY_CLEARANCE: float = 150.0 + 24.0
+## Tâm cặp nút xác nhận so với bệ, thử theo thứ tự, lấy chỗ đầu tiên lọt màn hình và không đè nút lô cốt.
+const CONFIRM_OFFSETS: Array[Vector2] = [Vector2(0, 100), Vector2(0, 125), Vector2(0, -330), Vector2(230, 20), Vector2(-230, 20), Vector2(0, 175)]
+const GAP: float = 16.0
 
 var options: Array[TowerData] = []
 var anchor: Vector2 = Vector2.ZERO
@@ -34,16 +35,16 @@ var _cancel: Button
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	_confirm = UiStyle.primary_button(&"BUILD_CONFIRM", CONFIRM_SIZE)
+	_confirm = IconButton.new()
 	_confirm.name = "Confirm"
-	_confirm.add_theme_font_size_override(&"font_size", 38)
+	(_confirm as IconButton).setup(IconButton.Kind.CHECK, UiStyle.RESCUE_ORANGE, UiStyle.PRIMARY_PRESSED)
 	_confirm.pressed.connect(_on_confirm)
 	add_child(_confirm)
-	_cancel = UiStyle.secondary_button(&"BUILD_CANCEL", CANCEL_SIZE)
+	_cancel = IconButton.new()
 	_cancel.name = "Cancel"
+	(_cancel as IconButton).setup(IconButton.Kind.CROSS, UiStyle.GRAPHITE.lightened(0.1), UiStyle.GRAPHITE.darkened(0.1))
 	_cancel.pressed.connect(_on_cancel)
 	add_child(_cancel)
-	_place_confirm_buttons()
 	get_viewport().size_changed.connect(_place_confirm_buttons)
 	visible = false
 
@@ -122,18 +123,42 @@ func _style(button: Button, data: TowerData) -> void:
 	button.modulate = Color(1.0, 1.0, 1.0) if data == previewed or previewed == null else Color(0.78, 0.78, 0.78)
 
 
+## Đặt hai nút tròn cạnh bệ ở chỗ trống đầu tiên: lọt màn hình và không đè các nút lô cốt.
 func _place_confirm_buttons() -> void:
 	if _confirm == null:
 		return
 	var screen: Vector2 = get_viewport_rect().size
-	var bottom: float = screen.y - UiStyle.MARGIN * 2 - TRAY_CLEARANCE
-	_confirm.size = CONFIRM_SIZE
-	_cancel.size = CANCEL_SIZE
-	_confirm.position = Vector2(screen.x - UiStyle.MARGIN * 2 - CONFIRM_SIZE.x, bottom - CONFIRM_SIZE.y)
-	_cancel.position = Vector2(_confirm.position.x - 16.0 - CANCEL_SIZE.x, bottom - CANCEL_SIZE.y)
+	var full: Rect2 = Rect2(Vector2.ZERO, screen)
+	var pair: Vector2 = Vector2(IconButton.SIZE * 2.0 + GAP, IconButton.SIZE)
+	for offset: Vector2 in CONFIRM_OFFSETS:
+		var left: Vector2 = anchor + offset - pair * 0.5
+		var area: Rect2 = Rect2(left, pair)
+		if not full.encloses(area.grow(UiStyle.MARGIN * 0.25)):
+			continue
+		if _overlaps_options(area):
+			continue
+		_set_pair(left)
+		return
+	# Không chỗ nào hợp lệ: ép vào trong màn hình ở vị trí đầu tiên.
+	var fallback: Vector2 = anchor + CONFIRM_OFFSETS[0] - pair * 0.5
+	_set_pair(Vector2(clampf(fallback.x, UiStyle.MARGIN, screen.x - pair.x - UiStyle.MARGIN), clampf(fallback.y, UiStyle.MARGIN, screen.y - pair.y - UiStyle.MARGIN)))
 
 
-## Nút Xây và Hủy chỉ hiện khi đã chọn một lô cốt; Xây xám nếu thiếu Thép.
+func _set_pair(left: Vector2) -> void:
+	_cancel.position = left
+	_confirm.position = left + Vector2(IconButton.SIZE + GAP, 0.0)
+	_cancel.size = Vector2(IconButton.SIZE, IconButton.SIZE)
+	_confirm.size = Vector2(IconButton.SIZE, IconButton.SIZE)
+
+
+func _overlaps_options(area: Rect2) -> bool:
+	for button: Button in _buttons:
+		if Rect2(button.position, button.size).grow(GAP * 0.5).intersects(area):
+			return true
+	return false
+
+
+## Nút xác nhận và hủy chỉ hiện khi đã chọn một lô cốt; nút xác nhận xám nếu thiếu Tiền Vàng.
 func _refresh_confirm() -> void:
 	if _confirm == null:
 		return
@@ -141,8 +166,10 @@ func _refresh_confirm() -> void:
 	_confirm.visible = showing
 	_cancel.visible = showing
 	if showing:
-		_confirm.text = "%s\n%s %d" % [tr(&"BUILD_CONFIRM"), tr(previewed.name_key), previewed.level(1).steel_cost]
+		_place_confirm_buttons()
+		_confirm.tooltip_text = "%s %s %d" % [tr(&"BUILD_CONFIRM"), tr(previewed.name_key), previewed.level(1).steel_cost]
 		_confirm.disabled = previewed.level(1).steel_cost > _steel
+		(_confirm as IconButton).refresh_glyph()
 
 
 func _on_pressed(data: TowerData) -> void:

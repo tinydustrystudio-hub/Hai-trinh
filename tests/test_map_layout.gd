@@ -3,8 +3,8 @@ extends GutTest
 ## (6 trên mỏm bến, 4 trên đảo vệ tinh); bệ không chồng nhau, không đè luồng và đều có luồng trong tầm.
 
 const LAYOUT: MapLayout = preload("res://data/maps/north_dock_layout.tres")
-## Tầm cấp 1 nhỏ nhất ở Phần 3 GDD là 2,5 ô (Lô Cốt Keo).
-const MIN_TOWER_RANGE_CELLS: float = 2.5
+## Tầm cấp 1 nhỏ nhất ở Phần 3 GDD là 2,5 ô (Lô Cốt Keo), cộng 25% theo người duyệt.
+const MIN_TOWER_RANGE_CELLS: float = 2.5 * TowerData.RANGE_BONUS
 
 var _lanes: Array[Lane] = []
 

@@ -83,8 +83,8 @@ func test_preview_shows_range_and_confirm_buttons() -> void:
 	assert_true(ring.confirm_button().visible)
 	assert_true(ring.cancel_button().visible)
 	assert_almost_eq(pad.range_shown(), MG.level(1).range_units(), 0.001)
-	assert_string_contains(ring.confirm_button().text, "Xây")
-	assert_string_contains(ring.confirm_button().text, "70")
+	assert_string_contains(ring.confirm_button().tooltip_text, "Xây")
+	assert_string_contains(ring.confirm_button().tooltip_text, "70")
 	# Đổi sang lô cốt khác: tầm đổi theo, vẫn chưa xây.
 	var glue: TowerData = _battle.tower_choices[1]
 	ring.buttons()[1].pressed.emit()
@@ -117,22 +117,27 @@ func test_confirm_greys_out_when_steel_drops() -> void:
 	assert_true(ring.confirm_button().disabled)
 
 
-func test_confirm_buttons_big_bottom_right_and_clear_of_tray() -> void:
+func test_confirm_buttons_are_small_icons_beside_the_pad() -> void:
+	# Người duyệt (1/11): nút xác nhận đặt ngay chỗ lô cốt, nhỏ gọn, dạng biểu tượng.
 	var ring: BuildRing = _battle.hud.build_ring
-	ring.open(Vector2(900, 500), _battle.tower_choices, 200)
-	ring.buttons()[0].pressed.emit()
 	var screen: Vector2 = ring.get_viewport_rect().size
-	var confirm: Rect2 = ring.confirm_button().get_global_rect()
-	var cancel: Rect2 = ring.cancel_button().get_global_rect()
-	assert_gte(confirm.size.x, 120.0)
-	assert_gte(confirm.size.y, 120.0)
-	assert_gte(cancel.size.y, 120.0)
-	assert_gt(confirm.get_center().x, screen.x * 0.6, "Xây ở bên phải")
-	assert_gt(confirm.get_center().y, screen.y * 0.6, "và ở nửa dưới")
-	assert_false(confirm.intersects(cancel))
-	assert_lte(confirm.end.y, screen.y - UiStyle.MARGIN * 2 - MegaTray.BUTTON_SIZE, "không đè khay MEGA")
-	assert_true(Rect2(Vector2.ZERO, screen).encloses(confirm))
-	assert_true(Rect2(Vector2.ZERO, screen).encloses(cancel))
+	for at: Vector2 in [Vector2(900, 500), Vector2(960, 900), Vector2(150, 300), Vector2(1800, 1000), Vector2(960, 120)]:
+		ring.open(at, _battle.tower_choices, 200)
+		ring.buttons()[0].pressed.emit()
+		var confirm: Rect2 = ring.confirm_button().get_global_rect()
+		var cancel: Rect2 = ring.cancel_button().get_global_rect()
+		assert_true(ring.confirm_button() is IconButton)
+		assert_eq(ring.confirm_button().text, "", "chỉ có biểu tượng, không chữ")
+		assert_gte(confirm.size.x, 120.0, "nút ≥ 120 px")
+		assert_lte(confirm.size.x, 140.0, "nhưng gọn")
+		assert_gte(cancel.size.y, 120.0)
+		assert_false(confirm.intersects(cancel))
+		assert_true(Rect2(Vector2.ZERO, screen).encloses(confirm))
+		assert_true(Rect2(Vector2.ZERO, screen).encloses(cancel))
+		assert_lt(confirm.get_center().distance_to(at), 360.0, "ngay cạnh bệ, không ở góc màn hình")
+		for button: Button in ring.buttons():
+			assert_false(button.get_global_rect().intersects(confirm), "không đè nút lô cốt tại %s" % at)
+			assert_false(button.get_global_rect().intersects(cancel))
 
 
 func test_upgrade_ring_shows_range_of_built_tower() -> void:
