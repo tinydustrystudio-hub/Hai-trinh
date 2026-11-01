@@ -5,7 +5,7 @@ extends CanvasLayer
 ## - trên giữa: báo đợt sắp tới (giây còn lại, tầng địch); hướng địch tới do đèn báo trên đảo chính chỉ;
 ## - trên phải: Tiền Vàng (đồng xu và số), nút ×1/×2, nút Tạm dừng;
 ## - dưới trái: Gọi đợt sớm khi đang chờ đợt kế;
-## - dưới phải: khay MEGA.
+## - MEGA: chạm thẳng lô cốt đang nhấp nháy hào quang (khay nút MEGA ở góc dưới phải đã ẩn).
 ## Kèm vòng chọn lô cốt, vòng nâng cấp, thẻ chọn nhánh, màn Tạm dừng và màn kết quả.
 ## Chỉ nghe Events; lệnh gửi về BattleController qua tín hiệu.
 
@@ -49,6 +49,8 @@ func _ready() -> void:
 	_build_top_right()
 	_build_bottom_left()
 	mega_tray.reparent(frame)
+	# MEGA kích bằng cách chạm vào lô cốt đang nhấp nháy (người duyệt 1/11); khay nút ở góc dưới phải không dùng nữa.
+	mega_tray.visible = false
 	apply_safe_area()
 	get_viewport().size_changed.connect(apply_safe_area)
 	result_panel.retry_requested.connect(retry_requested.emit)

@@ -14,7 +14,11 @@ const MIN_SPEED: float = 0.5
 const RELEASE_STILL_TIME: float = 0.08
 ## Hệ số làm mượt khi ước lượng vận tốc kéo.
 const VELOCITY_SMOOTHING: float = 0.35
+## Góc nhìn dọc khi màn hình từ 16:9 trở lên (điện thoại dài, máy tính bảng ngang).
 const FIELD_OF_VIEW: float = 44.0
+## Màn hình hẹp hơn tỉ lệ này (laptop 4:3, 16:10, cửa sổ web) thì giữ nguyên bề ngang nhìn thấy như ở 16:9, để cùng một
+## trận trông giống nhau trên web và điện thoại.
+const REFERENCE_ASPECT: float = 16.0 / 9.0
 
 ## Điểm nhìn trên mặt nước (x, z).
 var focus: Vector2 = Vector2.ZERO
@@ -35,6 +39,11 @@ var _last_move_usec: int = 0
 var _last_tick_usec: int = 0
 
 
+func _ready() -> void:
+	get_viewport().size_changed.connect(fit_aspect)
+	fit_aspect()
+
+
 func configure(layout: MapLayout) -> void:
 	bounds_zoomed_out = layout.camera_bounds
 	bounds_zoomed_in = layout.camera_zoom_bounds
@@ -42,10 +51,31 @@ func configure(layout: MapLayout) -> void:
 	min_distance = minf(layout.camera_min_distance, layout.camera_distance)
 	distance = layout.start_distance()
 	pitch_degrees = layout.camera_pitch_degrees
-	fov = FIELD_OF_VIEW
+	fit_aspect()
 	velocity = Vector2.ZERO
 	_update_bounds()
 	set_focus(layout.camera_start)
+
+
+## Chỉnh góc nhìn theo tỉ lệ màn hình hiện tại (gọi khi đổi kích thước cửa sổ).
+func fit_aspect() -> void:
+	var viewport: Viewport = get_viewport()
+	var aspect: float = REFERENCE_ASPECT
+	if viewport != null:
+		var rect: Vector2 = viewport.get_visible_rect().size
+		if rect.y > 0.0:
+			aspect = rect.x / rect.y
+	var setup: Dictionary = aspect_setup(aspect)
+	keep_aspect = setup["keep"]
+	fov = setup["fov"]
+
+
+## Cách giữ góc nhìn theo tỉ lệ màn hình: từ 16:9 trở lên giữ chiều dọc; hẹp hơn giữ chiều ngang bằng bề ngang của 16:9.
+static func aspect_setup(aspect: float) -> Dictionary:
+	if aspect >= REFERENCE_ASPECT:
+		return { "keep": Camera3D.KEEP_HEIGHT, "fov": FIELD_OF_VIEW }
+	var horizontal: float = rad_to_deg(2.0 * atan(tan(deg_to_rad(FIELD_OF_VIEW) * 0.5) * REFERENCE_ASPECT))
+	return { "keep": Camera3D.KEEP_WIDTH, "fov": horizontal }
 
 
 func set_focus(value: Vector2) -> void:

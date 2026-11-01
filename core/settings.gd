@@ -7,6 +7,8 @@ signal water_quality_changed(quality: Ocean.Quality)
 ## Bật tắt âm thanh hoặc nhạc nền.
 signal audio_changed
 
+const DEFAULT_LOCALE: String = "vi"
+
 var water_quality: Ocean.Quality = Ocean.Quality.HIGH:
 	set(value):
 		if water_quality == value:
@@ -41,6 +43,10 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		var query: Variant = JavaScriptBridge.eval("window.location.search", true)
 		_web_query = str(query) if query != null else ""
+	# Mặc định tiếng Việt trên mọi nền tảng (web theo ngôn ngữ trình duyệt thường ra tiếng Anh, điện thoại ra tiếng Việt
+	# làm bản chơi khác nhau); chọn tiếng khác bằng ?lang=en hoặc --lang=en cho tới khi có màn Cài đặt.
+	var wanted: String = launch_value("lang")
+	TranslationServer.set_locale(wanted if wanted in ["vi", "en"] else DEFAULT_LOCALE)
 	# Máy không có màn hình (CI, test) thì khung/giây vô nghĩa; ?hq giữ chất lượng cao (chụp ảnh, so sánh).
 	if DisplayServer.get_name() == "headless" or launch_flag("hq"):
 		auto_lower_quality = false

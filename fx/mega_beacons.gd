@@ -1,7 +1,9 @@
 class_name MegaBeacons
 extends MultiMeshInstance3D
-## Đèn báo MEGA (góp ý 3 của đạo diễn): lô cốt nào đang MEGA thì có một vòng LED quay quanh chân và một cột
-## sáng dựng thẳng lên; cột thấp dần theo thời gian MEGA còn lại, hết MEGA thì tắt. Mọi lô cốt chung một
+## Đèn báo MEGA (góp ý 3 và 8 của người duyệt): lô cốt nào đang MEGA thì có một vòng LED quay quanh chân và một cột
+## sáng dựng thẳng lên; cột thấp dần theo thời gian MEGA còn lại, hết MEGA thì tắt. Lô cốt vừa đầy thanh Quá tải và
+## đang chờ kích (READY) thì nhấp nháy hào quang vàng như "siêu xay da": vòng chớp nhanh, ngọn lửa sáng bập bùng quanh
+## thân; chạm vào chính lô cốt đó để kích MEGA, không còn khay nút ở góc màn hình. Mọi lô cốt chung một
 ## MultiMesh (một lệnh vẽ); chỉ là đèn báo, nhẹ hơn nhiều so với hiệu ứng MEGA đầy đủ nên không tính vào
 ## giới hạn 2 hiệu ứng MEGA đầy đủ.
 
@@ -12,6 +14,8 @@ const RING_OUTER: float = 2.75
 const RING_Y: float = TowerPad.TOP_HEIGHT + 0.25
 const BEAM_RADIUS: float = 0.5
 const BEAM_HEIGHT: float = 9.0
+## Chiều cao ngọn lửa hào quang của lô cốt sẵn sàng (tỉ lệ cột sáng).
+const READY_FLAME: float = 0.6
 const SEGMENTS: int = 32
 ## Kênh đỏ của màu đỉnh: 0 = vòng LED, 1 = cột sáng.
 const RING_TAG: float = 0.0
@@ -33,17 +37,20 @@ func _ready() -> void:
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
-## Đặt đèn cho các lô cốt đang MEGA; trả số đèn đang bật.
+## Đặt đèn cho các lô cốt đang MEGA hoặc sẵn sàng kích; trả số đèn đang bật.
 func update_beacons(towers: Array[Tower]) -> int:
 	var used: int = 0
 	for tower: Tower in towers:
 		if used >= MAX_TOWERS:
 			break
-		if tower.overload.state != Overload.State.MEGA:
+		var state: Overload.State = tower.overload.state
+		if state != Overload.State.MEGA and state != Overload.State.READY:
 			continue
 		multimesh.set_instance_transform(used, Transform3D(Basis.IDENTITY, tower.global_position))
-		# r = phần MEGA còn lại (cột sáng thấp dần), g = pha riêng để các đèn không quay cùng nhịp.
-		multimesh.set_instance_custom_data(used, Color(tower.overload.display_fill(), float(tower.get_instance_id() % 97) / 97.0, 0.0, 0.0))
+		# r = phần MEGA còn lại (cột sáng thấp dần; READY thì ngọn lửa cố định), g = pha riêng để các đèn không
+		# nhịp cùng nhau, b = 1 khi đang chờ kích (hào quang nhấp nháy).
+		var left: float = READY_FLAME if state == Overload.State.READY else tower.overload.display_fill()
+		multimesh.set_instance_custom_data(used, Color(left, float(tower.get_instance_id() % 97) / 97.0, 1.0 if state == Overload.State.READY else 0.0, 0.0))
 		used += 1
 	multimesh.visible_instance_count = used
 	return used
