@@ -2,6 +2,9 @@ class_name TowerData
 extends Resource
 ## Số liệu một loại lô cốt và MEGA cơ bản của nó (GDD mục 3.1–3.4; kế hoạch tháng 1, mục 5.1).
 
+## Tầm bắn trong data/towers/*.tres đã nhân hệ số này so với số trong GDD (người duyệt chốt 1/11: +25%).
+const RANGE_BONUS: float = 1.25
+
 @export var id: StringName = &""
 ## Khóa tên trong bảng dịch.
 @export var name_key: StringName = &""

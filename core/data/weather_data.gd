@@ -11,6 +11,10 @@ extends Resource
 ## Gió đổi chiều: các lớp sóng quay quanh một góc dao động tối đa chừng này (radian), chu kỳ wind_period giây.
 @export var wind_swing: float = 0.0
 @export var wind_period: float = 24.0
+## Tốc độ chạy của sóng (1 = bình thường): bão cho sóng to nhưng chậm, đỡ chóng mặt.
+@export var wave_speed: float = 1.0
+## Đảo dập dìu nhiều hơn bao nhiêu lần (1 = bình thường).
+@export var bob_scale: float = 1.0
 ## Nhân độ gợn mặt nước (normal map).
 @export var chop: float = 1.0
 @export_group("Trời")

@@ -648,6 +648,8 @@ Nhánh "xuyên giáp" bỏ qua một phần mức giảm đó. Đơn vị tầm 
 - **Cho người chơi phổ thông:** ở mức Dễ có tùy chọn "Tự kích MEGA", tự kích khi có từ 5 địch trong tầm.
 - **Hiệu năng:** tối đa 2 hiệu ứng MEGA đầy đủ cùng lúc; từ cái thứ 3 trở đi dùng bản hiệu ứng nhẹ.
 
+**Tầm bắn của bản chơi thử (người duyệt chốt 1/11):** mọi tầm bắn ghi trong Phần 3 được nhân thêm 25% khi chơi (Súng Máy cấp 1 là 3,75 ô thay cho 3, Lô Cốt Keo cấp 1 là 3,125 ô thay cho 2,5…). Số trong các bảng dưới đây là số gốc; số đã nhân nằm trong `data/towers/*.tres`.
+
 ### 3.2 Chín lô cốt và số liệu MEGA
 
 | # | Lô cốt | Tầng đánh được | Vai trò | Mở ở | Nhánh 5A / 5B | MEGA riêng |
@@ -2133,7 +2135,7 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 - Camera nghiêng 55° nhìn vào tâm đảo; chỉ kéo trượt nhẹ.
 - Thu phóng: chụm hai ngón để phóng to, thu nhỏ; trên web dùng lăn chuột. Nhỏ nhất là thấy toàn bộ chiến trường (cả 4 luồng tới tận mép); lớn nhất là đảo chính gần đầy màn hình. Khi đã phóng to thì kéo một ngón để trượt, trong giới hạn bản đồ. Luôn giữ góc 55°, không xoay. Đang chụm thì không tính là chạm vào bệ hay địch.
 - Địch đến theo 4 luồng tỏa từ các mép màn hình: Bắc, Đông, Tây, Nam. Bốn phía cân bằng như nhau: bốn luồng dài gần bằng nhau (khoảng 31 ô), mỗi luồng có một đảo vệ tinh canh (góp ý 3, ngày 31/10). Bản đồ rộng hơn màn hình lúc vào trận nên đường đi dài; thu nhỏ để thấy toàn cảnh.
-- Luồng địch bình thường ẩn hẳn. Chỉ trong 10 giây trước khi con địch đầu tiên của luồng xuất hiện thì luồng hiện ra; địch xuất hiện thì luồng tắt.
+- Luồng địch bình thường ẩn hẳn; khi hiện chỉ mờ nhẹ (chỉ dẫn, không át cảnh trận). Chỉ trong 10 giây trước khi con địch đầu tiên của luồng xuất hiện thì luồng hiện ra; địch xuất hiện thì luồng tắt.
 - Hướng địch tới không ghi bằng chữ. Trên đảo chính có 4 cột đèn báo, đứng ở chỗ từng luồng cập đảo; trong 10 giây đó, đèn của luồng nháy đỏ cam và chiếu một vệt sáng quét ra mặt nước về phía địch sẽ tới. HUD chỉ ghi đợt mấy, còn bao nhiêu giây và tầng địch.
 - **Giãn cách địch (góp ý 4):** hai địch trên cùng luồng luôn cách nhau ít nhất nửa kích thước thân; địch càng mạnh (máu càng cao) càng cách xa, thêm 0,25 thân cho mỗi lần máu gấp đôi máu của địch yếu nhất (60). Địch đi sau dồn lại phía sau địch đi trước chứ không chồng lên; đàn sinh dày thì xếp hàng dài ra ở đầu luồng.
 - Bệ xếp thành hai vòng: 6 bệ trên các mỏm bến của đảo chính, 4 bệ trên 4 đảo vệ tinh.
@@ -2168,8 +2170,8 @@ Không lồng tiếng cả câu thoại: tiếng cảm thán không lời đủ 
 | Kiểu | Sóng | Trời | Gió | Âm thanh |
 | --- | --- | --- | --- | --- |
 | Bình thường | Như hiện tại | Nắng | Không đổi | Nhạc nền |
-| Mưa | Cao hơn (×1,6), gợn nhiều hơn | Mưa nhẹ, vệt mảnh, rơi chậm, xiên theo gió; trời tối nhẹ | Đổi chiều nhẹ | – |
-| Bão | Rất cao (×2,2), gợn mạnh | Mưa vừa, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục (các lớp sóng quay ±0,6 rad theo hai nhịp chồng nhau) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
+| Mưa | Cao hơn (×1,8), chạy chậm hơn một chút (×0,85), gợn nhiều hơn | Mưa nhẹ, vệt mảnh, rơi chậm xuống mặt biển, xiên theo gió, mặt biển nổi gợn tròn nơi giọt mưa rơi; trời tối nhẹ | Đổi chiều nhẹ | – |
+| Bão | Rất cao (×2,8), chạy chậm (×0,55) cho đỡ chóng mặt, gợn mạnh; đảo dập dìu nhiều hơn (×2,4) | Mưa vừa, trời tối, nắng yếu đi, sấm sét 5–12 giây một lần | Đổi chiều liên tục nhưng chậm (các lớp sóng quay ±0,35 rad theo hai nhịp chồng nhau, chu kỳ 40 giây) | Tiếng sấm tới chậm hơn tia chớp 0,25–1,6 giây |
 
 Chuyển kiểu mượt trong 4 giây. Tàu và đảo dập dìu theo đúng độ cao sóng đang có. Chọn kiểu thời tiết ở màn hình sau này theo từng bản đồ; bản thử tháng 1 dùng nút "Thời tiết" ở bảng debug hoặc `?weather=rain` / `?weather=storm`.
 

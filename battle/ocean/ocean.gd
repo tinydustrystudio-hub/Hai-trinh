@@ -42,6 +42,11 @@ var wave_boost: float = 1.0
 var wind_angle: float = 0.0
 var sea_dim: float = 0.0
 var chop: float = 1.0
+## Tốc độ chạy của sóng (1 = bình thường) và mức mưa rơi trên mặt biển (gợn nước).
+var sea_speed: float = 1.0
+var rain_amount: float = 0.0
+## Đồng hồ sóng riêng: chạy nhanh hay chậm theo sea_speed nên đổi tốc độ không làm sóng nhảy pha.
+var sea_time: float = 0.0
 
 static var _normal_a: NoiseTexture2D
 static var _normal_b: NoiseTexture2D
@@ -57,6 +62,12 @@ func _init() -> void:
 	waves = generated[0]
 	shapes = generated[1]
 	motions = generated[2]
+
+
+func _process(delta: float) -> void:
+	sea_time += delta * sea_speed
+	if _material != null:
+		_material.set_shader_parameter(&"sea_time", sea_time)
 
 
 func _ready() -> void:
@@ -77,7 +88,9 @@ func _ready() -> void:
 
 
 ## Đặt trạng thái biển (thời tiết); gọi mỗi khung khi gió đổi chiều.
-func set_sea_state(boost: float, wind: float, dim: float, chop_scale: float) -> void:
+func set_sea_state(boost: float, wind: float, dim: float, chop_scale: float, speed: float = 1.0, rain: float = 0.0) -> void:
+	sea_speed = speed
+	rain_amount = rain
 	wave_boost = boost
 	wind_angle = wind
 	sea_dim = dim
@@ -92,6 +105,8 @@ func _apply_sea_state() -> void:
 	_material.set_shader_parameter(&"wind_angle", wind_angle)
 	_material.set_shader_parameter(&"sea_dim", sea_dim)
 	_material.set_shader_parameter(&"chop", chop)
+	_material.set_shader_parameter(&"rain_amount", rain_amount)
+	_material.set_shader_parameter(&"sea_time", sea_time)
 
 
 ## Màu nắng, vùng nước sáng quanh đảo chính và vệt sáng phía sau đảo theo hướng nhìn của camera
@@ -129,10 +144,11 @@ func wave_count() -> int:
 	return mini(WAVE_COUNTS[quality], waves.size())
 
 
-## Độ cao mặt nước tại (x, z) ở thời điểm time (giây, cùng đồng hồ TIME của shader).
+## Độ cao mặt nước tại (x, z) theo đồng hồ sóng sea_time (cùng đồng hồ với shader); tham số time không dùng nữa,
+## giữ lại để các nơi gọi cũ không phải đổi.
 ## Bỏ qua phần dịch ngang của sóng Gerstner: đủ chính xác cho việc nhấp nhô tàu.
-func height_at(x: float, z: float, time: float) -> float:
-	return wave_height(waves, wave_count(), x, z, time, shapes, motions, wave_boost, wind_angle)
+func height_at(x: float, z: float, _time: float = 0.0) -> float:
+	return wave_height(waves, wave_count(), x, z, sea_time, shapes, motions, wave_boost, wind_angle)
 
 
 ## Tổng độ cao các sóng. shape_list (tùy chọn) làm biên độ từng sóng nhấp nhô dọc theo ngọn sóng.

@@ -27,6 +27,8 @@ var wave_boost: float = 1.0
 var wind_swing: float = 0.0
 var wind_period: float = 24.0
 var chop: float = 1.0
+var wave_speed: float = 1.0
+var bob_scale: float = 1.0
 var rain: float = 0.0
 var darkness: float = 0.0
 var wind: float = 0.0
@@ -35,6 +37,7 @@ var strikes: int = 0
 var ocean: Ocean
 var sun: DirectionalLight3D
 var rain_overlay: RainOverlay
+var island: Island
 var lightning_overlay: LightningOverlay
 
 var _sun_energy: float = 1.0
@@ -92,11 +95,15 @@ func apply(time: float) -> void:
 	wind_swing = lerpf(_from.wind_swing, data.wind_swing, t)
 	wind_period = lerpf(_from.wind_period, data.wind_period, t)
 	chop = lerpf(_from.chop, data.chop, t)
+	wave_speed = lerpf(_from.wave_speed, data.wave_speed, t)
+	bob_scale = lerpf(_from.bob_scale, data.bob_scale, t)
 	rain = lerpf(_from.rain, data.rain, t)
 	darkness = lerpf(_from.darkness, data.darkness, t)
 	wind = wind_angle(wind_swing, wind_period, time)
 	if ocean != null:
-		ocean.set_sea_state(wave_boost, wind, darkness, chop)
+		ocean.set_sea_state(wave_boost, wind, darkness, chop, wave_speed, rain)
+	if island != null:
+		island.bob_scale = bob_scale
 	if sun != null:
 		sun.light_energy = _sun_energy * (1.0 - darkness * SUN_DIM_MAX)
 	if rain_overlay != null:
@@ -139,6 +146,8 @@ func _current_as_data() -> WeatherData:
 	snapshot.wind_swing = wind_swing
 	snapshot.wind_period = wind_period
 	snapshot.chop = chop
+	snapshot.wave_speed = wave_speed
+	snapshot.bob_scale = bob_scale
 	snapshot.rain = rain
 	snapshot.darkness = darkness
 	return snapshot

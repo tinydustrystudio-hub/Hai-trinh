@@ -6,7 +6,7 @@ render_mode unshaded, blend_add, depth_draw_never, cull_disabled, shadows_disabl
 uniform vec4 active_flags = vec4(0.0);
 uniform vec4 beam_color : source_color = vec4(1.0, 0.36, 0.14, 1.0);
 uniform float beam_length = 26.0;
-uniform float strength = 0.9;
+uniform float strength = 0.45;
 uniform float pulse_speed = 9.0;
 uniform float pulse_spacing = 6.0;
 

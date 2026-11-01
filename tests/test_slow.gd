@@ -67,7 +67,7 @@ func test_glue_levels_from_gdd() -> void:
 		assert_eq(level.steel_cost, expected[i][0])
 		assert_almost_eq(level.slow_amount, expected[i][1], 0.0001)
 		assert_almost_eq(level.glue_radius_cells, expected[i][2], 0.0001)
-		assert_almost_eq(level.range_cells, expected[i][3], 0.0001)
+		assert_almost_eq(level.range_cells, expected[i][3] * TowerData.RANGE_BONUS, 0.0001)
 		assert_almost_eq(level.damage_per_second, expected[i][4], 0.0001)
 		assert_almost_eq(level.slow_duration, 2.0, 0.0001)
 		assert_almost_eq(level.fire_rate, 2.0, 0.0001, "phun mỗi 0,5 giây")

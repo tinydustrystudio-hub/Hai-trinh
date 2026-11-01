@@ -23,19 +23,19 @@ func test_branch_data_from_gdd() -> void:
 	assert_eq(MG.branches.size(), 2)
 	var rain: TowerBranch = MG.branches[0]
 	var piercer: TowerBranch = MG.branches[1]
-	assert_eq([rain.steel_cost, rain.damage, rain.fire_rate, rain.range_cells, rain.targets_per_shot], [200, 14.0, 8.0, 3.6, 3])
+	assert_eq([rain.steel_cost, rain.damage, rain.fire_rate, rain.range_cells, rain.targets_per_shot], [200, 14.0, 8.0, 3.6 * TowerData.RANGE_BONUS, 3])
 	assert_almost_eq(rain.sweep_interval, 6.0, 0.0001)
-	assert_eq([piercer.steel_cost, piercer.damage, piercer.fire_rate, piercer.range_cells], [200, 60.0, 2.5, 4.2])
+	assert_eq([piercer.steel_cost, piercer.damage, piercer.fire_rate, piercer.range_cells], [200, 60.0, 2.5, 4.2 * TowerData.RANGE_BONUS])
 	assert_almost_eq(piercer.armor_ignore, 0.7, 0.0001)
 	assert_eq([piercer.core_round_every, piercer.core_round_multiplier, piercer.core_round_min_armor_tier], [4, 3.0, 3])
 	var lake: TowerBranch = GLUE.branches[0]
 	var corrosive: TowerBranch = GLUE.branches[1]
-	assert_eq([lake.steel_cost, lake.glue_radius_cells, lake.range_cells], [180, 1.8, 2.8])
+	assert_eq([lake.steel_cost, lake.glue_radius_cells, lake.range_cells], [180, 1.8, 2.8 * TowerData.RANGE_BONUS])
 	assert_almost_eq(lake.slow_amount, 0.55, 0.0001)
 	assert_true(lake.fixed_lake)
 	assert_eq([lake.hold_interval, lake.hold_duration], [10.0, 1.5])
 	assert_almost_eq(lake.hold_resistant_slow, 0.2, 0.0001)
-	assert_eq([corrosive.steel_cost, corrosive.glue_radius_cells, corrosive.range_cells, corrosive.damage_per_second], [180, 1.3, 3.0, 10.0])
+	assert_eq([corrosive.steel_cost, corrosive.glue_radius_cells, corrosive.range_cells, corrosive.damage_per_second], [180, 1.3, 3.0 * TowerData.RANGE_BONUS, 10.0])
 	assert_almost_eq(corrosive.slow_amount, 0.4, 0.0001)
 	assert_eq([corrosive.armor_tier_reduction, corrosive.armor_reduction_duration], [2, 4.0])
 	assert_eq([corrosive.armor_break_hits, corrosive.armor_break_duration], [3, 3.0])
@@ -69,7 +69,7 @@ func test_choose_branch_sets_level_five_stats() -> void:
 	assert_eq(tower.level, 5)
 	assert_eq(tower.branch, MG.branches[1])
 	assert_eq(tower.stats().damage, 60.0)
-	assert_almost_eq(tower.range_units(), 4.2 * MapLayout.UNITS_PER_CELL, 0.0001)
+	assert_almost_eq(tower.range_units(), 4.2 * TowerData.RANGE_BONUS * MapLayout.UNITS_PER_CELL, 0.0001)
 	assert_eq(_battle.economy.steel, steel - 200)
 	assert_eq(tower.invested, 550)
 	assert_true(tower.is_max_level())
