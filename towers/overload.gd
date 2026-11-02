@@ -11,6 +11,8 @@ signal mega_ended
 enum State { CHARGING, READY, MEGA, COOLDOWN }
 
 var state: State = State.CHARGING
+## Hệ số thời gian MEGA (Trạm Năng Lượng càng cao cấp càng dài); 1 = theo dữ liệu lô cốt.
+var duration_scale: float = 1.0
 ## 0–1 khi đang nạp; 1 khi sẵn sàng.
 var charge: float = 0.0
 ## Số giây còn lại của MEGA hoặc làm mát.
@@ -43,7 +45,7 @@ func activate() -> bool:
 	if state != State.READY:
 		return false
 	state = State.MEGA
-	time_left = _data.mega_duration
+	time_left = _data.mega_duration * duration_scale
 	mega_started.emit()
 	return true
 
@@ -79,7 +81,7 @@ func multiplier() -> float:
 func display_fill() -> float:
 	match state:
 		State.MEGA:
-			return clampf(time_left / maxf(_data.mega_duration, 0.001), 0.0, 1.0)
+			return clampf(time_left / maxf(_data.mega_duration * duration_scale, 0.001), 0.0, 1.0)
 		State.COOLDOWN:
 			return clampf(time_left / maxf(_data.cooldown_duration, 0.001), 0.0, 1.0)
 	return charge

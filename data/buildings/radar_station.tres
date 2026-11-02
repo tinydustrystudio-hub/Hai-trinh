@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/data/building_data.gd" id="1_building"]
+
+[resource]
+script = ExtResource("1_building")
+id = &"radar_station"
+name_key = &"BUILDING_RADAR_STATION"
+description_key = &"BUILDING_RADAR_STATION_DESC"
+upgrade_multiplier = 1.2
+effect_kind = &"radar_range_pct"
+effect_base = 0.0
+effect_per_level = 25.0
+effect_key = &"BUILDING_EFFECT_RADAR_STATION"
+implemented = false

@@ -67,3 +67,13 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 **Nghiêng camera trong màn (2/11):** hai ngón cùng vuốt dọc để nghiêng camera trong khoảng 15° đến 80° (`MapLayout.camera_min_pitch_degrees` / `camera_max_pitch_degrees`; mặc định vào màn vẫn 55°). Vuốt lên: nhìn từ trên xuống hơn; vuốt xuống: nhìn ngang hơn. Điểm giữa màn hình đứng yên khi nghiêng; chụm hai ngón vẫn thu phóng. Trên máy tính: Shift + lăn chuột. Ở 15° thấy chân trời và mép biển (chưa làm mờ mép nước).
 
 **Sửa dời lô cốt (2/11):** bệ trống gần ngón tay nhất trong 7 đơn vị hút lô cốt đang kéo (trước đây phải trúng đúng bệ, ngón tay che mất nên khó), bắt lô cốt trong bán kính 3,4 đơn vị. Có test chạy đúng chuỗi sự kiện chạm.
+**Cấu trúc căn cứ (2/11):** đảo chính có sáu công trình, mỗi công trình một hiệu ứng tăng theo cấp (`BuildingData.effect_at`, số trong `data/buildings/*.tres`; cấp 1 giữ nguyên cân bằng hiện tại):
+| Công trình | Hiệu ứng mỗi cấp | Trạng thái |
+| --- | --- | --- |
+| Tường Chắn Sóng | Độ Nổi tối đa +10% | Đã nối vào trận (`Profile.buoyancy_scale`) |
+| Xưởng Sửa Chữa | Máu lô cốt +10% | Chỉ là dữ liệu: lô cốt chưa có máu |
+| Trạm Năng Lượng | Thời gian MEGA +10% | Đã nối vào trận (`Overload.duration_scale`) |
+| Trạm Ra-đa | Tầm ra-đa +25% | Chỉ là dữ liệu: chưa có địch tàng hình; mô hình 3D chưa làm |
+| Xưởng Tàu | Số tàu chiến +1 | Chỉ là dữ liệu: chưa có tàu chiến |
+| Xưởng Máy Bay | Số máy bay +1 | Chỉ là dữ liệu: chưa có máy bay; mô hình 3D chưa làm |
+Màn Căn cứ hiện đủ sáu dòng (cuộn dọc), mỗi dòng có dòng hiệu ứng ở cấp hiện tại; hiệu ứng chưa nối vào trận ghi rõ "(chưa có tác dụng)".
