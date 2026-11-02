@@ -3,6 +3,8 @@ extends GutTest
 ## có bọt quanh chân đảo và bóng giả dời theo hướng ngược nắng.
 
 const LAYOUT: MapLayout = preload("res://data/maps/north_dock_layout.tres")
+## Bố cục có 4 đảo vệ tinh đậu cạnh đảo chính (màn thật chỉ có đảo đã mua).
+var SATS: MapLayout = TestLayouts.with_satellites(4)
 
 
 func _triangles(mesh: ArrayMesh) -> int:
@@ -35,16 +37,16 @@ func test_lamp_sits_on_tower() -> void:
 
 
 func test_satellites_and_buoys() -> void:
-	var mesh: ArrayMesh = AllianceFortress.build_satellites(LAYOUT)
+	var mesh: ArrayMesh = AllianceFortress.build_satellites(SATS)
 	assert_gt(_triangles(mesh), 4 * 50)
 	assert_eq(AllianceFortress.buoy_positions(LAYOUT).size(), 6)
 
 
 func test_foam_rings_every_island() -> void:
-	var mesh: ArrayMesh = Island.build_foam(LAYOUT)
+	var mesh: ArrayMesh = Island.build_foam(SATS)
 	var box: AABB = mesh.get_aabb()
 	# Bọt bao trọn mọi đảo vệ tinh.
-	for center: Vector3 in LAYOUT.satellite_centers:
+	for center: Vector3 in SATS.satellite_centers:
 		assert_true(box.grow(0.01).has_point(Vector3(center.x, Island.FOAM_Y, center.z)))
 	assert_gt(_triangles(mesh), 200)
 
@@ -67,7 +69,7 @@ func test_tilt_moves_fortress_only() -> void:
 	island.build(LAYOUT)
 	island.set_tilt(5.0)
 	assert_almost_eq(island.tilt_degrees(), 5.0, 0.0001)
-	assert_eq(island.pads.size(), 14)
+	assert_eq(island.pads.size(), 10)
 
 
 func test_lane_beacons_point_to_each_lane() -> void:
@@ -127,8 +129,8 @@ func test_bob_pose_is_gentle_and_scales_with_size() -> void:
 func test_island_bob_moves_satellites_and_keeps_tilt() -> void:
 	var ocean: Ocean = add_child_autofree(Ocean.new())
 	var island: Island = add_child_autofree(Island.new())
-	island.build(LAYOUT)
-	assert_eq(island.satellites.size(), LAYOUT.satellite_centers.size())
+	island.build(SATS)
+	assert_eq(island.satellites.size(), SATS.satellite_centers.size())
 	island.set_tilt(5.0)
 	var moved: bool = false
 	for t: float in [1.0, 3.7, 8.2, 15.5]:
@@ -142,9 +144,9 @@ func test_island_bob_moves_satellites_and_keeps_tilt() -> void:
 
 func test_satellite_pads_follow_their_island() -> void:
 	var island: Island = add_child_autofree(Island.new())
-	island.build(LAYOUT)
+	island.build(SATS)
 	for pad: TowerPad in island.pads:
-		var k: int = LAYOUT.satellite_index_of_pad(pad.pad_index)
+		var k: int = SATS.satellite_index_of_pad(pad.pad_index)
 		if k >= 0:
 			assert_eq(pad.get_parent(), island.satellites[k])
 			assert_almost_eq(pad.position.length(), 0.0, 0.01, "bệ ở tâm đảo vệ tinh")

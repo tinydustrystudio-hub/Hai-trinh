@@ -174,3 +174,17 @@ func test_preview_tilts_with_vertical_drag_within_limits() -> void:
 
 func test_default_pitch_matches_old_camera_angle() -> void:
 	assert_almost_eq(BaseScreen.DEFAULT_PITCH, atan2(64.0, 55.0), 0.001)
+
+
+func test_preview_shows_main_island_and_bought_islands_only() -> void:
+	# Căn cứ không hiện nhà giàn (thuộc về từng màn) và không có đảo phụ cấp sẵn: chỉ đảo chính và đảo đã mua.
+	assert_eq(_screen.island().platforms.size(), 0)
+	assert_eq(_screen.island().satellites.size(), 0)
+	assert_eq(_screen.island().pads.size(), MapLayout.MAIN_ISLAND_PADS)
+	Profile.set_gold(100000)
+	Profile.buy_island()
+	Profile.buy_island()
+	_screen.refresh()
+	await wait_process_frames(2)
+	assert_eq(_screen.island().satellites.size(), 2)
+	assert_eq(_screen.island().platforms.size(), 0)

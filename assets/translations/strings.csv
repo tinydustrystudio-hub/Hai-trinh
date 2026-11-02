@@ -152,4 +152,4 @@ LIGHT_DAY,Ban ngày,Day
 LIGHT_DAWN,Bình minh,Dawn
 LIGHT_DUSK,Hoàng hôn,Dusk
 ISLAND_CONFIRM,"Kéo đảo tới đây tốn %d vàng (gồm phí dời lô cốt nếu đảo có lô cốt).","Towing the island here costs %d gold (includes the tower move fee if it carries a tower)."
-ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra chỗ trống tuỳ ý trên biển, đảo sẽ được lai dắt tới (%d vàng).","Drag an orange-ringed island to any open water; it is towed there (%d gold)."
+ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra biển, đảo được lai dắt tới (%d vàng).","Drag an orange-ringed island out to sea; it is towed there (%d gold)."

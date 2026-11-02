@@ -186,8 +186,8 @@ func test_island_bob_scale_follows_weather() -> void:
 	_battle.weather.advance(Weather.TRANSITION_SECONDS + 1.0, 5.0)
 	assert_almost_eq(_battle.island.bob_scale, Weather.by_id(&"storm").bob_scale, 0.001)
 	var layout: MapLayout = _battle.layout
-	var calm: Vector3 = Island.sample_pose(_battle.ocean, layout.satellite_centers[0], layout.satellite_radius, 3.0, 1.0)
-	var rough: Vector3 = Island.sample_pose(_battle.ocean, layout.satellite_centers[0], layout.satellite_radius, 3.0, 2.4)
+	var calm: Vector3 = Island.sample_pose(_battle.ocean, layout.platform_centers[0], layout.satellite_radius, 3.0, 1.0)
+	var rough: Vector3 = Island.sample_pose(_battle.ocean, layout.platform_centers[0], layout.satellite_radius, 3.0, 2.4)
 	assert_gt(absf(rough.x), absf(calm.x) * 1.5, "bão: đảo nhấp nhô nhiều hơn")
 
 
@@ -262,7 +262,7 @@ func test_island_heave_is_limited_so_decks_stay_above_water() -> void:
 	var high: float = 0.0
 	for t: int in 80:
 		ocean.sea_time = float(t) * 1.3
-		var pose: Vector3 = Island.sample_pose(ocean, _battle.layout.satellite_centers[1], _battle.layout.satellite_radius, 0.0, 2.4)
+		var pose: Vector3 = Island.sample_pose(ocean, _battle.layout.platform_centers[1], _battle.layout.satellite_radius, 0.0, 2.4)
 		low = minf(low, pose.x)
 		high = maxf(high, pose.x)
 	assert_gte(low, Island.HEAVE_MIN - 0.0001)

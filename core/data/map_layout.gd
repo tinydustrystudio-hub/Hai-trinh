@@ -195,6 +195,19 @@ func satellite_utility(index: int) -> StringName:
 	return SatelliteUtilities.IDS[index % SatelliteUtilities.IDS.size()]
 
 
+## Bản sao không có nhà giàn (dùng cho hình 3D ở màn Căn cứ: chỉ đảo chính và đảo phụ đã mua).
+func without_platforms() -> MapLayout:
+	var result: MapLayout = duplicate() as MapLayout
+	var pads: PackedVector3Array = PackedVector3Array()
+	for i: int in pad_positions.size():
+		if platform_index_of_pad(i) < 0:
+			pads.append(pad_positions[i])
+	result.pad_positions = pads
+	result.platform_centers = PackedVector3Array()
+	result.platform_kinds = []
+	return result
+
+
 ## Bản sao của bố cục với các đảo vệ tinh đặt ở centers (đúng thứ tự), mỗi đảo mang tiện ích utilities[i] (thiếu thì theo vòng lặp).
 ## Bệ trên mỏm bến giữ nguyên; bệ của đảo vệ tinh được dựng lại ở tâm từng đảo.
 func with_satellites(centers: PackedVector3Array, utilities: Array[StringName] = []) -> MapLayout:
