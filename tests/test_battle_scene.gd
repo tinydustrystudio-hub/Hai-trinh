@@ -11,7 +11,7 @@ func before_each() -> void:
 
 
 func test_builds_pads_and_lanes() -> void:
-	assert_eq(_battle.island.pads.size(), 14)
+	assert_eq(_battle.island.pads.size(), 10)
 	assert_eq(_battle.lanes.size(), 4)
 	for lane: Lane in _battle.lanes:
 		assert_gt(lane.length(), 40.0)

@@ -27,12 +27,12 @@ func _flat_distance(a: Vector3, b: Vector3) -> float:
 
 
 func test_counts() -> void:
-	assert_eq(LAYOUT.pad_count(), 14)
+	assert_eq(LAYOUT.pad_count(), 10, "6 mỏm bến + 4 nhà giàn")
 	assert_eq(LAYOUT.platform_centers.size(), 4)
 	assert_eq(LAYOUT.platform_kinds.size(), 4)
 	assert_eq(LAYOUT.lane_count(), 4)
 	assert_eq(LAYOUT.lane_name_keys, [&"LANE_NORTH", &"LANE_EAST", &"LANE_WEST", &"LANE_SOUTH"] as Array[StringName])
-	assert_eq(LAYOUT.satellite_centers.size(), 4)
+	assert_eq(LAYOUT.satellite_centers.size(), 0, "không có đảo phụ cấp sẵn: chỉ có khi mua")
 
 
 func test_two_rings_of_pads() -> void:
@@ -49,7 +49,7 @@ func test_two_rings_of_pads() -> void:
 			on_piers += 1
 			assert_between(d, LAYOUT.fortress_radius, LAYOUT.fortress_radius + MapLayout.UNITS_PER_CELL * 2.0, "bệ %d: trên mỏm bến" % i)
 	assert_eq(on_piers, 6)
-	assert_eq(on_satellites, 4)
+	assert_eq(on_satellites, 0)
 
 
 func test_satellite_size() -> void:
@@ -120,22 +120,22 @@ func test_four_lanes_are_balanced_and_long() -> void:
 	assert_lte(longest / shortest, 1.03, "bốn luồng dài gần bằng nhau")
 
 
-func test_one_satellite_per_lane() -> void:
+func test_one_platform_per_lane() -> void:
 	for lane: Lane in _lanes:
 		var nearest: float = INF
-		for center: Vector3 in LAYOUT.satellite_centers:
+		for center: Vector3 in LAYOUT.platform_centers:
 			nearest = minf(nearest, lane.distance_to(center))
-		assert_lte(nearest, MIN_TOWER_RANGE_CELLS * MapLayout.UNITS_PER_CELL, "luồng %d có đảo vệ tinh canh" % lane.lane_index)
+		assert_lte(nearest, MIN_TOWER_RANGE_CELLS * MapLayout.UNITS_PER_CELL, "luồng %d có nhà giàn canh" % lane.lane_index)
 
 
 func test_satellite_counts_follow_level_rules() -> void:
-	# GDD mục 5.4: màn 1 cấp sẵn 4 đảo, đặt tối đa 8; các đảo cấp sẵn nằm trong bố cục.
-	assert_eq(LAYOUT.free_satellites(), 4)
-	assert_eq(LAYOUT.satellite_max_count, 8)
-	assert_eq(LAYOUT.extra_satellites(Difficulty.Level.EASY), 4)
-	assert_eq(LAYOUT.extra_satellites(), 2, "mặc định là Trung bình")
-	assert_gte(LAYOUT.satellite_centers.size(), LAYOUT.free_satellites())
-	assert_lte(LAYOUT.free_satellites(), LAYOUT.satellite_max_count)
+	# Đảo phụ chỉ có khi mua: màn không cấp sẵn đảo nào, mua tối đa 12; tổng nhà giàn + đảo phụ bị giới hạn theo độ khó.
+	assert_eq(LAYOUT.free_satellites(), 0)
+	assert_eq(LAYOUT.satellite_max_count, 12)
+	assert_gte(LAYOUT.satellite_docks.size(), LAYOUT.satellite_max_count, "đủ chỗ đậu cho mọi đảo mua được")
+	assert_eq(LAYOUT.extra_satellites(Difficulty.Level.EASY), 12)
+	assert_eq(LAYOUT.extra_satellites(), 10, "mặc định là Trung bình")
+	assert_eq(LAYOUT.extra_satellites(Difficulty.Level.HARD), 8)
 	var open_layout: MapLayout = MapLayout.new()
 	open_layout.satellite_centers = PackedVector3Array([Vector3.ZERO, Vector3(1, 0, 1)])
 	assert_eq(open_layout.free_satellites(), 2, "không khai báo thì dùng số đảo đã đặt")

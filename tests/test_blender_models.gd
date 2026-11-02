@@ -151,7 +151,7 @@ func test_satellite_utility_models_fit_the_island() -> void:
 
 
 func test_island_adds_utility_model_to_each_satellite() -> void:
-	var layout: MapLayout = load("res://data/maps/north_dock_layout.tres") as MapLayout
+	var layout: MapLayout = TestLayouts.with_satellites(4)
 	var island: Island = Island.new()
 	add_child_autofree(island)
 	island.build(layout)

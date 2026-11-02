@@ -400,4 +400,5 @@ func _add_preview() -> void:
 func _rebuild_island() -> void:
 	if _island == null:
 		return
-	_island.build(Profile.battle_layout(_layout))
+	# Căn cứ chỉ có đảo chính và đảo phụ đã mua; nhà giàn thuộc về từng màn nên không hiện ở đây.
+	_island.build(Profile.battle_layout(_layout).without_platforms())
