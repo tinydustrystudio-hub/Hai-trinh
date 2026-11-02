@@ -332,6 +332,10 @@ func begin_tower_drag(screen_position: Vector2) -> bool:
 	var tower: Tower = tower_on(pad) if pad != null else null
 	if tower == null or pad.locked:
 		return false
+	if economy.steel < Profile.tower_move_cost():
+		# Hết vàng thì không nhấc được lô cốt: báo rõ rồi coi như đã xử lý cử chỉ (không kéo camera).
+		move_confirm.flash(tr(&"MOVE_NEED_GOLD") % Profile.tower_move_cost())
+		return true
 	close_build_ring()
 	moving_tower = tower
 	move_target = null

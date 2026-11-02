@@ -224,10 +224,10 @@ func test_invalid_spot_or_no_gold_tows_island_back_free() -> void:
 	assert_eq(battle.layout.satellite_centers[4], dock, "thả chỗ không hợp lệ thì về chỗ đậu")
 	assert_eq(battle.economy.steel, before)
 	assert_false(deployer.is_deployed(4))
-	battle.economy.reset(5)
 	assert_true(deployer.begin_drag(screen))
 	deployer.drag_to(battle.camera.unproject_position(_open_spot(4)))
 	deployer.end_drag()
+	battle.economy.reset(5)
 	assert_false(deployer.confirm(), "thiếu vàng thì không xác nhận được")
 	assert_eq(deployer.pending_island(), 4)
 	deployer.decline()
@@ -243,7 +243,7 @@ func test_free_islands_cannot_be_dragged() -> void:
 	assert_false(battle.deployer.begin_drag(screen), "đảo cấp sẵn cố định")
 
 
-func test_island_with_tower_cannot_be_moved_and_retry_returns_islands() -> void:
+func test_island_with_tower_moves_with_it_and_costs_both_fees() -> void:
 	Profile.set_gold(100000)
 	Profile.buy_island()
 	var battle: BattleController = await _new_battle()
@@ -258,10 +258,45 @@ func test_island_with_tower_cannot_be_moved_and_retry_returns_islands() -> void:
 	battle.economy.reset(1000)
 	var tower: Tower = battle.build_tower(pad, load("res://data/towers/machine_gun.tres"))
 	assert_not_null(tower)
+	assert_eq(deployer.move_cost(4), Profile.island_move_cost() + Profile.tower_move_cost(), "đảo có lô cốt: phí đảo + phí lô cốt")
+	var before: int = battle.economy.steel
 	var now: Vector2 = battle.camera.unproject_position(battle.layout.satellite_centers[4])
-	assert_false(deployer.begin_drag(now), "đảo đã có lô cốt thì không kéo được")
+	assert_true(deployer.begin_drag(now), "đảo đã có lô cốt vẫn kéo được")
+	var spot: Vector3 = _open_spot_far_from(battle.layout.satellite_centers[4], 4)
+	deployer.drag_to(battle.camera.unproject_position(spot))
+	deployer.end_drag()
+	assert_true(deployer.confirm())
+	assert_eq(battle.economy.steel, before - deployer.move_cost(4))
+	_tow_until_done(deployer, battle, 4)
+	await get_tree().process_frame
+	assert_eq(tower.pad, pad, "lô cốt vẫn ở bệ của đảo")
+	assert_almost_eq(tower.global_position.x, battle.layout.satellite_centers[4].x, 1.0, "lô cốt đi theo đảo")
 	battle.retry()
 	assert_eq(battle.layout.satellite_centers[4], LAYOUT.satellite_docks[0], "chơi lại thì đảo về chỗ đậu")
+
+
+func _open_spot_far_from(origin: Vector3, ignore: int) -> Vector3:
+	var best: Vector3 = Vector3.ZERO
+	var best_distance: float = 0.0
+	for x: int in range(-80, 81, 4):
+		for z: int in range(-80, 41, 4):
+			var point: Vector3 = Vector3(x, 0.0, z)
+			if LAYOUT.island_spot_valid(point, ignore) and _flat(point, origin) > best_distance and _flat(point, origin) < 40.0:
+				best = point
+				best_distance = _flat(point, origin)
+	return best
+
+
+func test_island_cannot_be_lifted_without_gold() -> void:
+	Profile.set_gold(100000)
+	Profile.buy_island()
+	var battle: BattleController = await _new_battle()
+	var deployer: IslandDeployer = battle.deployer
+	battle.economy.reset(Profile.island_move_cost() - 1)
+	var screen: Vector2 = battle.camera.unproject_position(battle.layout.satellite_centers[4])
+	assert_true(deployer.begin_drag(screen), "cử chỉ được xử lý (không kéo camera)")
+	assert_false(deployer.is_dragging(), "nhưng đảo không rời chỗ")
+	assert_eq(battle.economy.steel, Profile.island_move_cost() - 1)
 
 
 func test_changing_lighting_keeps_pads_and_towers() -> void:

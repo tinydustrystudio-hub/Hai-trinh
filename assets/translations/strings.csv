@@ -52,6 +52,8 @@ SKILL_STRIP_DESC,"Trúng 3 lần phun liên tiếp thì mất toàn bộ giáp t
 UPGRADE_LEVEL,Nâng cấp,Upgrade
 UPGRADE_BRANCH,Chọn nhánh,Pick branch
 UPGRADE_MAX,Cấp tối đa,Max level
+MOVE_NEED_GOLD,"Không đủ vàng: dời lô cốt tốn %d.","Not enough gold: moving a tower costs %d."
+ISLAND_NEED_GOLD,"Không đủ vàng: kéo đảo tốn %d.","Not enough gold: towing the island costs %d."
 MOVE_PROMPT,"Thả lô cốt lên một bệ trống để dời (%d vàng).","Drop the tower on an empty pad to move it (%d gold)."
 MOVE_CONFIRM,"Dời lô cốt tới đây tốn %d vàng.","Moving the tower here costs %d gold."
 SELL,Bán,Sell
@@ -149,5 +151,5 @@ DEBUG_LIGHT,Ánh sáng: %s,Lighting: %s
 LIGHT_DAY,Ban ngày,Day
 LIGHT_DAWN,Bình minh,Dawn
 LIGHT_DUSK,Hoàng hôn,Dusk
-ISLAND_CONFIRM,"Kéo đảo tới đây tốn %d vàng.","Towing the island here costs %d gold."
+ISLAND_CONFIRM,"Kéo đảo tới đây tốn %d vàng (gồm phí dời lô cốt nếu đảo có lô cốt).","Towing the island here costs %d gold (includes the tower move fee if it carries a tower)."
 ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra chỗ trống tuỳ ý trên biển, đảo sẽ được lai dắt tới (%d vàng).","Drag an orange-ringed island to any open water; it is towed there (%d gold)."

@@ -149,3 +149,18 @@ func test_glue_tower_relocates_its_lake() -> void:
 	var tower: Tower = battle.build_tower(battle.island.pads[0], GLUE)
 	assert_true(battle.move_tower(tower, battle.island.pads[3]))
 	assert_eq(tower.pad, battle.island.pads[3])
+
+
+func test_tower_cannot_be_lifted_without_gold() -> void:
+	var battle: BattleController = await _new_battle()
+	var from: TowerPad = battle.island.pads[0]
+	var tower: Tower = battle.build_tower(from, MACHINE_GUN)
+	battle.economy.reset(Profile.tower_move_cost() - 1)
+	assert_true(battle.begin_tower_drag(_screen(battle, from)), "cử chỉ được xử lý (không kéo camera)")
+	assert_false(battle.tower_dragging, "nhưng lô cốt không rời bệ")
+	assert_false(tower.carried)
+	assert_null(battle.moving_tower)
+	assert_true(battle.move_confirm.is_flashing(), "báo thiếu vàng")
+	assert_false(battle.move_tower(tower, battle.island.pads[2]))
+	assert_eq(tower.pad, from)
+	assert_eq(battle.economy.steel, Profile.tower_move_cost() - 1)

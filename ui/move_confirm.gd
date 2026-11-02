@@ -12,6 +12,7 @@ var _hint: Label
 var _confirm: IconButton
 var _cancel: IconButton
 var _cost: int = 0
+var _flash_left: float = 0.0
 
 
 func _ready() -> void:
@@ -37,6 +38,26 @@ func _ready() -> void:
 	_cancel.pressed.connect(func() -> void: cancelled.emit())
 	add_child(_cancel)
 	close()
+
+
+## Thông báo ngắn (ví dụ thiếu vàng) ở dòng chỉ dẫn, tự tắt sau vài giây.
+func flash(text: String) -> void:
+	_hint.text = text
+	visible = true
+	_confirm.visible = false
+	_cancel.visible = false
+	_flash_left = 2.0
+
+
+func _process(delta: float) -> void:
+	if _flash_left > 0.0:
+		_flash_left -= delta
+		if _flash_left <= 0.0:
+			close()
+
+
+func is_flashing() -> bool:
+	return _flash_left > 0.0
 
 
 ## Bắt đầu chế độ dời: chỉ hiện dòng chỉ dẫn với phí dời cost.
@@ -70,6 +91,7 @@ func set_steel(steel: int) -> void:
 
 
 func close() -> void:
+	_flash_left = 0.0
 	visible = false
 
 
