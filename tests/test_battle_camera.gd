@@ -209,3 +209,54 @@ func test_four_by_three_screen_sees_the_same_battlefield() -> void:
 		# Đảo chính vẫn ở giữa theo chiều ngang trên mọi tỉ lệ.
 		var middle: Vector2 = camera.unproject_position(layout.fortress_center)
 		assert_almost_eq(middle.x, float(size.x) * 0.5, 2.0)
+
+
+func _layout_camera() -> BattleCamera:
+	var camera: BattleCamera = add_child_autofree(BattleCamera.new())
+	camera.configure(load("res://data/maps/north_dock_layout.tres"))
+	return camera
+
+
+func test_tilt_is_limited_between_15_and_80_degrees() -> void:
+	var camera: BattleCamera = _layout_camera()
+	assert_almost_eq(camera.pitch_degrees, 55.0, 0.001, "mặc định vẫn 55°")
+	camera.tilt_by(100000.0)
+	assert_almost_eq(camera.pitch_degrees, 80.0, 0.001)
+	camera.tilt_by(-100000.0)
+	assert_almost_eq(camera.pitch_degrees, 15.0, 0.001)
+	assert_almost_eq(rad_to_deg(-camera.rotation.x), 15.0, 0.01, "camera thật sự nghiêng theo")
+
+
+func test_swipe_up_looks_down_more_and_down_looks_flatter() -> void:
+	var camera: BattleCamera = _layout_camera()
+	var before: float = camera.pitch_degrees
+	camera.tilt_by(100.0)
+	assert_gt(camera.pitch_degrees, before)
+	camera.tilt_by(-300.0)
+	assert_lt(camera.pitch_degrees, before)
+
+
+func test_tilt_keeps_the_point_under_the_screen_center() -> void:
+	var camera: BattleCamera = _layout_camera()
+	var center: Vector2 = camera.get_viewport().get_visible_rect().size * 0.5
+	var before: Vector3 = camera.ground_point(center)
+	for pitch: float in [15.0, 30.0, 80.0]:
+		camera.set_pitch(pitch)
+		var after: Vector3 = camera.ground_point(center)
+		assert_almost_eq(after.x, before.x, 0.05, "pitch %s" % pitch)
+		assert_almost_eq(after.z, before.z, 0.05, "pitch %s" % pitch)
+
+
+func test_tilt_keeps_zoom_and_focus() -> void:
+	var camera: BattleCamera = _layout_camera()
+	var distance: float = camera.distance
+	var focus: Vector2 = camera.focus
+	camera.set_pitch(20.0)
+	assert_almost_eq(camera.distance, distance, 0.0001)
+	assert_eq(camera.focus, focus)
+
+
+func test_layout_declares_tilt_limits() -> void:
+	var layout: MapLayout = load("res://data/maps/north_dock_layout.tres")
+	assert_almost_eq(layout.camera_min_pitch_degrees, 15.0, 0.001)
+	assert_almost_eq(layout.camera_max_pitch_degrees, 80.0, 0.001)
