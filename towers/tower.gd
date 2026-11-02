@@ -39,6 +39,7 @@ func setup(tower_data: TowerData, on_pad: TowerPad, pool: EnemyPool, effects: No
 	branch = null
 	invested = tower_data.level(1).steel_cost
 	overload = Overload.new(tower_data)
+	overload.duration_scale = Profile.mega_duration_scale()
 	overload.ready.connect(func() -> void: Events.overload_ready.emit(self))
 	overload.mega_started.connect(_on_mega_started)
 	overload.mega_ended.connect(_on_mega_ended)

@@ -26,6 +26,8 @@ const WHEEL_STEP: float = 1.12
 const TEST_GOLD: int = 1000
 ## Trang Đảo lùi camera ra xa hơn để thấy các đảo vệ tinh cạnh đảo chính.
 const ISLAND_PAGE_DISTANCE: float = 1.5
+## Khung nhìn danh sách công trình (cuộn dọc) ở độ phân giải gốc, vừa trên các nút phía dưới.
+const BUILDINGS_VIEW: Vector2 = Vector2(840, 660)
 const LAYOUT_PATH: String = "res://data/maps/north_dock_layout.tres"
 
 var _wallet: Label
@@ -185,6 +187,7 @@ func refresh() -> void:
 	for id: StringName in _rows:
 		var row: Dictionary = _rows[id]
 		(row["level"] as Label).text = tr(&"BASE_LEVEL") % [Profile.level_of(id), BuildingData.MAX_LEVEL]
+		(row["effect"] as Label).text = effect_text(id)
 		var button: Button = row["button"] as Button
 		if Profile.is_max_level(id):
 			button.text = tr(&"BASE_MAX")
@@ -193,6 +196,16 @@ func refresh() -> void:
 			button.text = tr(&"BASE_UPGRADE") % Profile.upgrade_cost(id)
 			button.disabled = not Profile.can_upgrade(id)
 	_rebuild_island()
+
+
+## Dòng hiệu ứng của công trình ở cấp hiện tại; hiệu ứng chưa nối vào trận thì ghi rõ chưa có tác dụng.
+func effect_text(id: StringName) -> String:
+	var data: BuildingData = Profile.building(id)
+	if data == null or data.effect_key == &"":
+		return ""
+	var value: String = str(roundi(Profile.building_effect(id)))
+	var text: String = tr(data.effect_key) % value
+	return text if data.implemented else text + " " + tr(&"BUILDING_NOT_ACTIVE")
 
 
 func _on_upgrade(id: StringName) -> void:
@@ -333,9 +346,15 @@ func _add_building_list() -> void:
 	card.position = Vector2(1000, 150)
 	add_child(card)
 	_buildings_card = card
+	# Sáu công trình không vừa một màn hình ngang: danh sách cuộn bằng vuốt dọc.
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "BuildingsScroll"
+	scroll.custom_minimum_size = BUILDINGS_VIEW
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	card.add_child(scroll)
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override(&"separation", 14)
-	card.add_child(column)
+	scroll.add_child(column)
 	for data: BuildingData in Profile.buildings():
 		var row: HBoxContainer = HBoxContainer.new()
 		row.name = String(data.id)
@@ -351,6 +370,9 @@ func _add_building_list() -> void:
 		var level: Label = UiStyle.label(UiStyle.TEXT_SIZE - 8)
 		level.add_theme_color_override(&"font_color", UiStyle.GOLD.lightened(0.3))
 		text.add_child(level)
+		var effect: Label = UiStyle.label(UiStyle.TEXT_SIZE - 12)
+		effect.add_theme_color_override(&"font_color", UiStyle.RESCUE_ORANGE.lightened(0.25))
+		text.add_child(effect)
 		var hint: Label = UiStyle.label(UiStyle.TEXT_SIZE - 14)
 		hint.text = tr(data.description_key)
 		hint.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -360,7 +382,7 @@ func _add_building_list() -> void:
 		button.add_theme_font_size_override(&"font_size", 40)
 		button.pressed.connect(_on_upgrade.bind(data.id))
 		row.add_child(button)
-		_rows[data.id] = {"level": level, "button": button}
+		_rows[data.id] = {"level": level, "button": button, "effect": effect}
 
 
 func _add_preview() -> void:
