@@ -29,6 +29,8 @@ const GRID_OK: Color = Color(0.25, 0.65, 1.0, 0.2)
 const GRID_BAD: Color = Color(0.95, 0.25, 0.2, 0.24)
 ## Khe hở khi đi vòng qua đảo khác.
 const AVOID_MARGIN: float = 2.0
+## Thông báo ngắn (thiếu vàng) hiện chừng này giây.
+const NOTICE_SECONDS: float = 2.0
 
 var battle: BattleController
 
@@ -52,6 +54,7 @@ var _pending_spot: Vector3 = Vector3.ZERO
 var _markers: MeshInstance3D
 var _grid: MeshInstance3D
 var _hint: Label
+var _notice_left: float = 0.0
 var _confirm: IconButton
 var _cancel: IconButton
 
@@ -102,6 +105,14 @@ func is_dragging() -> bool:
 	return _dragging >= 0
 
 
+## Phí kéo đảo k: phí kéo đảo, cộng phí dời lô cốt nếu đảo đang mang lô cốt (lô cốt đi theo đảo).
+func move_cost(satellite: int) -> int:
+	var cost: int = Profile.island_move_cost()
+	if _pad_of(satellite).occupied:
+		cost += Profile.tower_move_cost()
+	return cost
+
+
 ## Đảo đang chờ xác nhận, hoặc −1.
 func pending_island() -> int:
 	return _pending
@@ -150,14 +161,16 @@ func begin_drag(screen_position: Vector2) -> bool:
 	var best: int = -1
 	var best_distance: float = PICK_RADIUS
 	for k: int in range(_free_count, battle.island.satellites.size()):
-		if _pad_of(k).occupied:
-			continue
 		var d: float = battle.camera.unproject_position(battle.layout.satellite_centers[k]).distance_to(screen_position)
 		if d < best_distance:
 			best_distance = d
 			best = k
 	if best < 0:
 		return false
+	if battle.economy.steel < move_cost(best):
+		# Hết vàng thì không nhấc được đảo: báo rõ rồi coi như đã xử lý cử chỉ (không kéo camera).
+		_notice(tr(&"ISLAND_NEED_GOLD") % move_cost(best))
+		return true
 	if _pending >= 0 and _pending != best:
 		decline()
 	_pending = -1
@@ -204,7 +217,7 @@ func confirm() -> bool:
 	if _pending < 0:
 		return false
 	var k: int = _pending
-	if not battle.economy.spend(Profile.island_move_cost()):
+	if not battle.economy.spend(move_cost(k)):
 		rejected.emit()
 		return false
 	_pending = -1
@@ -390,9 +403,22 @@ func _finish_tow(k: int) -> void:
 	_rebuild_markers()
 
 
+## Hiện thông báo ngắn ở dòng chỉ dẫn (ví dụ thiếu vàng).
+func _notice(text: String) -> void:
+	if _hint == null:
+		return
+	_hint.text = text
+	_hint.visible = true
+	_notice_left = NOTICE_SECONDS
+
+
 func _process(delta: float) -> void:
+	if _notice_left > 0.0:
+		_notice_left -= delta
+		if _notice_left <= 0.0:
+			_rebuild_markers()
 	tow_step(delta)
-	if _hint != null and battle != null:
+	if _hint != null and battle != null and _notice_left <= 0.0:
 		_hint.visible = (docked_count() > 0 or _pending >= 0) and not battle.is_over()
 	_place_confirm()
 
@@ -434,9 +460,9 @@ func _rebuild_markers() -> void:
 	if _grid != null:
 		_grid.visible = _dragging >= 0 or _pending >= 0
 	_refresh_confirm()
-	if _hint != null:
+	if _hint != null and _notice_left <= 0.0:
 		_hint.visible = (docked_count() > 0 or _pending >= 0) and not battle.is_over()
-		_hint.text = tr(&"ISLAND_CONFIRM") % Profile.island_move_cost() if _pending >= 0 else tr(&"ISLAND_DEPLOY_HINT") % Profile.island_move_cost()
+		_hint.text = tr(&"ISLAND_CONFIRM") % move_cost(_pending) if _pending >= 0 else tr(&"ISLAND_DEPLOY_HINT") % Profile.island_move_cost()
 
 
 func _build_hint() -> void:
@@ -474,8 +500,8 @@ func _refresh_confirm() -> void:
 	_confirm.visible = showing
 	_cancel.visible = showing
 	if showing:
-		_confirm.disabled = battle.economy.steel < Profile.island_move_cost()
-		_confirm.tooltip_text = tr(&"ISLAND_CONFIRM") % Profile.island_move_cost()
+		_confirm.disabled = battle.economy.steel < move_cost(_pending)
+		_confirm.tooltip_text = tr(&"ISLAND_CONFIRM") % move_cost(_pending)
 		_confirm.refresh_glyph()
 		_place_confirm()
 
