@@ -61,3 +61,5 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 - Màn Căn cứ chỉ hiện hình 3D của đảo chính và các đảo phụ đã mua, không hiện nhà giàn. Vào màn không có đảo phụ cấp sẵn: chỉ có đảo phụ đã mua và nhà giàn. Giới hạn tổng nhà giàn + đảo phụ theo độ khó: Bến Bắc 16 / 14 / 12.
 
 **Sửa cách hiểu số đảo (2/11):** mua đảo phụ vẫn tối đa 12 ở mọi độ khó (`Profile.max_bought_islands`). Độ khó chỉ quyết định số đảo **đặt được vào màn**: màn dễ đặt nhiều, màn khó đặt ít (Bến Bắc: 12 / 10 / 8, từ giới hạn tổng nhà giàn + đảo 16 / 14 / 12). Đảo đã mua mà không đặt được ở mức đó vẫn giữ nguyên, chỉ không xuất hiện trong màn.
+
+**Giá kéo (2/11, chốt):** kéo đảo chưa có lô cốt 60 vàng, kéo đảo đã có lô cốt 180 vàng (một khoản gộp, lô cốt đi theo đảo), dời một lô cốt sang bệ khác 60 vàng. Cả ba theo giá lô cốt rẻ nhất (60) nhân hệ số 1 / 3 / 1 trong `data/economy.tres` (`island_move_ratio`, `island_loaded_move_ratio`, `tower_move_ratio`).

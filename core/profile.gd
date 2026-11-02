@@ -185,6 +185,11 @@ func island_move_cost() -> int:
 	return economy_rules.island_move_cost(cheapest_tower_cost())
 
 
+## Phí kéo một đảo đang mang lô cốt: một khoản gộp (60 → 180), không cộng thêm phí dời lô cốt.
+func island_loaded_move_cost() -> int:
+	return economy_rules.island_loaded_move_cost(cheapest_tower_cost())
+
+
 ## Phí dời một lô cốt sang bệ khác: bằng giá lô cốt rẻ nhất.
 func tower_move_cost() -> int:
 	return economy_rules.tower_move_cost(cheapest_tower_cost())

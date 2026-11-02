@@ -105,12 +105,9 @@ func is_dragging() -> bool:
 	return _dragging >= 0
 
 
-## Phí kéo đảo k: phí kéo đảo, cộng phí dời lô cốt nếu đảo đang mang lô cốt (lô cốt đi theo đảo).
+## Phí kéo đảo k: 60 nếu đảo trống, 180 nếu đảo đang mang lô cốt (lô cốt đi theo đảo); số theo giá lô cốt rẻ nhất.
 func move_cost(satellite: int) -> int:
-	var cost: int = Profile.island_move_cost()
-	if _pad_of(satellite).occupied:
-		cost += Profile.tower_move_cost()
-	return cost
+	return Profile.island_loaded_move_cost() if _pad_of(satellite).occupied else Profile.island_move_cost()
 
 
 ## Đảo đang chờ xác nhận, hoặc −1.
