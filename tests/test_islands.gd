@@ -79,8 +79,9 @@ func test_cannot_buy_without_gold_or_beyond_max() -> void:
 	assert_lte(Profile.island_total(), LAYOUT.satellite_max_count)
 
 
-func test_deploy_cost_is_half_cheapest_tower() -> void:
-	assert_eq(Profile.island_move_cost(), Profile.cheapest_tower_cost() / 2)
+func test_island_move_costs_60_empty_and_180_with_a_tower() -> void:
+	assert_eq(Profile.island_move_cost(), 60)
+	assert_eq(Profile.island_loaded_move_cost(), 180)
 
 
 func test_save_and_load_bought_islands() -> void:
@@ -260,7 +261,8 @@ func test_island_with_tower_moves_with_it_and_costs_both_fees() -> void:
 	battle.economy.reset(1000)
 	var tower: Tower = battle.build_tower(pad, load("res://data/towers/machine_gun.tres"))
 	assert_not_null(tower)
-	assert_eq(deployer.move_cost(0), Profile.island_move_cost() + Profile.tower_move_cost(), "đảo có lô cốt: phí đảo + phí lô cốt")
+	assert_eq(deployer.move_cost(0), 180, "đảo có lô cốt: 180")
+	assert_eq(deployer.move_cost(0), Profile.island_loaded_move_cost())
 	var before: int = battle.economy.steel
 	var now: Vector2 = battle.camera.unproject_position(battle.layout.satellite_centers[0])
 	assert_true(deployer.begin_drag(now), "đảo đã có lô cốt vẫn kéo được")

@@ -60,14 +60,16 @@ func test_island_use_cost_rises_by_fifty() -> void:
 	assert_eq(rules.island_use_total(4), 200 + 250 + 300 + 350)
 
 
-func test_island_move_cost_is_half_cheapest_tower() -> void:
+func test_island_move_costs_are_one_and_three_times_cheapest_tower() -> void:
 	var rules: EconomyData = load("res://data/economy.tres")
 	var cheapest: int = 9999
 	for path: String in ["machine_gun", "glue_sprayer", "light_beam"]:
 		var data: TowerData = load("res://data/towers/%s.tres" % path)
 		cheapest = mini(cheapest, data.level(1).steel_cost)
 	assert_eq(cheapest, 60)
-	assert_eq(rules.island_move_cost(cheapest), 30)
+	assert_eq(rules.island_move_cost(cheapest), 60, "kéo đảo chưa có lô cốt: 60")
+	assert_eq(rules.island_loaded_move_cost(cheapest), 180, "kéo đảo đã có lô cốt: 180")
+	assert_eq(rules.tower_move_cost(cheapest), 60, "dời một lô cốt: 60")
 	assert_eq(rules.island_move_cost(1), 1, "tối thiểu 1")
 
 

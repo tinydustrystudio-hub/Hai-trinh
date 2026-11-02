@@ -134,7 +134,7 @@ DIFFICULTY_HARD,Khó,Hard
 DEBUG_DIFFICULTY,Độ khó: %s,Difficulty: %s
 BASE_ISLAND_COUNT,Đảo đã mua: %d/%d,Islands bought: %d/%d
 BASE_ISLAND_FEE,Phí dùng mỗi trận: %d,Use fee per battle: %d
-BASE_ISLAND_MOVE,Phí kéo một đảo ra trong trận: %d,Cost to deploy an island in battle: %d
+BASE_ISLAND_MOVE,"Phí kéo đảo trong trận: %d (đảo đã có lô cốt: %d)","Island tow cost in battle: %d (island with a tower: %d)"
 BASE_ISLAND_BUY,Mua đảo %d,Buy island %d
 BASE_ISLAND_BUY_MAX,Đã mua đủ đảo,All islands bought
 BASE_ISLAND_STORE,Cất đảo,Store island
@@ -151,5 +151,5 @@ DEBUG_LIGHT,Ánh sáng: %s,Lighting: %s
 LIGHT_DAY,Ban ngày,Day
 LIGHT_DAWN,Bình minh,Dawn
 LIGHT_DUSK,Hoàng hôn,Dusk
-ISLAND_CONFIRM,"Kéo đảo tới đây tốn %d vàng (gồm phí dời lô cốt nếu đảo có lô cốt).","Towing the island here costs %d gold (includes the tower move fee if it carries a tower)."
+ISLAND_CONFIRM,"Kéo đảo tới đây tốn %d vàng.","Towing the island here costs %d gold."
 ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra biển, đảo được lai dắt tới (%d vàng).","Drag an orange-ringed island out to sea; it is towed there (%d gold)."

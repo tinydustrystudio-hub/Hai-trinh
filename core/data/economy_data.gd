@@ -20,7 +20,9 @@ extends Resource
 @export var island_buy_base: int = 250
 @export var island_buy_step: int = 50
 ## Phí dời một đảo đã đặt = giá xây lô cốt rẻ nhất nhân hệ số này (làm tròn xuống, tối thiểu 1).
-@export_range(0.0, 1.0) var island_move_ratio: float = 0.5
+@export_range(0.0, 4.0) var island_move_ratio: float = 1.0
+## Phí kéo một đảo đang mang lô cốt (lô cốt đi theo đảo) = giá lô cốt rẻ nhất nhân hệ số này, một khoản gộp (60 → 180).
+@export_range(0.0, 8.0) var island_loaded_move_ratio: float = 3.0
 ## Phí dời một lô cốt sang bệ khác = giá xây lô cốt rẻ nhất nhân hệ số này (làm tròn xuống, tối thiểu 1). Lô cốt giữ nguyên cấp,
 ## nhánh và thanh Quá tải khi dời.
 @export_range(0.0, 2.0) var tower_move_ratio: float = 1.0
@@ -50,6 +52,11 @@ func island_use_total(n: int) -> int:
 ## Phí dời đảo, theo giá xây lô cốt rẻ nhất (cấp 1) trong danh sách.
 func island_move_cost(cheapest_tower_cost: int) -> int:
 	return maxi(floori(float(cheapest_tower_cost) * island_move_ratio), 1)
+
+
+## Phí kéo đảo đang mang lô cốt, theo giá xây lô cốt rẻ nhất (cấp 1).
+func island_loaded_move_cost(cheapest_tower_cost: int) -> int:
+	return maxi(floori(float(cheapest_tower_cost) * island_loaded_move_ratio), 1)
 
 
 ## Phí dời lô cốt, theo giá xây lô cốt rẻ nhất (cấp 1).
