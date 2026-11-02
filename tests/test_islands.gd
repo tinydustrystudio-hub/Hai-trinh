@@ -72,7 +72,7 @@ func test_cannot_buy_without_gold_or_beyond_max() -> void:
 	Profile.set_gold(100)
 	assert_false(Profile.buy_island())
 	Profile.set_gold(100000)
-	for i: int in 10:
+	for i: int in 15:
 		Profile.buy_island()
 	assert_eq(Profile.bought_islands, Profile.max_bought_islands())
 	assert_eq(Profile.island_total(), LAYOUT.free_satellites() + LAYOUT.extra_satellites(Profile.difficulty))
@@ -495,3 +495,21 @@ func test_main_island_always_has_six_pads_in_every_map() -> void:
 	assert_gt(checked, 0)
 	var battle_layout: MapLayout = Profile.battle_layout(LAYOUT)
 	assert_eq(battle_layout.pier_pad_count(), 6)
+
+
+func test_purchase_cap_is_twelve_at_every_difficulty_but_battle_placement_follows_difficulty() -> void:
+	Profile.set_gold(10000000)
+	for level: int in 3:
+		Profile.reset_to_new()
+		Profile.set_gold(10000000)
+		Profile.difficulty = level
+		var bought: int = 0
+		while Profile.buy_island():
+			bought += 1
+		assert_eq(bought, 12, "mua được tối đa 12 đảo ở mọi độ khó")
+		assert_eq(Profile.max_bought_islands(), 12)
+	var placeable: Array[int] = []
+	for level: int in 3:
+		Profile.difficulty = level
+		placeable.append(Profile.battle_layout(LAYOUT).satellite_centers.size())
+	assert_eq(placeable, [12, 10, 8] as Array[int], "màn dễ đặt nhiều đảo, màn khó đặt ít hơn")

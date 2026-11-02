@@ -59,3 +59,5 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 - **Đảo phụ:** chỉ có khi đã mua ở trang chính (tối đa 12, `satellite_max_count`), không có sẵn khi vào màn; đã mua thì đậu cạnh đảo chính (`satellite_docks`, 12 chỗ), vào màn kéo tới chỗ mong muốn. Đã xây lô cốt vẫn kéo được, lô cốt đi theo đảo; phí kéo một đảo = phí kéo đảo + phí dời lô cốt nếu đảo đang có lô cốt. Hết vàng thì không nhấc được.
 - **Nhà giàn:** cố định, số lượng, vị trí và chủng loại theo từng màn (Bến Bắc: 4 giàn khoan dầu khí cũ).
 - Màn Căn cứ chỉ hiện hình 3D của đảo chính và các đảo phụ đã mua, không hiện nhà giàn. Vào màn không có đảo phụ cấp sẵn: chỉ có đảo phụ đã mua và nhà giàn. Giới hạn tổng nhà giàn + đảo phụ theo độ khó: Bến Bắc 16 / 14 / 12.
+
+**Sửa cách hiểu số đảo (2/11):** mua đảo phụ vẫn tối đa 12 ở mọi độ khó (`Profile.max_bought_islands`). Độ khó chỉ quyết định số đảo **đặt được vào màn**: màn dễ đặt nhiều, màn khó đặt ít (Bến Bắc: 12 / 10 / 8, từ giới hạn tổng nhà giàn + đảo 16 / 14 / 12). Đảo đã mua mà không đặt được ở mức đó vẫn giữ nguyên, chỉ không xuất hiện trong màn.

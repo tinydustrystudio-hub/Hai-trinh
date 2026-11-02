@@ -134,14 +134,15 @@ func free_island_count() -> int:
 	return map().free_satellites()
 
 
-## Số đảo mua thêm tối đa ở màn này, ở độ khó đang chơi.
+## Số đảo phụ mua được tối đa (mua có mãi, không phụ thuộc độ khó): 12 ở màn Bến Bắc.
 func max_bought_islands() -> int:
-	return map().extra_satellites(difficulty)
+	return maxi(map().satellite_max_count - map().free_satellites(), 0)
 
 
-## Số đảo mua thêm dùng được trong trận: không quá giới hạn của độ khó (đổi sang mức khó hơn thì bớt đảo).
+## Số đảo mua thêm đặt được trong màn ở độ khó đang chơi: màn dễ cho đặt nhiều đảo, màn khó đặt ít hơn
+## (giới hạn tổng nhà giàn + đảo phụ, MapLayout.outpost_limits). Đảo mua nhiều hơn mức này vẫn giữ nguyên, chỉ không đặt vào màn.
 func usable_bought_islands() -> int:
-	return mini(bought_islands, max_bought_islands())
+	return mini(bought_islands, map().extra_satellites(difficulty))
 
 
 ## Tổng số đảo vệ tinh dùng được: đảo cấp sẵn và đảo đã mua.
