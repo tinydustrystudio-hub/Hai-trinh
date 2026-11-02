@@ -108,14 +108,14 @@ HINT_ENEMY,Địch tới từ hướng đèn đỏ đang nhấp nháy trên đ�
 HINT_MEGA,Lô cốt đang nhấp nháy vàng đã đầy Quá tải: chạm thẳng vào nó để kích MEGA!,A tower flashing gold is fully charged: tap it to unleash MEGA!
 HINT_SKIP,Bỏ qua,Skip
 RESULT_GOLD,+%d Tiền Vàng vào ví,+%d Gold added to wallet
-BUILDING_WAVE_SHIELD,Tường Chắn Sóng,Wave Wall
-BUILDING_WAVE_SHIELD_DESC,"Tường bao cả đảo, càng lên cấp càng cao.","A wall around the whole island, taller at every level."
+BUILDING_WAVE_SHIELD,"Tường Chắn Sóng","Wave Wall"
+BUILDING_WAVE_SHIELD_DESC,"Tường bao cả đảo. Nâng cấp để tăng Độ Nổi tối đa.","A wall around the whole island. Upgrade for more maximum buoyancy."
 BUILDING_REPAIR_WORKS,Xưởng Sửa Chữa,Repair Works
-BUILDING_REPAIR_WORKS_DESC,Sửa chữa và chuẩn bị vật liệu cho đảo.,Repairs and supplies for the island.
+BUILDING_REPAIR_WORKS_DESC,"Sửa chữa lô cốt. Nâng cấp để tăng máu lô cốt.","Repairs towers. Upgrade for more tower health."
 BUILDING_TIDAL_POWER,Trạm Năng Lượng,Tidal Power
-BUILDING_TIDAL_POWER_DESC,Tua-bin dòng triều cấp điện cho đảo.,Tidal turbines powering the island.
+BUILDING_TIDAL_POWER_DESC,"Cấp điện cho lô cốt. Nâng cấp để kéo dài thời gian MEGA.","Powers the towers. Upgrade for longer MEGA time."
 BUILDING_SHIPYARD,Xưởng Tàu,Shipyard
-BUILDING_SHIPYARD_DESC,Ụ nổi đóng và bảo trì tàu.,A floating dock for building and servicing ships.
+BUILDING_SHIPYARD_DESC,"Sản xuất tàu chiến.","Builds warships."
 TITLE_BASE,Căn cứ,Base
 BASE_TITLE,Căn cứ,Base
 BASE_GO,Chuẩn bị trận,Prepare battle
@@ -153,3 +153,14 @@ LIGHT_DAWN,Bình minh,Dawn
 LIGHT_DUSK,Hoàng hôn,Dusk
 ISLAND_CONFIRM,"Kéo đảo tới đây tốn %d vàng.","Towing the island here costs %d gold."
 ISLAND_DEPLOY_HINT,"Kéo đảo viền cam ra biển, đảo được lai dắt tới (%d vàng).","Drag an orange-ringed island out to sea; it is towed there (%d gold)."
+BUILDING_RADAR_STATION,"Trạm Ra-đa","Radar Station"
+BUILDING_RADAR_STATION_DESC,"Thấy địch tàng hình, chỉ hướng địch và nhìn ra xa.","Reveals stealth enemies, shows enemy direction and sees far."
+BUILDING_AIRFIELD,"Xưởng Máy Bay","Airfield"
+BUILDING_AIRFIELD_DESC,"Sản xuất máy bay.","Builds aircraft."
+BUILDING_EFFECT_WAVE_SHIELD,"Độ Nổi tối đa +%s%%","Max buoyancy +%s%%"
+BUILDING_EFFECT_REPAIR_WORKS,"Máu lô cốt +%s%%","Tower health +%s%%"
+BUILDING_EFFECT_TIDAL_POWER,"Thời gian MEGA +%s%%","MEGA time +%s%%"
+BUILDING_EFFECT_RADAR_STATION,"Tầm ra-đa +%s%%","Radar range +%s%%"
+BUILDING_EFFECT_SHIPYARD,"Tàu chiến: +%s","Warships: +%s"
+BUILDING_EFFECT_AIRFIELD,"Máy bay: +%s","Aircraft: +%s"
+BUILDING_NOT_ACTIVE,"(chưa có tác dụng)","(not active yet)"

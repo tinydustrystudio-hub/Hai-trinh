@@ -14,6 +14,8 @@ const BUILDING_PATHS: Array[String] = [
 	"res://data/buildings/repair_works.tres",
 	"res://data/buildings/tidal_power.tres",
 	"res://data/buildings/shipyard.tres",
+	"res://data/buildings/radar_station.tres",
+	"res://data/buildings/airfield.tres",
 ]
 const MAP_PATH: String = "res://data/maps/north_dock_layout.tres"
 const TOWER_PATHS: Array[String] = [
@@ -62,6 +64,22 @@ func building(id: StringName) -> BuildingData:
 
 func level_of(id: StringName) -> int:
 	return clampi(building_levels.get(id, 1), 1, BuildingData.MAX_LEVEL)
+
+
+## Giá trị hiệu ứng hiện tại của công trình id (theo cấp đang có), 0 nếu không có công trình.
+func building_effect(id: StringName) -> float:
+	var data: BuildingData = building(id)
+	return data.effect_at(level_of(id)) if data != null else 0.0
+
+
+## Hệ số Độ Nổi tối đa của đảo từ Tường Chắn Sóng (1 ở cấp 1).
+func buoyancy_scale() -> float:
+	return 1.0 + building_effect(&"wave_shield") * 0.01
+
+
+## Hệ số thời gian MEGA từ Trạm Năng Lượng (1 ở cấp 1).
+func mega_duration_scale() -> float:
+	return 1.0 + building_effect(&"tidal_power") * 0.01
 
 
 func is_max_level(id: StringName) -> bool:

@@ -63,3 +63,14 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 **Sửa cách hiểu số đảo (2/11):** mua đảo phụ vẫn tối đa 12 ở mọi độ khó (`Profile.max_bought_islands`). Độ khó chỉ quyết định số đảo **đặt được vào màn**: màn dễ đặt nhiều, màn khó đặt ít (Bến Bắc: 12 / 10 / 8, từ giới hạn tổng nhà giàn + đảo 16 / 14 / 12). Đảo đã mua mà không đặt được ở mức đó vẫn giữ nguyên, chỉ không xuất hiện trong màn.
 
 **Giá kéo (2/11, chốt):** kéo đảo chưa có lô cốt 60 vàng, kéo đảo đã có lô cốt 180 vàng (một khoản gộp, lô cốt đi theo đảo), dời một lô cốt sang bệ khác 60 vàng. Cả ba theo giá lô cốt rẻ nhất (60) nhân hệ số 1 / 3 / 1 trong `data/economy.tres` (`island_move_ratio`, `island_loaded_move_ratio`, `tower_move_ratio`).
+
+**Cấu trúc căn cứ (2/11):** đảo chính có sáu công trình, mỗi công trình một hiệu ứng tăng theo cấp (`BuildingData.effect_at`, số trong `data/buildings/*.tres`; cấp 1 giữ nguyên cân bằng hiện tại):
+| Công trình | Hiệu ứng mỗi cấp | Trạng thái |
+| --- | --- | --- |
+| Tường Chắn Sóng | Độ Nổi tối đa +10% | Đã nối vào trận (`Profile.buoyancy_scale`) |
+| Xưởng Sửa Chữa | Máu lô cốt +10% | Chỉ là dữ liệu: lô cốt chưa có máu |
+| Trạm Năng Lượng | Thời gian MEGA +10% | Đã nối vào trận (`Overload.duration_scale`) |
+| Trạm Ra-đa | Tầm ra-đa +25% | Chỉ là dữ liệu: chưa có địch tàng hình; mô hình 3D chưa làm |
+| Xưởng Tàu | Số tàu chiến +1 | Chỉ là dữ liệu: chưa có tàu chiến |
+| Xưởng Máy Bay | Số máy bay +1 | Chỉ là dữ liệu: chưa có máy bay; mô hình 3D chưa làm |
+Màn Căn cứ hiện đủ sáu dòng (cuộn dọc), mỗi dòng có dòng hiệu ứng ở cấp hiện tại; hiệu ứng chưa nối vào trận ghi rõ "(chưa có tác dụng)".

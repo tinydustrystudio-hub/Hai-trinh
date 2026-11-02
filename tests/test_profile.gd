@@ -17,7 +17,7 @@ func test_new_player_starts_at_level_one() -> void:
 	assert_eq(Profile.gold, Profile.NEW_PLAYER_GOLD)
 	for data: BuildingData in Profile.buildings():
 		assert_eq(Profile.level_of(data.id), 1)
-	assert_eq(Profile.buildings().size(), 4)
+	assert_eq(Profile.buildings().size(), 6)
 
 
 func test_upgrade_spends_gold_and_raises_level() -> void:

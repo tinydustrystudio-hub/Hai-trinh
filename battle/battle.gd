@@ -215,7 +215,7 @@ func start_battle() -> void:
 	close_build_ring()
 	close_branch_cards()
 	hud.mega_tray.clear()
-	buoyancy.reset(layout.starting_buoyancy)
+	buoyancy.reset(roundi(float(layout.starting_buoyancy) * Profile.buoyancy_scale()))
 	economy.reset(layout.starting_steel)
 	state = State.PREPARING
 	_enemies_met.clear()
