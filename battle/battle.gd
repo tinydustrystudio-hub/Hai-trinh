@@ -9,6 +9,9 @@ enum State { PREPARING, FIGHTING, RESTING, WON, LOST }
 const LANE_SCRIPT: GDScript = preload("res://battle/map/lane.gd")
 ## Chạm cách tâm bệ trong khoảng này (tính theo bán kính bệ) vẫn tính là chạm trúng bệ.
 const PAD_PICK_TOLERANCE: float = 1.4
+## Khi kéo lô cốt: bệ trống gần ngón tay nhất trong bán kính này (đơn vị Godot, ~90 px ở mức thu phóng mặc định) hút lô cốt; bắt lô cốt để kéo trong bán kính nhỏ hơn.
+const MOVE_SNAP_UNITS: float = 7.0
+const MOVE_GRAB_UNITS: float = 3.4
 const FAST_SPEED: float = 2.0
 ## Trận chậm còn chừng này trong lúc chọn nhánh cấp 5 (GDD mục 7.10).
 const BRANCH_CHOICE_SPEED: float = 0.3
@@ -128,6 +131,7 @@ func _ready() -> void:
 	touch_input.pinch_started.connect(close_build_ring)
 	touch_input.drag_started.connect(close_build_ring.unbind(1))
 	touch_input.zoomed.connect(camera.zoom_by)
+	touch_input.tilted.connect(_on_tilted)
 	touch_input.zoomed.connect(close_build_ring.unbind(2))
 	economy.changed.connect(_on_steel_changed)
 	hud.build_ring.tower_chosen.connect(_on_tower_chosen)
@@ -308,11 +312,12 @@ func move_tower(tower: Tower, pad: TowerPad) -> bool:
 
 
 ## Bệ trúng điểm chạm: chiếu tia lên mặt phẳng ngang của từng bệ (bệ trên sàn nhà giàn cao hơn bệ trên mặt nước).
-func pad_at(screen_position: Vector2) -> TowerPad:
+## radius: bán kính tìm (đơn vị Godot; mặc định vừa một bệ); only_free: chỉ xét bệ trống chọn được.
+func pad_at(screen_position: Vector2, radius: float = TowerPad.RADIUS * PAD_PICK_TOLERANCE, only_free: bool = false) -> TowerPad:
 	var best: TowerPad = null
-	var best_distance: float = TowerPad.RADIUS * PAD_PICK_TOLERANCE
+	var best_distance: float = radius
 	for pad: TowerPad in island.pads:
-		if pad.locked:
+		if pad.locked or (only_free and not pad.is_selectable()):
 			continue
 		var center: Vector3 = pad.global_position
 		var point: Vector3 = camera.ground_point(screen_position, center.y + TowerPad.TOP_HEIGHT)
@@ -328,7 +333,7 @@ func pad_at(screen_position: Vector2) -> TowerPad:
 func begin_tower_drag(screen_position: Vector2) -> bool:
 	if is_over() or moving_tower != null:
 		return false
-	var pad: TowerPad = pad_at(screen_position)
+	var pad: TowerPad = pad_at(screen_position, MOVE_GRAB_UNITS)
 	var tower: Tower = tower_on(pad) if pad != null else null
 	if tower == null or pad.locked:
 		return false
@@ -351,8 +356,9 @@ func drag_tower_to(screen_position: Vector2) -> void:
 	if not tower_dragging or moving_tower == null:
 		return
 	var point: Vector3 = camera.ground_point(screen_position, TowerPad.TOP_HEIGHT)
-	var hover: TowerPad = pad_at(screen_position)
-	if hover != null and (not hover.is_selectable() or hover == moving_tower.pad):
+	# Bệ trống gần ngón tay nhất trong MOVE_SNAP_UNITS hút lô cốt (bệ nhỏ, ngón tay che mất nên cần vùng hút rộng).
+	var hover: TowerPad = pad_at(screen_position, MOVE_SNAP_UNITS, true)
+	if hover == moving_tower.pad:
 		hover = null
 	if hover != move_target:
 		if move_target != null:
@@ -832,7 +838,14 @@ func _on_steel_changed(value: int) -> void:
 	Events.steel_changed.emit(value)
 
 
-## Chạm kéo trúng đảo mua thêm thì kéo đảo; không thì kéo camera.
+## Hai ngón vuốt dọc: nghiêng camera; vệt sáng của nước đi theo hướng nhìn mới.
+func _on_tilted(delta_pixels: float) -> void:
+	close_build_ring()
+	camera.tilt_by(delta_pixels)
+	ocean.configure(sun.light_color, layout.fortress_center, layout.fortress_radius, -camera.basis.z)
+
+
+## Chạm kéo trúng lô cốt thì kéo lô cốt, trúng đảo mua thêm thì kéo đảo; không thì kéo camera.
 func _on_drag_started(screen_position: Vector2) -> void:
 	if begin_tower_drag(screen_position):
 		return

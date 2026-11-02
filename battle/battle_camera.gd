@@ -1,6 +1,6 @@
 class_name BattleCamera
 extends Camera3D
-## Camera trận: nghiêng cố định (55° theo GDD), không xoay. Kéo một ngón để trượt trong giới hạn
+## Camera trận: mặc định nghiêng 55° (GDD), không xoay; hai ngón vuốt dọc để nghiêng trong khoảng 15°–80° (MapLayout). Kéo một ngón để trượt trong giới hạn
 ## của MapLayout; điểm nước dưới ngón tay luôn bám theo ngón tay. Thả tay thì trượt tiếp có quán tính nhẹ.
 ## Chụm hai ngón (hoặc lăn chuột) để thu phóng giữa "thấy toàn bộ chiến trường" và "đảo chính gần đầy
 ## màn hình"; điểm nước dưới tâm cử chỉ đứng yên. Phóng càng to thì vùng được trượt càng rộng.
@@ -31,6 +31,11 @@ var distance: float = 60.0
 var max_distance: float = 60.0
 var min_distance: float = 60.0
 var pitch_degrees: float = 55.0
+## Giới hạn nghiêng (độ) và độ nghiêng mỗi pixel vuốt dọc hai ngón.
+var min_pitch_degrees: float = 15.0
+var max_pitch_degrees: float = 80.0
+
+const TILT_DEGREES_PER_PIXEL: float = 0.12
 var velocity: Vector2 = Vector2.ZERO
 
 var _dragging: bool = false
@@ -50,7 +55,9 @@ func configure(layout: MapLayout) -> void:
 	max_distance = layout.camera_distance
 	min_distance = minf(layout.camera_min_distance, layout.camera_distance)
 	distance = layout.start_distance()
-	pitch_degrees = layout.camera_pitch_degrees
+	min_pitch_degrees = layout.camera_min_pitch_degrees
+	max_pitch_degrees = maxf(layout.camera_max_pitch_degrees, min_pitch_degrees)
+	pitch_degrees = clampf(layout.camera_pitch_degrees, min_pitch_degrees, max_pitch_degrees)
 	fit_aspect()
 	velocity = Vector2.ZERO
 	_update_bounds()
@@ -83,6 +90,17 @@ func set_focus(value: Vector2) -> void:
 	var pitch: float = deg_to_rad(pitch_degrees)
 	rotation = Vector3(-pitch, 0.0, 0.0)
 	position = Vector3(focus.x, 0.0, focus.y) + Vector3(0.0, sin(pitch), cos(pitch)) * distance
+
+
+## Nghiêng camera thêm delta_pixels pixel vuốt dọc (dương: nhìn từ trên xuống hơn); xoay quanh điểm nhìn nên điểm giữa màn hình đứng yên.
+func tilt_by(delta_pixels: float) -> void:
+	set_pitch(pitch_degrees + delta_pixels * TILT_DEGREES_PER_PIXEL)
+
+
+## Đặt góc nghiêng (độ), kẹp trong [min_pitch_degrees, max_pitch_degrees].
+func set_pitch(degrees: float) -> void:
+	pitch_degrees = clampf(degrees, min_pitch_degrees, max_pitch_degrees)
+	set_focus(focus)
 
 
 ## Mức phóng: 0 = thu nhỏ hết cỡ, 1 = phóng to hết cỡ.

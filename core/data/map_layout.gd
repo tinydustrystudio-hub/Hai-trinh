@@ -92,6 +92,9 @@ const LANE_GAP: float = 0.5
 @export var camera_min_distance: float = 30.0
 ## Góc nghiêng của camera so với mặt nước, độ.
 @export var camera_pitch_degrees: float = 55.0
+## Giới hạn nghiêng camera khi người chơi nghiêng bằng hai ngón (từ gần ngang tới gần nhìn thẳng xuống), độ.
+@export_range(5.0, 89.0) var camera_min_pitch_degrees: float = 15.0
+@export_range(5.0, 89.0) var camera_max_pitch_degrees: float = 80.0
 
 
 ## Khoảng cách camera lúc vào trận, kẹp trong giới hạn thu phóng.

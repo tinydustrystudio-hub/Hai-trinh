@@ -3,7 +3,8 @@ extends Node
 ## Đọc chạm (chuột trên máy tính được giả lập thành chạm) và phân biệt ba cử chỉ:
 ## - chạm: một ngón, đi chưa quá DRAG_THRESHOLD (px ở độ phân giải gốc) rồi nhấc;
 ## - kéo: một ngón đi quá DRAG_THRESHOLD;
-## - chụm: hai ngón; phát zoomed theo tỉ lệ khoảng cách hai ngón. Lăn chuột cũng phát zoomed.
+## - chụm: hai ngón; phát zoomed theo tỉ lệ khoảng cách hai ngón và tilted theo chuyển động dọc của tâm hai ngón.
+## Lăn chuột phát zoomed (Shift + lăn chuột phát tilted).
 ## Đã chụm thì tới khi nhấc hết ngón không tính là chạm hay kéo nữa.
 ## Chỉ nhận chạm chưa bị giao diện dùng (_unhandled_input).
 
@@ -15,10 +16,14 @@ signal pinch_started
 signal pinch_ended
 ## factor > 1 là phóng to; screen_position là tâm cử chỉ.
 signal zoomed(factor: float, screen_position: Vector2)
+## Hai ngón cùng vuốt dọc: delta_pixels > 0 là vuốt lên (nghiêng camera nhìn từ trên xuống hơn), < 0 là vuốt xuống.
+signal tilted(delta_pixels: float)
 
 const DRAG_THRESHOLD: float = 12.0
 ## Mỗi nấc lăn chuột phóng hoặc thu theo hệ số này.
 const WHEEL_STEP: float = 1.15
+## Shift + lăn chuột nghiêng camera mỗi nấc chừng này pixel (cho máy tính).
+const WHEEL_TILT_PIXELS: float = 40.0
 
 ## Vị trí hiện tại của từng ngón đang chạm, theo chỉ số ngón.
 var _fingers: Dictionary[int, Vector2] = {}
@@ -45,10 +50,16 @@ func handle_event(event: InputEvent) -> bool:
 		if not button.pressed:
 			return false
 		if button.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoomed.emit(WHEEL_STEP, button.position)
+			if button.shift_pressed:
+				tilted.emit(WHEEL_TILT_PIXELS)
+			else:
+				zoomed.emit(WHEEL_STEP, button.position)
 			return true
 		if button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoomed.emit(1.0 / WHEEL_STEP, button.position)
+			if button.shift_pressed:
+				tilted.emit(-WHEEL_TILT_PIXELS)
+			else:
+				zoomed.emit(1.0 / WHEEL_STEP, button.position)
 			return true
 		return false
 	if event is InputEventMagnifyGesture:
@@ -104,6 +115,10 @@ func _on_drag(drag: InputEventScreenDrag) -> bool:
 		var after: float = _pinch_span()
 		if before > 0.0 and after > 0.0:
 			zoomed.emit(after / before, center_before.lerp(_pinch_center(), 0.5))
+		# Tâm hai ngón đi lên/xuống thì nghiêng camera (vuốt lên: tâm có y giảm).
+		var lift: float = center_before.y - _pinch_center().y
+		if not is_zero_approx(lift):
+			tilted.emit(lift)
 		return true
 	_fingers[drag.index] = drag.position
 	if _blocked:

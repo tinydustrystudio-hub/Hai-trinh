@@ -118,3 +118,51 @@ func test_canceled_touch_is_not_a_tap() -> void:
 	release.canceled = true
 	_input.handle_event(release)
 	assert_signal_not_emitted(_input, "tapped")
+
+
+func test_two_fingers_moving_up_tilt_the_camera() -> void:
+	_input.handle_event(_touch(0, Vector2(900, 600), true))
+	_input.handle_event(_touch(1, Vector2(1000, 600), true))
+	# Cả hai ngón cùng vuốt lên 40 px: khoảng cách giữ nguyên nên không thu phóng, tâm đi lên nên nghiêng.
+	_input.handle_event(_drag(0, Vector2(900, 580)))
+	_input.handle_event(_drag(1, Vector2(1000, 580)))
+	_input.handle_event(_drag(0, Vector2(900, 560)))
+	_input.handle_event(_drag(1, Vector2(1000, 560)))
+	assert_signal_emitted(_input, "tilted")
+	var total: float = _tilt_total()
+	assert_almost_eq(total, 40.0, 0.01, "tổng vuốt lên 40 px")
+
+
+func test_two_fingers_moving_down_tilt_the_other_way() -> void:
+	_input.handle_event(_touch(0, Vector2(900, 500), true))
+	_input.handle_event(_touch(1, Vector2(1000, 500), true))
+	_input.handle_event(_drag(0, Vector2(900, 530)))
+	_input.handle_event(_drag(1, Vector2(1000, 530)))
+	var total: float = _tilt_total()
+	assert_lt(total, 0.0)
+
+
+func test_one_finger_never_tilts() -> void:
+	_input.handle_event(_touch(0, Vector2(900, 500), true))
+	_input.handle_event(_drag(0, Vector2(900, 400)))
+	assert_signal_not_emitted(_input, "tilted")
+
+
+func test_shift_wheel_tilts_and_plain_wheel_zooms() -> void:
+	var wheel: InputEventMouseButton = InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+	wheel.pressed = true
+	wheel.shift_pressed = true
+	_input.handle_event(wheel)
+	assert_signal_emitted_with_parameters(_input, "tilted", [TouchInput.WHEEL_TILT_PIXELS])
+	assert_signal_not_emitted(_input, "zoomed")
+	wheel.shift_pressed = false
+	_input.handle_event(wheel)
+	assert_signal_emitted(_input, "zoomed")
+
+
+func _tilt_total() -> float:
+	var total: float = 0.0
+	for i: int in get_signal_emit_count(_input, "tilted"):
+		total += get_signal_parameters(_input, "tilted", i)[0]
+	return total

@@ -64,6 +64,9 @@ Nguyên tắc: mọi thứ dựng bằng code hoặc dữ liệu (không cần G
 
 **Giá kéo (2/11, chốt):** kéo đảo chưa có lô cốt 60 vàng, kéo đảo đã có lô cốt 180 vàng (một khoản gộp, lô cốt đi theo đảo), dời một lô cốt sang bệ khác 60 vàng. Cả ba theo giá lô cốt rẻ nhất (60) nhân hệ số 1 / 3 / 1 trong `data/economy.tres` (`island_move_ratio`, `island_loaded_move_ratio`, `tower_move_ratio`).
 
+**Nghiêng camera trong màn (2/11):** hai ngón cùng vuốt dọc để nghiêng camera trong khoảng 15° đến 80° (`MapLayout.camera_min_pitch_degrees` / `camera_max_pitch_degrees`; mặc định vào màn vẫn 55°). Vuốt lên: nhìn từ trên xuống hơn; vuốt xuống: nhìn ngang hơn. Điểm giữa màn hình đứng yên khi nghiêng; chụm hai ngón vẫn thu phóng. Trên máy tính: Shift + lăn chuột. Ở 15° thấy chân trời và mép biển (chưa làm mờ mép nước).
+
+**Sửa dời lô cốt (2/11):** bệ trống gần ngón tay nhất trong 7 đơn vị hút lô cốt đang kéo (trước đây phải trúng đúng bệ, ngón tay che mất nên khó), bắt lô cốt trong bán kính 3,4 đơn vị. Có test chạy đúng chuỗi sự kiện chạm.
 **Cấu trúc căn cứ (2/11):** đảo chính có sáu công trình, mỗi công trình một hiệu ứng tăng theo cấp (`BuildingData.effect_at`, số trong `data/buildings/*.tres`; cấp 1 giữ nguyên cân bằng hiện tại):
 | Công trình | Hiệu ứng mỗi cấp | Trạng thái |
 | --- | --- | --- |
